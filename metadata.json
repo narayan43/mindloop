@@ -1,0 +1,6 @@
+{
+  "name": "MindLoop",
+  "description": "Personal exam-prep app for competitive exams featuring handwritten notes, spaced repetition review, and analytics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,43 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:pivotX="54"
+        android:pivotY="54">
+        <!-- Open book / notebook shape in soft off-white -->
+        <path
+            android:fillColor="#FAFAF8"
+            android:pathData="M30,36 C30,34 32,32 35,32 L51,32 C53,32 54,34 54,36 L54,72 C54,70 52,68 50,68 L34,68 C32,68 30,70 30,72 Z" />
+        <path
+            android:fillColor="#EBECE7"
+            android:pathData="M54,36 C54,34 55,32 57,32 L73,32 C76,32 78,34 78,36 L78,72 C78,70 76,68 74,68 L58,68 C56,68 54,70 54,72 Z" />
+        <!-- Notebook horizontal note lines -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#2C3E66"
+            android:strokeWidth="1.8"
+            android:strokeLineCap="round"
+            android:pathData="M35,42 L48,42 M35,48 L48,48 M35,54 L44,54" />
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#7FA98F"
+            android:strokeWidth="1.8"
+            android:strokeLineCap="round"
+            android:pathData="M60,42 L73,42 M60,48 L73,48 M60,54 L69,54" />
+        <!-- Interlocking Spaced-Repetition Infinity Loop in Sage Green and Amber -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#7FA98F"
+            android:strokeWidth="3.2"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M43,62 C37,62 33,66 33,71 C33,76 37,80 43,80 C50,80 54,73 54,71 C54,73 58,80 65,80 C71,80 75,76 75,71 C75,66 71,62 65,62 C58,62 54,69 54,71 C54,69 50,62 43,62 Z" />
+        <!-- Small highlight dot on loop -->
+        <path
+            android:fillColor="#E0A458"
+            android:pathData="M54,71m-2.2,0a2.2,2.2 0,1,1 4.4,0a2.2,2.2 0,1,1 -4.4,0" />
+    </group>
+</vector>
+

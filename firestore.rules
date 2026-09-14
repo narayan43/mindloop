@@ -1,0 +1,75 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if the caller is an administrator
+    function isAdmin() {
+      return request.auth != null && (
+        request.auth.uid == "55MLOM6GokZ3l2Hvp6Cm1tbmSjH3" ||
+        request.auth.token.role == "admin" ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin")
+      );
+    }
+
+    // Helper function to check if caller is the data owner
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // User private profiles and student-scoped subcollections:
+    // Regular students can only read/write their own users/{userId}/... path.
+    // Admins can read/write across user profiles for oversight and management.
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow write: if isOwner(userId) || isAdmin();
+
+      match /{subcollection=**} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow write: if isOwner(userId) || isAdmin();
+      }
+    }
+
+    // Shared curriculum and question banks:
+    // All authenticated students can read shared questions and notes for studying.
+    // Only role == 'admin' or PRIMARY_ADMIN_UID can write/update/delete.
+    match /questions/{questionId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    match /notes/{noteId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    match /exams/{examId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    match /subjects/{subjectId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    match /public_questions/{questionId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    // Root analytics and attempts logging
+    match /question_attempts/{attemptId} {
+      allow read: if isAdmin() || (request.auth != null && resource.data.userId == request.auth.uid);
+      allow create: if request.auth != null;
+      allow update, delete: if isAdmin() || (request.auth != null && resource.data.userId == request.auth.uid);
+    }
+
+    match /study_sessions/{sessionId} {
+      allow read: if isAdmin() || (request.auth != null && resource.data.userId == request.auth.uid);
+      allow create: if request.auth != null;
+      allow update, delete: if isAdmin() || (request.auth != null && resource.data.userId == request.auth.uid);
+    }
+  }
+}
+

@@ -1,0 +1,29 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "notes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "subject_name", "order": "ASCENDING" },
+        { "fieldPath": "chapter_name", "order": "ASCENDING" },
+        { "fieldPath": "created_at", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "questions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "is_due", "order": "ASCENDING" },
+        { "fieldPath": "next_review_due", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "question_attempts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "shown_at", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

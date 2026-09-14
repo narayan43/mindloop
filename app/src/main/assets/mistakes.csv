@@ -1,0 +1,51 @@
+note_id,concept_title,chapter,total_wrong_attempts,linked_question_ids
+N029,Cultural and Educational Rights,3. Fundamental Rights,11,Q042;Q086
+N035,Article 44 - Uniform Civil Code,4. Directive Principles,10,Q050;Q088
+N036,Article 45 - Education for Children,4. Directive Principles,10,Q051;Q052
+N019,Overview and Location,3. Fundamental Rights,9,Q027;Q028
+N020,Six Categories,3. Fundamental Rights,9,Q029;Q081
+N026,Right against Exploitation,3. Fundamental Rights,8,Q037;Q038
+N027,Right to Constitutional Remedies,3. Fundamental Rights,8,Q039;Q085
+N030,Overview and Location,4. Directive Principles,8,Q043;Q044
+N033,Article 39 - Equal Pay,4. Directive Principles,8,Q047
+N037,Article 48 - Agriculture and Cattle,4. Directive Principles,8,Q053;Q089
+N006,Adoption Date,1. Making of the Constitution,7,Q009;Q010
+N024,Right to Freedom - Article 19,3. Fundamental Rights,7,Q034;Q035
+N028,Five Writs,3. Fundamental Rights,7,Q040;Q041
+N032,Classification,4. Directive Principles,7,Q046;Q087
+N034,Article 40 - Village Panchayats,4. Directive Principles,7,Q048;Q049
+N022,Right to Equality Articles,3. Fundamental Rights,6,Q032;Q082
+N025,Article 21 - Right to Life,3. Fundamental Rights,6,Q036;Q084
+N003,Permanent President,1. Making of the Constitution,5,Q005;Q072
+N007,Commencement Date,1. Making of the Constitution,5,Q011;Q074
+N031,Non-Justiciable Nature,4. Directive Principles,5,Q045
+N038,Article 51 - International Peace,4. Directive Principles,5,Q054
+N042,Vice President Role,5. Union Executive,5,Q059;Q092
+N044,Council of Ministers,5. Union Executive,5,Q061;Q093
+N048,Appointment of Governor,6. State Executive,5,Q066;Q067
+N051,Advocate General,6. State Executive,5,Q070;Q097
+N001,Constituent Assembly Formation,1. Making of the Constitution,4,Q001;Q002
+N002,First Meeting of the Assembly,1. Making of the Constitution,4,Q003;Q004
+N005,Constitutional Advisor,1. Making of the Constitution,4,Q008;Q073
+N008,Time Taken to Draft,1. Making of the Constitution,4,Q012;Q075
+N012,42nd Amendment Changes,2. Preamble,4,Q018;Q019
+N013,Source of Authority,2. Preamble,4,Q020;Q078
+N021,Right to Property Removed,3. Fundamental Rights,4,Q030;Q031
+N049,Chief Minister,6. State Executive,4,Q068;Q095
+N004,Drafting Committee,1. Making of the Constitution,3,Q006;Q007
+N009,Original Structure,1. Making of the Constitution,3,Q013;Q014
+N011,Preamble Overview,2. Preamble,3,Q017
+N015,Berubari Case 1960,2. Preamble,3,Q022;Q079
+N023,Article 17 - Untouchability,3. Fundamental Rights,3,Q033;Q083
+N046,Pardoning Power,5. Union Executive,3,Q063;Q064
+N047,Governor - Head of State,6. State Executive,3,Q065;Q094
+N050,State Council of Ministers,6. State Executive,3,Q069;Q096
+N010,Borrowed Features,1. Making of the Constitution,3,Q076;Q077
+N040,Presidential Election,5. Union Executive,2,Q056
+N016,Kesavananda Bharati Case 1973,2. Preamble,1,Q024
+N017,Four Ideals in Preamble,2. Preamble,1,Q025
+N018,Republic Meaning,2. Preamble,1,Q026
+N041,Term of President,5. Union Executive,1,Q058
+N043,Prime Minister,5. Union Executive,1,Q060
+N045,Attorney General,5. Union Executive,1,Q062
+N052,Reserving Bills for President,6. State Executive,1,Q071

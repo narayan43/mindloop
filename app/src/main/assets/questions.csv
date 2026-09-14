@@ -1,0 +1,98 @@
+question_id,note_id,subject,chapter,type,question,option_a,option_b,option_c,option_d,correct_answer,times_shown,times_wrong,total_attempts,avg_time_seconds,last_rating
+Q001,N001,Indian Polity,1. Making of the Constitution,MCQ,The Constituent Assembly was formed under which plan?,Cabinet Mission Plan 1946,Mountbatten Plan 1947,August Offer 1940,Cripps Mission 1942,Cabinet Mission Plan 1946,14,3,16,11,Medium
+Q002,N001,Indian Polity,1. Making of the Constitution,True/False,Members of the Constituent Assembly were directly elected by the general public.,True,False,,,False,3,1,6,25,Medium
+Q003,N002,Indian Polity,1. Making of the Constitution,MCQ,Who was the temporary/interim President of the Constituent Assembly?,Dr. Sachchidananda Sinha,Dr. Rajendra Prasad,Dr. B.R. Ambedkar,Jawaharlal Nehru,Dr. Sachchidananda Sinha,6,2,8,21,Easy
+Q004,N002,Indian Polity,1. Making of the Constitution,True/False,The first meeting of the Constituent Assembly was held on 9 December 1946.,True,False,,,True,9,2,12,17,Hard
+Q005,N003,Indian Polity,1. Making of the Constitution,MCQ,Who was elected as the permanent President of the Constituent Assembly?,Dr. Rajendra Prasad,Dr. Sachchidananda Sinha,C. Rajagopalachari,Dr. B.R. Ambedkar,Dr. Rajendra Prasad,5,1,7,45,Easy
+Q006,N004,Indian Polity,1. Making of the Constitution,MCQ,Who chaired the Drafting Committee of the Constitution?,Dr. B.R. Ambedkar,Dr. Rajendra Prasad,B.N. Rau,Jawaharlal Nehru,Dr. B.R. Ambedkar,12,2,13,16,Easy
+Q007,N004,Indian Polity,1. Making of the Constitution,True/False,The Drafting Committee had 7 members.,True,False,,,True,4,1,4,17,Medium
+Q008,N005,Indian Polity,1. Making of the Constitution,MCQ,Who served as the Constitutional Advisor to the Constituent Assembly?,B.N. Rau,Dr. B.R. Ambedkar,K.M. Munshi,Alladi Krishnaswami Iyer,B.N. Rau,13,2,13,32,Easy
+Q009,N006,Indian Polity,1. Making of the Constitution,MCQ,On which date was the Constitution of India adopted?,26 November 1949,26 January 1950,15 August 1947,9 December 1946,26 November 1949,12,4,14,43,Medium
+Q010,N006,Indian Polity,1. Making of the Constitution,True/False,26 November is celebrated as Constitution Day (Samvidhan Divas).,True,False,,,True,13,3,15,29,Medium
+Q011,N007,Indian Polity,1. Making of the Constitution,MCQ,On which date did the Constitution of India come into force?,26 January 1950,26 November 1949,15 August 1947,1 January 1950,26 January 1950,7,1,10,8,Medium
+Q012,N008,Indian Polity,1. Making of the Constitution,True/False,The Constituent Assembly took less than 1 year to draft the Constitution.,True,False,,,False,14,2,15,40,Easy
+Q013,N009,Indian Polity,1. Making of the Constitution,MCQ,How many Articles did the original Constitution of India contain?,395,448,470,300,395,13,2,14,17,Hard
+Q014,N009,Indian Polity,1. Making of the Constitution,True/False,The original Constitution had 8 Schedules.,True,False,,,True,5,1,5,28,Easy
+Q015,N010,Indian Polity,1. Making of the Constitution,MCQ,The Parliamentary system of government was borrowed from which country?,United Kingdom,United States of America,Ireland,Canada,United Kingdom,3,0,5,27,Easy
+Q016,N010,Indian Polity,1. Making of the Constitution,MCQ,The concept of Directive Principles of State Policy was borrowed from which country?,Ireland,United Kingdom,United States of America,Canada,Ireland,3,0,3,13,Medium
+Q017,N011,Indian Polity,2. Preamble,True/False,"The Preamble describes India as a Sovereign, Socialist, Secular, Democratic Republic.",True,False,,,True,10,3,11,16,Easy
+Q018,N012,Indian Polity,2. Preamble,MCQ,Which amendment added the words 'Socialist' and 'Secular' to the Preamble?,42nd Amendment,44th Amendment,86th Amendment,1st Amendment,42nd Amendment,11,1,14,21,Medium
+Q019,N012,Indian Polity,2. Preamble,True/False,The word 'Secular' was part of the original 1950 Preamble.,True,False,,,False,14,3,16,33,Hard
+Q020,N013,Indian Polity,2. Preamble,MCQ,The Preamble begins with which phrase?,"We, the people of India",In the name of God,"We, the citizens of India","We, the representatives of India","We, the people of India",10,3,13,15,Medium
+Q021,N014,Indian Polity,2. Preamble,MCQ,The Preamble is based on the Objectives Resolution moved by whom?,Jawaharlal Nehru,Dr. B.R. Ambedkar,Dr. Rajendra Prasad,Sardar Patel,Jawaharlal Nehru,6,0,6,45,Medium
+Q022,N015,Indian Polity,2. Preamble,MCQ,In which case did the Supreme Court hold that the Preamble is NOT part of the Constitution?,Berubari Union case (1960),Kesavananda Bharati case (1973),Golaknath case (1967),Minerva Mills case (1980),Berubari Union case (1960),6,1,6,12,Medium
+Q023,N016,Indian Polity,2. Preamble,True/False,The Kesavananda Bharati case (1973) held that the Preamble is a part of the Constitution.,True,False,,,True,6,0,6,29,Easy
+Q024,N016,Indian Polity,2. Preamble,MCQ,Which doctrine did the Kesavananda Bharati case establish regarding amendment of the Preamble?,Basic Structure doctrine,Doctrine of Pith and Substance,Doctrine of Colourable Legislation,Doctrine of Severability,Basic Structure doctrine,11,1,14,21,Medium
+Q025,N017,Indian Polity,2. Preamble,MCQ,Which of these is NOT one of the four ideals mentioned in the Preamble?,Sovereignty,Justice,Liberty,Equality,Sovereignty,5,1,8,23,Easy
+Q026,N018,Indian Polity,2. Preamble,True/False,The term 'Republic' means the head of state is a hereditary monarch.,True,False,,,False,9,1,9,35,Easy
+Q027,N019,Indian Polity,3. Fundamental Rights,MCQ,Fundamental Rights are covered under which Part of the Constitution?,Part III,Part IV,Part II,Part V,Part III,9,4,9,14,Hard
+Q028,N019,Indian Polity,3. Fundamental Rights,True/False,Fundamental Rights cover Articles 12 to 35.,True,False,,,True,9,5,9,23,Hard
+Q029,N020,Indian Polity,3. Fundamental Rights,MCQ,How many categories of Fundamental Rights currently exist?,Six,Seven,Five,Eight,Six,6,3,7,35,Hard
+Q030,N021,Indian Polity,3. Fundamental Rights,MCQ,Which amendment removed the Right to Property from Fundamental Rights?,44th Amendment,42nd Amendment,86th Amendment,73rd Amendment,44th Amendment,7,3,7,36,Medium
+Q031,N021,Indian Polity,3. Fundamental Rights,True/False,"Right to Property is now a legal right under Article 300A, not a Fundamental Right.",True,False,,,True,4,1,4,13,Medium
+Q032,N022,Indian Polity,3. Fundamental Rights,MCQ,The Right to Equality is covered under which Articles?,Articles 14-18,Articles 19-22,Articles 23-24,Articles 25-28,Articles 14-18,5,2,8,21,Easy
+Q033,N023,Indian Polity,3. Fundamental Rights,MCQ,Which Article abolishes untouchability?,Article 17,Article 14,Article 21,Article 32,Article 17,3,1,3,32,Hard
+Q034,N024,Indian Polity,3. Fundamental Rights,MCQ,How many freedoms are guaranteed under Article 19?,Six,Five,Seven,Four,Six,10,4,13,17,Medium
+Q035,N024,Indian Polity,3. Fundamental Rights,True/False,Freedom of speech and expression is guaranteed under Article 19.,True,False,,,True,7,3,7,45,Medium
+Q036,N025,Indian Polity,3. Fundamental Rights,MCQ,Which Article guarantees the Right to Life and Personal Liberty?,Article 21,Article 19,Article 32,Article 14,Article 21,11,4,13,11,Medium
+Q037,N026,Indian Polity,3. Fundamental Rights,MCQ,Article 24 prohibits employment of children below what age in hazardous work?,14 years,12 years,16 years,18 years,14 years,12,6,13,11,Medium
+Q038,N026,Indian Polity,3. Fundamental Rights,True/False,Article 23 prohibits traffic in human beings and forced labour.,True,False,,,True,4,2,4,12,Medium
+Q039,N027,Indian Polity,3. Fundamental Rights,MCQ,Who called Article 32 the 'heart and soul' of the Constitution?,Dr. B.R. Ambedkar,Jawaharlal Nehru,Dr. Rajendra Prasad,Sardar Patel,Dr. B.R. Ambedkar,6,3,7,45,Medium
+Q040,N028,Indian Polity,3. Fundamental Rights,MCQ,Which of these is NOT one of the five writs under Article 32?,Ordinance,Habeas Corpus,Mandamus,Certiorari,Ordinance,3,2,6,45,Medium
+Q041,N028,Indian Polity,3. Fundamental Rights,True/False,Quo Warranto is one of the five constitutional writs.,True,False,,,True,11,5,13,21,Medium
+Q042,N029,Indian Polity,3. Fundamental Rights,MCQ,Articles 29-30 protect the interests of whom?,Minorities,Scheduled Castes only,Women,Farmers,Minorities,14,6,16,33,Hard
+Q043,N030,Indian Polity,4. Directive Principles,MCQ,Directive Principles of State Policy are covered under which Part?,Part IV,Part III,Part V,Part IVA,Part IV,13,7,16,28,Hard
+Q044,N030,Indian Polity,4. Directive Principles,True/False,DPSPs were borrowed from the Irish Constitution.,True,False,,,True,3,1,3,12,Medium
+Q045,N031,Indian Polity,4. Directive Principles,True/False,Directive Principles are enforceable by courts.,True,False,,,False,11,5,13,12,Hard
+Q046,N032,Indian Polity,4. Directive Principles,MCQ,Which of these is NOT a classification of DPSPs?,Federal principles,Socialist principles,Gandhian principles,Liberal-Intellectual principles,Federal principles,8,3,11,42,Hard
+Q047,N033,Indian Polity,4. Directive Principles,MCQ,Article 39 directs the State to ensure what regarding pay?,Equal pay for equal work,Minimum wage only,Maximum wage limits,Pay based on seniority,Equal pay for equal work,12,8,12,43,Hard
+Q048,N034,Indian Polity,4. Directive Principles,MCQ,Article 40 relates to organizing which institutions?,Village Panchayats,District Courts,State Legislatures,Municipal Corporations,Village Panchayats,13,5,14,24,Medium
+Q049,N034,Indian Polity,4. Directive Principles,True/False,Article 40 reflects a Gandhian principle.,True,False,,,True,4,2,5,25,Hard
+Q050,N035,Indian Polity,4. Directive Principles,MCQ,Article 44 directs the State to secure what for citizens?,A Uniform Civil Code,Free legal aid,Right to education,Minimum wages,A Uniform Civil Code,12,5,14,21,Medium
+Q051,N036,Indian Polity,4. Directive Principles,True/False,Article 45 originally dealt with free and compulsory education for children up to age 14.,True,False,,,True,13,8,16,24,Hard
+Q052,N036,Indian Polity,4. Directive Principles,MCQ,Which amendment added Article 21A as a Fundamental Right to education?,86th Amendment,42nd Amendment,44th Amendment,73rd Amendment,86th Amendment,4,2,6,10,Hard
+Q053,N037,Indian Polity,4. Directive Principles,MCQ,Article 48 relates to organizing which sector on modern scientific lines?,Agriculture and animal husbandry,Industry,Education,Judiciary,Agriculture and animal husbandry,8,5,10,18,Medium
+Q054,N038,Indian Polity,4. Directive Principles,MCQ,Article 51 directs the State to promote what?,International peace and security,Uniform Civil Code,Village self-government,Free education,International peace and security,10,5,13,43,Hard
+Q055,N039,Indian Polity,5. Union Executive,MCQ,Which Article establishes the President as head of state?,Article 52,Article 53,Article 56,Article 72,Article 52,4,0,5,42,Easy
+Q056,N040,Indian Polity,5. Union Executive,True/False,The President is directly elected by the general public.,True,False,,,False,8,2,9,35,Medium
+Q057,N040,Indian Polity,5. Union Executive,MCQ,Who forms part of the electoral college for the Presidential election?,Elected members of Parliament and State Legislative Assemblies,Only Lok Sabha members,Only Rajya Sabha members,All members of Parliament including nominated ones,Elected members of Parliament and State Legislative Assemblies,3,0,3,30,Easy
+Q058,N041,Indian Polity,5. Union Executive,MCQ,What is the term of office of the President under Article 56?,5 years,6 years,4 years,7 years,5 years,13,1,13,30,Medium
+Q059,N042,Indian Polity,5. Union Executive,MCQ,The Vice President is the ex-officio Chairman of which House?,Rajya Sabha,Lok Sabha,State Legislative Assembly,State Legislative Council,Rajya Sabha,9,3,10,23,Medium
+Q060,N043,Indian Polity,5. Union Executive,True/False,The Prime Minister is the real head of the executive in India.,True,False,,,True,5,1,5,19,Hard
+Q061,N044,Indian Polity,5. Union Executive,MCQ,Under which Article is the Council of Ministers collectively responsible to the Lok Sabha?,Article 75,Article 74,Article 76,Article 78,Article 75,9,2,10,25,Medium
+Q062,N045,Indian Polity,5. Union Executive,MCQ,Who is the highest law officer of the country under Article 76?,Attorney General,Advocate General,Solicitor General,Chief Justice,Attorney General,14,1,14,38,Easy
+Q063,N046,Indian Polity,5. Union Executive,MCQ,Under which Article can the President grant pardons?,Article 72,Article 76,Article 61,Article 56,Article 72,6,2,9,30,Hard
+Q064,N046,Indian Polity,5. Union Executive,True/False,The President's pardoning power can apply even to death sentences.,True,False,,,True,6,1,7,33,Hard
+Q065,N047,Indian Polity,6. State Executive,MCQ,Under which Article is there a Governor for each state?,Article 153,Article 155,Article 163,Article 200,Article 153,7,2,9,30,Easy
+Q066,N048,Indian Polity,6. State Executive,MCQ,By whom is the Governor of a state appointed?,The President,The Prime Minister,The Chief Minister,The state legislature,The President,13,4,15,9,Medium
+Q067,N048,Indian Polity,6. State Executive,True/False,The Governor holds office during the pleasure of the President.,True,False,,,True,7,1,9,10,Easy
+Q068,N049,Indian Polity,6. State Executive,MCQ,Who appoints the Chief Minister of a state?,The Governor,The President,The state legislature,The Advocate General,The Governor,12,2,14,35,Medium
+Q069,N050,Indian Polity,6. State Executive,True/False,The state Council of Ministers is collectively responsible to the state Legislative Assembly.,True,False,,,True,9,2,10,24,Medium
+Q070,N051,Indian Polity,6. State Executive,MCQ,Under which Article is the Advocate General of a state appointed?,Article 165,Article 76,Article 200,Article 155,Article 165,14,2,15,31,Easy
+Q071,N052,Indian Polity,6. State Executive,MCQ,Under which Article can the Governor reserve a bill for the President's consideration?,Article 200,Article 165,Article 153,Article 163,Article 200,4,1,6,28,Medium
+Q072,N003,Indian Polity,1. Making of the Constitution,True/False,Dr. Rajendra Prasad was elected permanent President on 11 December 1946.,True,False,,,True,14,4,16,34,Hard
+Q073,N005,Indian Polity,1. Making of the Constitution,True/False,B.N. Rau was a member of the Drafting Committee.,True,False,,,False,9,2,10,20,Easy
+Q074,N007,Indian Polity,1. Making of the Constitution,MCQ,Republic Day commemorates which historic 1930 declaration?,Purna Swaraj,Quit India,Non-Cooperation,Dandi March,Purna Swaraj,13,4,14,44,Hard
+Q075,N008,Indian Polity,1. Making of the Constitution,MCQ,Approximately how long did it take to draft the Constitution?,Nearly 3 years,6 months,10 years,1 year,Nearly 3 years,9,2,9,27,Hard
+Q076,N010,Indian Polity,1. Making of the Constitution,MCQ,The federal structure of the Indian Constitution was borrowed from which country?,Canada,United Kingdom,Ireland,France,Canada,6,1,8,37,Easy
+Q077,N010,Indian Polity,1. Making of the Constitution,True/False,Fundamental Rights in the Indian Constitution were influenced by the USA.,True,False,,,True,10,2,13,18,Medium
+Q078,N013,Indian Polity,2. Preamble,True/False,"'We, the people of India' indicates the people are the ultimate source of authority.",True,False,,,True,7,1,9,13,Easy
+Q079,N015,Indian Polity,2. Preamble,MCQ,Which year did the Berubari Union case occur?,1960,1973,1950,1980,1960,13,2,14,17,Medium
+Q080,N017,Indian Polity,2. Preamble,MCQ,"'Fraternity' in the Preamble assures what, alongside unity of the nation?",Dignity of the individual,Freedom of religion,Equal pay,Right to property,Dignity of the individual,3,0,6,12,Easy
+Q081,N020,Indian Polity,3. Fundamental Rights,MCQ,Which Fundamental Right is often called the 'heart and soul' of the Constitution?,Right to Constitutional Remedies,Right to Equality,Right to Freedom,Right to Freedom of Religion,Right to Constitutional Remedies,9,6,10,32,Hard
+Q082,N022,Indian Polity,3. Fundamental Rights,True/False,"Article 15 prohibits discrimination on grounds of religion, race, caste, sex, or place of birth.",True,False,,,True,9,4,9,14,Hard
+Q083,N023,Indian Polity,3. Fundamental Rights,True/False,"Article 18 abolishes titles, except military and academic distinctions.",True,False,,,True,6,2,9,11,Medium
+Q084,N025,Indian Polity,3. Fundamental Rights,True/False,Article 21 can be restricted without any procedure established by law.,True,False,,,False,4,2,7,41,Medium
+Q085,N027,Indian Polity,3. Fundamental Rights,MCQ,A citizen seeking enforcement of Fundamental Rights can approach which court directly under Article 32?,Supreme Court,District Court,High Court only,Consumer Court,Supreme Court,12,5,15,40,Hard
+Q086,N029,Indian Polity,3. Fundamental Rights,MCQ,Article 30 gives minorities the right to establish and administer what?,Educational institutions,Religious trusts only,Political parties,Business enterprises,Educational institutions,11,5,12,38,Hard
+Q087,N032,Indian Polity,4. Directive Principles,True/False,"Socialist, Gandhian, and Liberal-Intellectual are recognized classifications of DPSPs.",True,False,,,True,7,4,9,41,Hard
+Q088,N035,Indian Polity,4. Directive Principles,True/False,A Uniform Civil Code has been fully implemented across all of India as of the Constitution's directive under Article 44.,True,False,,,False,13,5,16,12,Hard
+Q089,N037,Indian Polity,4. Directive Principles,True/False,Article 48 includes a directive on prohibiting slaughter of cows and calves.,True,False,,,True,6,3,8,42,Hard
+Q090,N039,Indian Polity,5. Union Executive,True/False,The President of India is formally the head of the Executive.,True,False,,,True,5,0,8,17,Medium
+Q091,N041,Indian Polity,5. Union Executive,True/False,The President is eligible for re-election after completing a term.,True,False,,,True,6,0,9,29,Medium
+Q092,N042,Indian Polity,5. Union Executive,MCQ,The Vice President acts as President when there is a vacancy in that office due to which Article's mechanism?,Article 65,Article 64,Article 72,Article 76,Article 65,10,2,11,34,Easy
+Q093,N044,Indian Polity,5. Union Executive,MCQ,The Prime Minister is usually chosen from which body?,The majority party in the Lok Sabha,The Rajya Sabha only,The Supreme Court,State governors,The majority party in the Lok Sabha,12,3,12,44,Easy
+Q094,N047,Indian Polity,6. State Executive,True/False,Every state in India has its own Governor under Article 153.,True,False,,,True,10,1,12,27,Easy
+Q095,N049,Indian Polity,6. State Executive,True/False,The Chief Minister is usually the leader of the majority party in the state assembly.,True,False,,,True,9,2,10,39,Medium
+Q096,N050,Indian Polity,6. State Executive,MCQ,The state Council of Ministers is headed by whom?,The Chief Minister,The Governor,The Advocate General,The Speaker,The Chief Minister,7,1,7,32,Easy
+Q097,N051,Indian Polity,6. State Executive,True/False,The Advocate General is appointed by the Chief Minister.,True,False,,,False,13,3,16,18,Easy
