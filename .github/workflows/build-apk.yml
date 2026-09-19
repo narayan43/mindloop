@@ -54,12 +54,15 @@ jobs:
         with:
           gradle-version: '9.3.1'
 
-      - name: Create temporary debug keystore
+      - name: Setup debug keystore
         run: |
           echo "=== Debug Keystore Setup ==="
           KEYSTORE_PATH="./debug.keystore"
           if [ -f "$KEYSTORE_PATH" ]; then
-            echo "Debug keystore already exists at $KEYSTORE_PATH. Generation skipped."
+            echo "Debug keystore already exists at $KEYSTORE_PATH."
+          elif [ -f "./debug.keystore.base64" ]; then
+            echo "Restoring persistent debug keystore from debug.keystore.base64..."
+            base64 -d ./debug.keystore.base64 > "$KEYSTORE_PATH"
           else
             echo "Debug keystore missing. Generating temporary debug keystore..."
             "$JAVA_HOME/bin/keytool" -genkey -v \
