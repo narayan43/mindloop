@@ -49,4 +49,13 @@ interface QuestionDao {
         newDue: Boolean,
         now: Long = System.currentTimeMillis()
     )
+
+    @Query("DELETE FROM questions WHERE id IN (:ids)")
+    suspend fun deleteQuestionsByIds(ids: List<Long>): Int
+
+    @Query("DELETE FROM questions WHERE subjectName = :subjectName")
+    suspend fun deleteQuestionsBySubject(subjectName: String): Int
+
+    @Query("DELETE FROM questions")
+    suspend fun deleteAllQuestions(): Int
 }

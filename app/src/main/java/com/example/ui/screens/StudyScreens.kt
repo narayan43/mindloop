@@ -17,10 +17,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -99,6 +102,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.entity.NoteEntity
@@ -913,16 +917,17 @@ fun StudySubjectCard(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .height(150.dp)
+            .wrapContentHeight()
+            .heightIn(min = 150.dp)
             .testTag("subject_card_${subject.name.lowercase().replace(" ", "_")}"),
         shape = RoundedCornerShape(16.dp),
         elevation = 5.dp
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .padding(14.dp),
-            verticalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             // Icon
             Box(
@@ -1122,11 +1127,13 @@ fun StudySubjectDetailScreen(
             Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = subjectName,
-                fontSize = 22.sp,
+                fontSize = if (subjectName.length > 20) 18.sp else 21.sp,
                 fontWeight = FontWeight.Bold,
                 color = DeepIndigo,
                 modifier = Modifier.weight(1f),
-                maxLines = 1
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                lineHeight = 24.sp
             )
             // Stats button
             if (subjectStats != null || onViewStats != null) {
@@ -1338,7 +1345,7 @@ fun ChapterRowItem(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(modifier = Modifier.weight(1f)) {
+            Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
                 Text(
                     text = "${chapter.number}. ${chapter.name}",
                     fontSize = 15.sp,
@@ -1523,6 +1530,7 @@ fun StudyNotesFeedScreen(
             .fillMaxSize()
             .background(BackgroundOffWhite)
             .statusBarsPadding()
+            .navigationBarsPadding()
             .padding(horizontal = 16.dp)
     ) {
         Spacer(modifier = Modifier.height(10.dp))
@@ -1554,10 +1562,12 @@ fun StudyNotesFeedScreen(
 
             Text(
                 text = headerChapterTitle,
-                fontSize = 16.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
                 color = DeepIndigo,
-                maxLines = 1,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                lineHeight = 18.sp,
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = 4.dp)
@@ -1721,7 +1731,14 @@ fun StudyNotesFeedScreen(
             ) {
                 Icon(Icons.Default.CameraAlt, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(4.dp))
-                Text("+ Note / Photo", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                Text(
+                    text = "+ Note / Photo",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
 
             MindLoopPrimaryButton(
@@ -1738,7 +1755,14 @@ fun StudyNotesFeedScreen(
             ) {
                 Icon(Icons.Default.Add, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(4.dp))
-                Text("Add Question", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                Text(
+                    text = "Add Question",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
 
             MindLoopPrimaryButton(
@@ -1752,7 +1776,13 @@ fun StudyNotesFeedScreen(
             ) {
                 Icon(Icons.Default.Timer, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(4.dp))
-                Text(timeFormatted, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text(
+                    text = timeFormatted,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    maxLines = 1
+                )
             }
         }
 

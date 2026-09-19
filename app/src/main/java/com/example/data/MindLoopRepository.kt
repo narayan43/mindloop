@@ -139,6 +139,8 @@ class MindLoopRepository(
 
     suspend fun insertQuestion(question: QuestionEntity): Long = questionDao.insertQuestion(question)
 
+    suspend fun insertQuestions(questions: List<QuestionEntity>) = questionDao.insertQuestions(questions)
+
     // =========================================================================
     // REAL-TIME STUDY SESSION LOGGING
     // =========================================================================
@@ -297,7 +299,9 @@ class MindLoopRepository(
         subjectName: String,
         chapterName: String,
         linkedNoteId: Long?,
-        csvContent: String
+        csvContent: String,
+        sourceType: String = if (linkedNoteId != null) "note" else "note",
+        sourceId: String = linkedNoteId?.toString() ?: ""
     ): Int {
         val questionsToInsert = mutableListOf<QuestionEntity>()
         val lines = csvContent.lines().filter { it.isNotBlank() }
@@ -389,7 +393,9 @@ class MindLoopRepository(
                         totalAttempts = totalAtt,
                         totalTimeSpentSeconds = totalAtt * avgSec,
                         lastRating = rating,
-                        isDue = wrong > 0 || rating == "HARD" || (totalAtt > 0 && totalAtt % 3 == 0)
+                        isDue = wrong > 0 || rating == "HARD" || (totalAtt > 0 && totalAtt % 3 == 0),
+                        sourceType = sourceType,
+                        sourceId = sourceId
                     )
                 )
             } else if (tokens.size >= 3) {
@@ -413,7 +419,9 @@ class MindLoopRepository(
                             optionA = "True",
                             optionB = "False",
                             correctAnswerIndex = correct,
-                            isDue = true
+                            isDue = true,
+                            sourceType = sourceType,
+                            sourceId = sourceId
                         )
                     )
                 } else {
@@ -442,7 +450,9 @@ class MindLoopRepository(
                             optionC = optC,
                             optionD = optD,
                             correctAnswerIndex = correctIdx,
-                            isDue = true
+                            isDue = true,
+                            sourceType = sourceType,
+                            sourceId = sourceId
                         )
                     )
                 }
@@ -452,5 +462,27 @@ class MindLoopRepository(
             questionDao.insertQuestions(questionsToInsert)
         }
         return questionsToInsert.size
+    }
+
+    suspend fun clearStarterPack(clearSubject: String = "Indian Polity") {
+        val starterNoteIds = InitialDataProvider.getInitialNotes().map { it.id }
+        val starterQuestionIds = InitialDataProvider.getInitialQuestions().map { it.id }
+        noteDao.deleteNotesBySubject(clearSubject)
+        noteDao.deleteNotesByIds(starterNoteIds)
+        questionDao.deleteQuestionsBySubject(clearSubject)
+        questionDao.deleteQuestionsByIds(starterQuestionIds)
+    }
+
+    suspend fun restoreStarterPack() {
+        noteDao.insertNotes(InitialDataProvider.getInitialNotes())
+        questionDao.insertQuestions(InitialDataProvider.getInitialQuestions())
+        studyLogDao.insertSessions(InitialDataProvider.getInitialSessions())
+    }
+
+    suspend fun clearAllData() {
+        noteDao.deleteAllNotes()
+        questionDao.deleteAllQuestions()
+        studyLogDao.deleteAllSessions()
+        questionAttemptDao.deleteAllAttempts()
     }
 }

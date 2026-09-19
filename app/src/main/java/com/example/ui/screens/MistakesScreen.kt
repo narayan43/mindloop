@@ -66,6 +66,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.InitialDataProvider
@@ -754,10 +755,13 @@ private fun MistakesTopBar(
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = titleText,
-                fontSize = 20.sp,
+                fontSize = if (titleText.length > 18) 17.sp else 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = DeepIndigo,
-                maxLines = 1
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                lineHeight = 22.sp,
+                modifier = Modifier.weight(1f, fill = false)
             )
         }
 
@@ -1188,10 +1192,12 @@ private fun MistakesSubjectListView(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = if (hasErrors) "Analyze Entire Subject Mistakes (${subject.mistakeQuestionsCount} Qs)" else "Practice Full Subject Questions",
-                            fontSize = 13.5.sp,
+                            text = if (hasErrors) "Analyze Full Subject (${subject.mistakeQuestionsCount} Qs)" else "Practice Full Subject",
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = Color.White,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
 
@@ -1214,10 +1220,12 @@ private fun MistakesSubjectListView(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Chapter-Wise Mistakes Breakdown →",
+                            text = "Chapter-Wise Breakdown →",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = DeepIndigo
+                            color = DeepIndigo,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
@@ -1481,9 +1489,11 @@ private fun ChapterMistakeCardItem(
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = if (chapter.isReel) "Watch Reel" else "Study Notes",
-                        fontSize = 13.sp,
+                        fontSize = 12.5.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (chapter.isReel) Terracotta else DeepIndigo
+                        color = if (chapter.isReel) Terracotta else DeepIndigo,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
 
@@ -1506,9 +1516,11 @@ private fun ChapterMistakeCardItem(
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = "Analyze Mistakes",
-                        fontSize = 13.sp,
+                        fontSize = 12.5.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = Color.White,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }

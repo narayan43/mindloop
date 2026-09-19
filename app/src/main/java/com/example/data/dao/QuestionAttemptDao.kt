@@ -26,4 +26,10 @@ interface QuestionAttemptDao {
 
     @Query("SELECT * FROM question_attempts WHERE is_correct = 0 ORDER BY shown_at DESC")
     fun getWrongAttempts(): Flow<List<QuestionAttemptEntity>>
+
+    @Query("DELETE FROM question_attempts WHERE question_id IN (:questionIds)")
+    suspend fun deleteAttemptsForQuestions(questionIds: List<Long>): Int
+
+    @Query("DELETE FROM question_attempts")
+    suspend fun deleteAllAttempts(): Int
 }

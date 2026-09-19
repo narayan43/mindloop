@@ -39,4 +39,13 @@ interface NoteDao {
 
     @Query("SELECT * FROM notes ORDER BY revisitCount DESC LIMIT :limit")
     fun getMostRevisitedNotes(limit: Int = 3): Flow<List<NoteEntity>>
+
+    @Query("DELETE FROM notes WHERE id IN (:ids)")
+    suspend fun deleteNotesByIds(ids: List<Long>): Int
+
+    @Query("DELETE FROM notes WHERE subjectName = :subjectName")
+    suspend fun deleteNotesBySubject(subjectName: String): Int
+
+    @Query("DELETE FROM notes")
+    suspend fun deleteAllNotes(): Int
 }

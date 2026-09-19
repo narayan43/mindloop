@@ -79,6 +79,10 @@ class MindLoopRobolectricTest {
         // Tap Mistakes tab
         composeTestRule.onNodeWithTag("nav_tab_mistakes").performClick()
         assertEquals(BottomNavTab.MISTAKES, selectedTab)
+
+        // Tap Home tab
+        composeTestRule.onNodeWithTag("nav_tab_home").performClick()
+        assertEquals(BottomNavTab.HOME, selectedTab)
     }
 
     @Test

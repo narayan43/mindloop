@@ -103,12 +103,23 @@ object FirestoreService {
                 Log.w(TAG, "PersistentCacheIndexManager auto-indexing setup note: ${e.message}")
             }
 
-            // Explicitly enable network so remote cloud sync always operates
-            try {
-                db.enableNetwork()
-                Log.i(TAG, "Firestore live cloud network synchronization active")
-            } catch (e: Exception) {
-                Log.w(TAG, "enableNetwork notice: ${e.message}")
+            // Explicitly enable network only if an authenticated Firebase Auth session exists
+            if (!firebaseAuthUid.isNullOrBlank()) {
+                try {
+                    db.enableNetwork()
+                    isNetworkAllowed = true
+                    Log.i(TAG, "Firestore live cloud network synchronization active for authenticated user: $firebaseAuthUid")
+                } catch (e: Exception) {
+                    Log.w(TAG, "enableNetwork notice: ${e.message}")
+                }
+            } else {
+                try {
+                    db.disableNetwork()
+                    isNetworkAllowed = false
+                    Log.i(TAG, "Firestore initialized in local offline persistence mode (no active remote auth session)")
+                } catch (e: Exception) {
+                    Log.w(TAG, "disableNetwork notice: ${e.message}")
+                }
             }
 
             firestoreInstance = db
@@ -116,19 +127,36 @@ object FirestoreService {
         }
     }
 
+    @Volatile
+    private var isNetworkAllowed: Boolean = false
+
+    fun isNetworkActive(): Boolean = isNetworkAllowed
+
     fun disableNetworkSafely() {
         try {
+            isNetworkAllowed = false
             getDb().disableNetwork()
-            Log.i(TAG, "Firestore network disabled safely to prevent remote permission conflicts")
+            Log.i(TAG, "Firestore network disabled safely; offline persistence active")
         } catch (e: Exception) {
             Log.w(TAG, "disableNetworkSafely notice: ${e.message}")
         }
     }
 
     fun enableNetworkSafely() {
+        val authUser = try {
+            com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+        } catch (e: Exception) {
+            null
+        }
+        if (authUser == null) {
+            Log.d(TAG, "enableNetworkSafely: No active FirebaseAuth user session; keeping offline persistence mode")
+            disableNetworkSafely()
+            return
+        }
         try {
             getDb().enableNetwork()
-            Log.i(TAG, "Firestore network re-enabled")
+            isNetworkAllowed = true
+            Log.i(TAG, "Firestore network re-enabled for user: ${authUser.uid}")
         } catch (e: Exception) {
             Log.w(TAG, "enableNetworkSafely notice: ${e.message}")
         }
@@ -175,6 +203,8 @@ object FirestoreService {
     }
 
     // User-scoped subcollections (users/{userId}/...)
+    fun getUserSubcollection(subcollection: String) = getDb().collection("users/${getUserId()}/$subcollection")
+    fun getFirestore(): FirebaseFirestore = getDb()
     fun getUserDocument() = getDb().collection("users").document(getUserId())
     fun getNotesCollection() = getDb().collection("users/${getUserId()}/notes")
     fun getQuestionsCollection() = getDb().collection("users/${getUserId()}/questions")

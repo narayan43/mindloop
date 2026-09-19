@@ -8,6 +8,9 @@ import com.example.data.entity.QuestionAttemptEntity
 import com.example.data.entity.QuestionEntity
 import com.example.data.entity.ReelEntity
 import com.example.data.entity.StudySessionEntity
+import com.example.data.model.CurriculumChapter
+import com.example.data.model.CurriculumExam
+import com.example.data.model.CurriculumSubject
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ListenerRegistration
@@ -26,11 +29,20 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import com.example.data.AppDatabase
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+
+data class StarterPackClearSummary(
+    val notesRemoved: Int,
+    val questionsRemoved: Int,
+    val reelsRemoved: Int,
+    val isSuccess: Boolean
+)
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class FirestoreRepository(
@@ -42,13 +54,54 @@ class FirestoreRepository(
 
     val activeUserFlow = MutableStateFlow(FirestoreService.getUserId())
 
+    fun handleFirestoreException(operation: String, e: Exception) {
+        val isPermissionDenied = (e is FirebaseFirestoreException && e.code == FirebaseFirestoreException.Code.PERMISSION_DENIED) ||
+            e.message?.contains("PERMISSION_DENIED", ignoreCase = true) == true
+
+        if (isPermissionDenied) {
+            Log.w(TAG, "Cloud Firestore permission restricted for $operation (${e.message}). Operating in offline local persistence mode.")
+            FirestoreService.disableNetworkSafely()
+        } else {
+            Log.w(TAG, "Notice during $operation: ${e.message}")
+        }
+    }
+
     init {
         FirestoreService.initialize(context)
         activeUserFlow.value = FirestoreService.getUserId()
         CoroutineScope(Dispatchers.IO).launch {
-            seedInitialFirestoreDataIfNeeded()
+            if (!isStarterPackCleared()) {
+                seedInitialFirestoreDataIfNeeded()
+            }
         }
     }
+
+    private val dataPrefs by lazy {
+        context.getSharedPreferences("mindloop_data_prefs", Context.MODE_PRIVATE)
+    }
+
+    val starterPackClearedFlow = MutableStateFlow(isStarterPackCleared())
+
+    fun isStarterPackCleared(): Boolean {
+        return dataPrefs.getBoolean("starter_pack_cleared", false)
+    }
+
+    fun setStarterPackCleared(cleared: Boolean) {
+        dataPrefs.edit().putBoolean("starter_pack_cleared", cleared).apply()
+        starterPackClearedFlow.value = cleared
+    }
+
+    fun getFallbackNotes(): List<NoteEntity> =
+        if (isStarterPackCleared()) emptyList() else InitialDataProvider.getInitialNotes()
+
+    fun getFallbackQuestions(): List<QuestionEntity> =
+        if (isStarterPackCleared()) emptyList() else InitialDataProvider.getInitialQuestions()
+
+    fun getFallbackReels(): List<ReelEntity> =
+        if (isStarterPackCleared()) emptyList() else InitialDataProvider.getInitialReels()
+
+    fun getFallbackSessions(): List<StudySessionEntity> =
+        if (isStarterPackCleared()) emptyList() else InitialDataProvider.getInitialSessions()
 
     private val notesCollection get() = FirestoreService.getNotesCollection()
     private val questionsCollection get() = FirestoreService.getQuestionsCollection()
@@ -59,7 +112,7 @@ class FirestoreRepository(
     // Real-time Flow of Notes, reactively bound to the active user's Firestore path
     val allNotes: Flow<List<NoteEntity>> = activeUserFlow.flatMapLatest { uid ->
         callbackFlow {
-            trySend(InitialDataProvider.getInitialNotes())
+            trySend(getFallbackNotes())
 
             val listener: ListenerRegistration = FirestoreService.getDb()
                 .collection("users/$uid/notes")
@@ -67,18 +120,19 @@ class FirestoreRepository(
                 .addSnapshotListener { snapshot, error ->
                     if (error != null) {
                         Log.w(TAG, "Listen to notes notice: ${error.message}")
-                        trySend(InitialDataProvider.getInitialNotes())
+                        if (error.code == FirebaseFirestoreException.Code.PERMISSION_DENIED) {
+                            FirestoreService.disableNetworkSafely()
+                        }
+                        trySend(getFallbackNotes())
                         return@addSnapshotListener
                     }
                     if (snapshot != null && !snapshot.isEmpty) {
                         val notes = snapshot.documents.mapNotNull { doc -> mapDocToNote(doc) }
                         FirestoreDataLogger.logNotesFetch("Realtime (users/$uid/notes)", snapshot.size(), notes)
-                        if (notes.isNotEmpty()) {
-                            trySend(notes)
-                            return@addSnapshotListener
-                        }
+                        trySend(notes)
+                        return@addSnapshotListener
                     }
-                    trySend(InitialDataProvider.getInitialNotes())
+                    trySend(getFallbackNotes())
                 }
             awaitClose { listener.remove() }
         }
@@ -87,7 +141,7 @@ class FirestoreRepository(
     // Real-time Flow of Questions, reactively bound to the active user's Firestore path
     val allQuestions: Flow<List<QuestionEntity>> = activeUserFlow.flatMapLatest { uid ->
         callbackFlow {
-            trySend(InitialDataProvider.getInitialQuestions())
+            trySend(getFallbackQuestions())
 
             val listener: ListenerRegistration = FirestoreService.getDb()
                 .collection("users/$uid/questions")
@@ -95,18 +149,19 @@ class FirestoreRepository(
                 .addSnapshotListener { snapshot, error ->
                     if (error != null) {
                         Log.w(TAG, "Listen to questions notice: ${error.message}")
-                        trySend(InitialDataProvider.getInitialQuestions())
+                        if (error.code == FirebaseFirestoreException.Code.PERMISSION_DENIED) {
+                            FirestoreService.disableNetworkSafely()
+                        }
+                        trySend(getFallbackQuestions())
                         return@addSnapshotListener
                     }
                     if (snapshot != null && !snapshot.isEmpty) {
                         val questions = snapshot.documents.mapNotNull { doc -> mapDocToQuestion(doc) }
                         FirestoreDataLogger.logQuestionsFetch("Realtime (users/$uid/questions)", snapshot.size(), questions)
-                        if (questions.isNotEmpty()) {
-                            trySend(questions)
-                            return@addSnapshotListener
-                        }
+                        trySend(questions)
+                        return@addSnapshotListener
                     }
-                    trySend(InitialDataProvider.getInitialQuestions())
+                    trySend(getFallbackQuestions())
                 }
             awaitClose { listener.remove() }
         }
@@ -115,7 +170,7 @@ class FirestoreRepository(
     // Due Questions
     val dueQuestions: Flow<List<QuestionEntity>> = activeUserFlow.flatMapLatest { uid ->
         callbackFlow {
-            trySend(InitialDataProvider.getInitialQuestions().filter { it.isDue })
+            trySend(getFallbackQuestions().filter { it.isDue })
 
             val listener = FirestoreService.getDb()
                 .collection("users/$uid/questions")
@@ -123,7 +178,10 @@ class FirestoreRepository(
                 .addSnapshotListener { snapshot, error ->
                     if (error != null) {
                         Log.w(TAG, "Listen to due questions notice: ${error.message}")
-                        trySend(InitialDataProvider.getInitialQuestions().filter { it.isDue })
+                        if (error.code == FirebaseFirestoreException.Code.PERMISSION_DENIED) {
+                            FirestoreService.disableNetworkSafely()
+                        }
+                        trySend(getFallbackQuestions().filter { it.isDue })
                         return@addSnapshotListener
                     }
                     if (snapshot != null && !snapshot.isEmpty) {
@@ -131,7 +189,7 @@ class FirestoreRepository(
                         trySend(list)
                         return@addSnapshotListener
                     }
-                    trySend(InitialDataProvider.getInitialQuestions().filter { it.isDue })
+                    trySend(getFallbackQuestions().filter { it.isDue })
                 }
             awaitClose { listener.remove() }
         }
@@ -140,7 +198,7 @@ class FirestoreRepository(
     // Mistake Questions
     val mistakeQuestions: Flow<List<QuestionEntity>> = activeUserFlow.flatMapLatest { uid ->
         callbackFlow {
-            trySend(InitialDataProvider.getInitialQuestions().filter { it.timesWrong > 0 })
+            trySend(getFallbackQuestions().filter { it.timesWrong > 0 })
 
             val listener = FirestoreService.getDb()
                 .collection("users/$uid/questions")
@@ -148,7 +206,10 @@ class FirestoreRepository(
                 .addSnapshotListener { snapshot, error ->
                     if (error != null) {
                         Log.w(TAG, "Listen to mistake questions notice: ${error.message}")
-                        trySend(InitialDataProvider.getInitialQuestions().filter { it.timesWrong > 0 })
+                        if (error.code == FirebaseFirestoreException.Code.PERMISSION_DENIED) {
+                            FirestoreService.disableNetworkSafely()
+                        }
+                        trySend(getFallbackQuestions().filter { it.timesWrong > 0 })
                         return@addSnapshotListener
                     }
                     if (snapshot != null && !snapshot.isEmpty) {
@@ -157,7 +218,7 @@ class FirestoreRepository(
                         trySend(list)
                         return@addSnapshotListener
                     }
-                    trySend(InitialDataProvider.getInitialQuestions().filter { it.timesWrong > 0 })
+                    trySend(getFallbackQuestions().filter { it.timesWrong > 0 })
                 }
             awaitClose { listener.remove() }
         }
@@ -166,24 +227,25 @@ class FirestoreRepository(
     // Real-time Flow of Reels, reactively bound to the active user's Firestore path
     val allReels: Flow<List<ReelEntity>> = activeUserFlow.flatMapLatest { uid ->
         callbackFlow {
-            trySend(InitialDataProvider.getInitialReels())
+            trySend(getFallbackReels())
 
             val listener = FirestoreService.getDb()
                 .collection("users/$uid/reels")
                 .orderBy("reel_id", Query.Direction.ASCENDING)
                 .addSnapshotListener { snapshot, error ->
                     if (error != null) {
-                        trySend(InitialDataProvider.getInitialReels())
+                        if (error.code == FirebaseFirestoreException.Code.PERMISSION_DENIED) {
+                            FirestoreService.disableNetworkSafely()
+                        }
+                        trySend(getFallbackReels())
                         return@addSnapshotListener
                     }
                     if (snapshot != null && !snapshot.isEmpty) {
                         val reels = snapshot.documents.mapNotNull { doc -> mapDocToReel(doc) }
-                        if (reels.isNotEmpty()) {
-                            trySend(reels)
-                            return@addSnapshotListener
-                        }
+                        trySend(reels)
+                        return@addSnapshotListener
                     }
-                    trySend(InitialDataProvider.getInitialReels())
+                    trySend(getFallbackReels())
                 }
             awaitClose { listener.remove() }
         }
@@ -192,7 +254,7 @@ class FirestoreRepository(
     // Most Revisited Notes
     val mostRevisitedNotes: Flow<List<NoteEntity>> = activeUserFlow.flatMapLatest { uid ->
         callbackFlow {
-            trySend(InitialDataProvider.getInitialNotes().sortedByDescending { it.revisitCount }.take(5))
+            trySend(getFallbackNotes().sortedByDescending { it.revisitCount }.take(5))
 
             val listener = FirestoreService.getDb()
                 .collection("users/$uid/notes")
@@ -201,7 +263,10 @@ class FirestoreRepository(
                 .addSnapshotListener { snapshot, error ->
                     if (error != null) {
                         Log.w(TAG, "Listen to revisited notes notice: ${error.message}")
-                        trySend(InitialDataProvider.getInitialNotes().sortedByDescending { it.revisitCount }.take(5))
+                        if (error.code == FirebaseFirestoreException.Code.PERMISSION_DENIED) {
+                            FirestoreService.disableNetworkSafely()
+                        }
+                        trySend(getFallbackNotes().sortedByDescending { it.revisitCount }.take(5))
                         return@addSnapshotListener
                     }
                     if (snapshot != null && !snapshot.isEmpty) {
@@ -209,7 +274,7 @@ class FirestoreRepository(
                         trySend(list)
                         return@addSnapshotListener
                     }
-                    trySend(InitialDataProvider.getInitialNotes().sortedByDescending { it.revisitCount }.take(5))
+                    trySend(getFallbackNotes().sortedByDescending { it.revisitCount }.take(5))
                 }
             awaitClose { listener.remove() }
         }
@@ -218,7 +283,7 @@ class FirestoreRepository(
     // Study Sessions
     val studySessions: Flow<List<StudySessionEntity>> = activeUserFlow.flatMapLatest { uid ->
         callbackFlow {
-            trySend(InitialDataProvider.getInitialSessions())
+            trySend(getFallbackSessions())
 
             val listener = FirestoreService.getDb()
                 .collection("users/$uid/study_sessions")
@@ -226,7 +291,10 @@ class FirestoreRepository(
                 .addSnapshotListener { snapshot, error ->
                     if (error != null) {
                         Log.w(TAG, "Listen to study sessions notice: ${error.message}")
-                        trySend(InitialDataProvider.getInitialSessions())
+                        if (error.code == FirebaseFirestoreException.Code.PERMISSION_DENIED) {
+                            FirestoreService.disableNetworkSafely()
+                        }
+                        trySend(getFallbackSessions())
                         return@addSnapshotListener
                     }
                     if (snapshot != null && !snapshot.isEmpty) {
@@ -234,7 +302,7 @@ class FirestoreRepository(
                         trySend(list)
                         return@addSnapshotListener
                     }
-                    trySend(InitialDataProvider.getInitialSessions())
+                    trySend(getFallbackSessions())
                 }
             awaitClose { listener.remove() }
         }
@@ -249,6 +317,9 @@ class FirestoreRepository(
                 .addSnapshotListener { snapshot, error ->
                     if (error != null) {
                         Log.w(TAG, "Listen to question attempts notice: ${error.message}")
+                        if (error.code == FirebaseFirestoreException.Code.PERMISSION_DENIED) {
+                            FirestoreService.disableNetworkSafely()
+                        }
                         trySend(emptyList())
                         return@addSnapshotListener
                     }
@@ -296,15 +367,17 @@ class FirestoreRepository(
             )
             // 1. User subcollection
             studySessionsCollection.document(sessionId).set(sessionData, SetOptions.merge()).await()
-            // 2. Root collection
+            // 2. Root collection (only when remote network is authorized)
             try {
-                FirestoreService.getRootStudySessionsCollection().document(sessionId).set(sessionData, SetOptions.merge()).await()
+                if (FirestoreService.isNetworkActive()) {
+                    FirestoreService.getRootStudySessionsCollection().document(sessionId).set(sessionData, SetOptions.merge()).await()
+                }
             } catch (e: Exception) {
                 // Non-blocking
             }
             Log.d(TAG, "Firestore study session started: $sessionId for user: $currentUid")
         } catch (e: Exception) {
-            Log.e(TAG, "Error starting study session in Firestore: ${e.message}", e)
+            handleFirestoreException("startStudySession", e)
         }
     }
 
@@ -327,7 +400,9 @@ class FirestoreRepository(
             )
             studySessionsCollection.document(sessionId).set(updates, SetOptions.merge()).await()
             try {
-                FirestoreService.getRootStudySessionsCollection().document(sessionId).set(updates, SetOptions.merge()).await()
+                if (FirestoreService.isNetworkActive()) {
+                    FirestoreService.getRootStudySessionsCollection().document(sessionId).set(updates, SetOptions.merge()).await()
+                }
             } catch (e: Exception) {
                 // Non-blocking
             }
@@ -338,7 +413,7 @@ class FirestoreRepository(
             }
             Log.d(TAG, "Firestore study session ended: $sessionId, duration=$durationSeconds s")
         } catch (e: Exception) {
-            Log.e(TAG, "Error ending study session in Firestore: ${e.message}", e)
+            handleFirestoreException("endStudySession", e)
         }
     }
 
@@ -358,13 +433,15 @@ class FirestoreRepository(
                 )
                 doc.reference.set(noteUpdates, SetOptions.merge()).await()
                 try {
-                    FirestoreService.getRootNotesCollection().document(doc.id).set(noteUpdates, SetOptions.merge()).await()
+                    if (FirestoreService.isNetworkActive()) {
+                        FirestoreService.getRootNotesCollection().document(doc.id).set(noteUpdates, SetOptions.merge()).await()
+                    }
                 } catch (e: Exception) {
                     // Non-blocking
                 }
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error updating note study time in Firestore: ${e.message}", e)
+            handleFirestoreException("recordStudyTimeOnNote", e)
         }
     }
 
@@ -411,9 +488,11 @@ class FirestoreRepository(
             // 1. User subcollection users/{userId}/question_attempts/{attemptId}
             questionAttemptsCollection.document(attemptId).set(data, SetOptions.merge()).await()
 
-            // 2. Direct root collection question_attempts/{attemptId} for instant overview in Firebase Console
+            // 2. Direct root collection question_attempts/{attemptId} (only if network is active)
             try {
-                FirestoreService.getRootQuestionAttemptsCollection().document(attemptId).set(data, SetOptions.merge()).await()
+                if (FirestoreService.isNetworkActive()) {
+                    FirestoreService.getRootQuestionAttemptsCollection().document(attemptId).set(data, SetOptions.merge()).await()
+                }
             } catch (e: Exception) {
                 Log.w(TAG, "Notice saving to root question_attempts: ${e.message}")
             }
@@ -440,7 +519,7 @@ class FirestoreRepository(
             // Update parent question aggregate stats
             updateQuestionStats(questionId, isCorrect, timeTakenSeconds, selfRating, answeredAt)
         } catch (e: Exception) {
-            Log.e(TAG, "Error logging question attempt in Firestore: ${e.message}", e)
+            handleFirestoreException("logQuestionAttempt", e)
         }
     }
 
@@ -459,7 +538,9 @@ class FirestoreRepository(
             )
             questionAttemptsCollection.document(attemptId).set(ratingUpdate, SetOptions.merge()).await()
             try {
-                FirestoreService.getRootQuestionAttemptsCollection().document(attemptId).set(ratingUpdate, SetOptions.merge()).await()
+                if (FirestoreService.isNetworkActive()) {
+                    FirestoreService.getRootQuestionAttemptsCollection().document(attemptId).set(ratingUpdate, SetOptions.merge()).await()
+                }
             } catch (e: Exception) {
                 // Non-blocking
             }
@@ -467,7 +548,7 @@ class FirestoreRepository(
             updateQuestionRating(questionId, rating)
             Log.d(TAG, "Updated attempt self_rating in Firestore: $attemptId -> $rating")
         } catch (e: Exception) {
-            Log.e(TAG, "Error updating attempt rating in Firestore: ${e.message}", e)
+            handleFirestoreException("updateAttemptRating", e)
         }
     }
 
@@ -505,13 +586,15 @@ class FirestoreRepository(
                 doc.reference.update(updates).await()
 
                 try {
-                    FirestoreService.getRootQuestionsCollection().document(doc.id).set(updates, SetOptions.merge()).await()
+                    if (FirestoreService.isNetworkActive()) {
+                        FirestoreService.getRootQuestionsCollection().document(doc.id).set(updates, SetOptions.merge()).await()
+                    }
                 } catch (e: Exception) {
                     // Non-blocking
                 }
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error updating question stats: ${e.message}", e)
+            handleFirestoreException("updateQuestionStats", e)
         }
     }
 
@@ -526,16 +609,18 @@ class FirestoreRepository(
                 )
                 doc.reference.set(qRatingUpdates, SetOptions.merge()).await()
                 try {
-                    FirestoreService.getRootQuestionsCollection().document(doc.id).set(
-                        qRatingUpdates,
-                        SetOptions.merge()
-                    ).await()
+                    if (FirestoreService.isNetworkActive()) {
+                        FirestoreService.getRootQuestionsCollection().document(doc.id).set(
+                            qRatingUpdates,
+                            SetOptions.merge()
+                        ).await()
+                    }
                 } catch (e: Exception) {
                     // Non-blocking
                 }
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error updating question rating: ${e.message}", e)
+            handleFirestoreException("updateQuestionRating", e)
         }
     }
 
@@ -564,9 +649,11 @@ class FirestoreRepository(
             // 1. Save in user collection
             docRef.set(data, SetOptions.merge()).await()
 
-            // 2. Save in root collection for instant inspection
+            // 2. Save in root collection (only if authorized network active)
             try {
-                FirestoreService.getRootNotesCollection().document(docRef.id).set(data, SetOptions.merge()).await()
+                if (FirestoreService.isNetworkActive()) {
+                    FirestoreService.getRootNotesCollection().document(docRef.id).set(data, SetOptions.merge()).await()
+                }
             } catch (e: Exception) {
                 Log.w(TAG, "Notice saving note to root: ${e.message}")
             }
@@ -588,8 +675,68 @@ class FirestoreRepository(
             Log.i(TAG, "Note successfully saved to Firestore: ${docRef.id} for user: $currentUid")
             nextId
         } catch (e: Exception) {
-            Log.e(TAG, "Error inserting note: ${e.message}", e)
+            handleFirestoreException("insertNote", e)
             0L
+        }
+    }
+
+    suspend fun insertNotes(notesList: List<NoteEntity>): Int {
+        if (notesList.isEmpty()) return 0
+        return try {
+            val currentUid = FirestoreService.getUserId()
+            val userEmail = FirestoreService.getUserEmail()
+            val maxIdQuery = notesCollection.orderBy("note_id", Query.Direction.DESCENDING).limit(1).get().await()
+            var nextId = (maxIdQuery.documents.firstOrNull()?.getLong("note_id") ?: 52L)
+
+            val chunks = notesList.chunked(200)
+            var totalInserted = 0
+
+            for (chunk in chunks) {
+                val batch = FirestoreService.getDb().batch()
+                val rootBatch = FirestoreService.getDb().batch()
+                for (note in chunk) {
+                    nextId++
+                    val docRef = notesCollection.document("note_$nextId")
+                    val data = hashMapOf(
+                        "id" to docRef.id,
+                        "note_id" to nextId,
+                        "user_id" to currentUid,
+                        "user_email" to userEmail,
+                        "subject" to note.subjectName,
+                        "chapter" to note.chapterName,
+                        "chapter_number" to note.chapterNumber,
+                        "title" to note.title,
+                        "content" to note.summaryText,
+                        "image_uri" to note.imageUri,
+                        "revisit_count" to 1,
+                        "time_spent_seconds" to note.timeSpentSeconds,
+                        "created_at" to System.currentTimeMillis()
+                    )
+                    batch.set(docRef, data, SetOptions.merge())
+                    try {
+                        if (FirestoreService.isNetworkActive()) {
+                            rootBatch.set(FirestoreService.getRootNotesCollection().document(docRef.id), data, SetOptions.merge())
+                        }
+                    } catch (_: Exception) {}
+                }
+                batch.commit().await()
+                try {
+                    if (FirestoreService.isNetworkActive()) {
+                        rootBatch.commit().await()
+                    }
+                } catch (_: Exception) {}
+                totalInserted += chunk.size
+            }
+            Log.i(TAG, "Successfully batch inserted $totalInserted notes to Firestore")
+            totalInserted
+        } catch (e: Exception) {
+            handleFirestoreException("insertNotes", e)
+            var count = 0
+            for (n in notesList) {
+                val id = insertNote(n)
+                if (id > 0) count++
+            }
+            count
         }
     }
 
@@ -636,9 +783,11 @@ class FirestoreRepository(
             // 1. Save in user collection
             docRef.set(data, SetOptions.merge()).await()
 
-            // 2. Save in root collection for instant inspection
+            // 2. Save in root collection (only if authorized network active)
             try {
-                FirestoreService.getRootQuestionsCollection().document(docRef.id).set(data, SetOptions.merge()).await()
+                if (FirestoreService.isNetworkActive()) {
+                    FirestoreService.getRootQuestionsCollection().document(docRef.id).set(data, SetOptions.merge()).await()
+                }
             } catch (e: Exception) {
                 Log.w(TAG, "Notice saving question to root: ${e.message}")
             }
@@ -646,8 +795,86 @@ class FirestoreRepository(
             Log.i(TAG, "Question successfully saved to Firestore: ${docRef.id} for user: $currentUid")
             nextId
         } catch (e: Exception) {
-            Log.e(TAG, "Error inserting question: ${e.message}", e)
+            handleFirestoreException("insertQuestion", e)
             0L
+        }
+    }
+
+    suspend fun insertQuestions(questionsList: List<QuestionEntity>): Int {
+        if (questionsList.isEmpty()) return 0
+        return try {
+            val currentUid = FirestoreService.getUserId()
+            val userEmail = FirestoreService.getUserEmail()
+            val maxIdQuery = questionsCollection.orderBy("question_id", Query.Direction.DESCENDING).limit(1).get().await()
+            var nextId = (maxIdQuery.documents.firstOrNull()?.getLong("question_id") ?: 52L)
+
+            val chunks = questionsList.chunked(200)
+            var totalInserted = 0
+
+            for (chunk in chunks) {
+                val batch = FirestoreService.getDb().batch()
+                val rootBatch = FirestoreService.getDb().batch()
+                for (q in chunk) {
+                    nextId++
+                    val docRef = questionsCollection.document("q_$nextId")
+                    val data = hashMapOf(
+                        "id" to docRef.id,
+                        "question_id" to nextId,
+                        "user_id" to currentUid,
+                        "user_email" to userEmail,
+                        "note_id" to q.linkedNoteId,
+                        "source_type" to q.sourceType,
+                        "source_id" to if (q.sourceId.isNotBlank()) q.sourceId else (q.linkedNoteId?.toString() ?: ""),
+                        "subject" to q.subjectName,
+                        "chapter" to q.chapterName,
+                        "type" to q.questionType,
+                        "question_text" to q.questionText,
+                        "option_a" to q.optionA,
+                        "option_b" to q.optionB,
+                        "option_c" to q.optionC,
+                        "option_d" to q.optionD,
+                        "correct_answer" to when (q.correctAnswerIndex) {
+                            0 -> if (q.questionType == "TRUE_FALSE") "True" else q.optionA
+                            1 -> if (q.questionType == "TRUE_FALSE") "False" else q.optionB
+                            2 -> q.optionC
+                            3 -> q.optionD
+                            else -> q.optionA
+                        },
+                        "correct_answer_index" to q.correctAnswerIndex,
+                        "times_shown" to 0,
+                        "times_wrong" to 0,
+                        "total_attempts" to 0,
+                        "total_time_spent_seconds" to 0L,
+                        "last_rating" to null,
+                        "is_due" to true,
+                        "last_attempt_timestamp" to System.currentTimeMillis(),
+                        "created_at" to System.currentTimeMillis()
+                    )
+                    batch.set(docRef, data, SetOptions.merge())
+                    try {
+                        if (FirestoreService.isNetworkActive()) {
+                            rootBatch.set(FirestoreService.getRootQuestionsCollection().document(docRef.id), data, SetOptions.merge())
+                        }
+                    } catch (_: Exception) {}
+                }
+                batch.commit().await()
+                try {
+                    if (FirestoreService.isNetworkActive()) {
+                        rootBatch.commit().await()
+                    }
+                } catch (_: Exception) {}
+                totalInserted += chunk.size
+            }
+            Log.i(TAG, "Successfully batch inserted $totalInserted questions to Firestore")
+            totalInserted
+        } catch (e: Exception) {
+            handleFirestoreException("insertQuestions", e)
+            var count = 0
+            for (q in questionsList) {
+                val id = insertQuestion(q)
+                if (id > 0) count++
+            }
+            count
         }
     }
 
@@ -679,15 +906,81 @@ class FirestoreRepository(
             )
             docRef.set(data, SetOptions.merge()).await()
             try {
-                FirestoreService.getRootReelsCollection().document(docRef.id).set(data, SetOptions.merge()).await()
+                if (FirestoreService.isNetworkActive()) {
+                    FirestoreService.getRootReelsCollection().document(docRef.id).set(data, SetOptions.merge()).await()
+                }
             } catch (e: Exception) {
                 // Non-blocking
             }
             Log.i(TAG, "Reel successfully saved to Firestore: ${docRef.id}")
             nextId
         } catch (e: Exception) {
-            Log.e(TAG, "Error inserting reel: ${e.message}", e)
+            handleFirestoreException("insertReel", e)
             0L
+        }
+    }
+
+    suspend fun insertReels(reelsList: List<ReelEntity>): Int {
+        if (reelsList.isEmpty()) return 0
+        return try {
+            val currentUid = FirestoreService.getUserId()
+            val userEmail = FirestoreService.getUserEmail()
+            val maxIdQuery = reelsCollection.orderBy("reel_id", Query.Direction.DESCENDING).limit(1).get().await()
+            var nextId = (maxIdQuery.documents.firstOrNull()?.getLong("reel_id") ?: 10L)
+
+            val chunks = reelsList.chunked(200)
+            var totalInserted = 0
+
+            for (chunk in chunks) {
+                val batch = FirestoreService.getDb().batch()
+                val rootBatch = FirestoreService.getDb().batch()
+                for (reel in chunk) {
+                    nextId++
+                    val docRef = reelsCollection.document("reel_$nextId")
+                    val data = hashMapOf(
+                        "id" to docRef.id,
+                        "reel_id" to nextId,
+                        "user_id" to currentUid,
+                        "user_email" to userEmail,
+                        "exam" to reel.exam,
+                        "subject" to reel.subject,
+                        "chapter" to reel.chapter,
+                        "title" to reel.title,
+                        "description" to reel.description,
+                        "video_url" to reel.videoUrl,
+                        "local_cache_path" to reel.localCachePath,
+                        "uploaded_by" to reel.uploadedBy,
+                        "duration_seconds" to reel.durationSeconds,
+                        "watch_count" to 0,
+                        "times_watched" to 0,
+                        "total_watch_time_seconds" to 0L,
+                        "created_at" to System.currentTimeMillis()
+                    )
+                    batch.set(docRef, data, SetOptions.merge())
+                    try {
+                        if (FirestoreService.isNetworkActive()) {
+                            rootBatch.set(FirestoreService.getRootReelsCollection().document(docRef.id), data, SetOptions.merge())
+                        }
+                    } catch (_: Exception) {}
+                }
+                batch.commit().await()
+                try {
+                    if (FirestoreService.isNetworkActive()) {
+                        rootBatch.commit().await()
+                    }
+                } catch (_: Exception) {}
+                totalInserted += chunk.size
+            }
+            Log.i(TAG, "Successfully batch inserted $totalInserted reels to Firestore")
+            totalInserted
+        } catch (e: Exception) {
+            handleFirestoreException("insertReels", e)
+            var count = 0
+            for (r in reelsList) {
+                val id = insertReel(r)
+                if (id > 0) count++
+            }
+            count
         }
     }
 
@@ -784,7 +1077,9 @@ class FirestoreRepository(
         subjectName: String,
         chapterName: String,
         linkedNoteId: Long?,
-        csvContent: String
+        csvContent: String,
+        sourceType: String = if (linkedNoteId != null) "note" else "note",
+        sourceId: String = linkedNoteId?.toString() ?: ""
     ): Int {
         var count = 0
         try {
@@ -797,23 +1092,66 @@ class FirestoreRepository(
 
             for (line in lines) {
                 val trimmed = line.trim()
-                if (trimmed.startsWith("question_id", ignoreCase = true) || trimmed.startsWith("type", ignoreCase = true)) continue
+                if (trimmed.startsWith("question_id", ignoreCase = true) ||
+                    trimmed.startsWith("type,", ignoreCase = true) ||
+                    trimmed.startsWith("type|", ignoreCase = true) ||
+                    trimmed.startsWith("question,", ignoreCase = true) ||
+                    trimmed.startsWith("question|", ignoreCase = true) ||
+                    trimmed.startsWith("#")) continue
+
                 val tokens = parseCsvTokens(trimmed)
-                if (tokens.size >= 4) {
+                if (tokens.size >= 3) {
                     nextId++
-                    val type = if (tokens[0].contains("True", ignoreCase = true)) "TRUE_FALSE" else "MULTIPLE_CHOICE"
-                    val qText = tokens[1]
-                    val a = tokens.getOrNull(2) ?: ""
-                    val b = tokens.getOrNull(3) ?: ""
-                    val c = tokens.getOrNull(4) ?: ""
-                    val d = tokens.getOrNull(5) ?: ""
-                    val correct = tokens.getOrNull(6) ?: a
+                    val firstCol = tokens[0].trim()
+                    val hasTypeHeader = firstCol.equals("MCQ", true) ||
+                                       firstCol.equals("MULTIPLE_CHOICE", true) ||
+                                       firstCol.contains("True", true) ||
+                                       firstCol.equals("TF", true)
+
+                    val type: String
+                    val qText: String
+                    val a: String
+                    val b: String
+                    val c: String
+                    val d: String
+                    val correctRaw: String
+
+                    if (hasTypeHeader) {
+                        type = if (firstCol.contains("True", true) || firstCol.equals("TF", true)) "TRUE_FALSE" else "MULTIPLE_CHOICE"
+                        qText = tokens.getOrNull(1) ?: "Question"
+                        a = tokens.getOrNull(2) ?: if (type == "TRUE_FALSE") "True" else "Option A"
+                        b = tokens.getOrNull(3) ?: if (type == "TRUE_FALSE") "False" else "Option B"
+                        c = if (type == "TRUE_FALSE") "" else tokens.getOrNull(4) ?: ""
+                        d = if (type == "TRUE_FALSE") "" else tokens.getOrNull(5) ?: ""
+                        correctRaw = tokens.getOrNull(if (type == "TRUE_FALSE") 4 else 6) ?: a
+                    } else {
+                        qText = tokens[0]
+                        val isTf = tokens.size <= 4 && (tokens.getOrNull(1)?.equals("True", true) == true || tokens.getOrNull(2)?.equals("False", true) == true)
+                        if (isTf) {
+                            type = "TRUE_FALSE"
+                            a = "True"
+                            b = "False"
+                            c = ""
+                            d = ""
+                            correctRaw = tokens.getOrNull(3) ?: tokens.getOrNull(2) ?: "True"
+                        } else {
+                            type = "MULTIPLE_CHOICE"
+                            a = tokens.getOrNull(1) ?: "Option A"
+                            b = tokens.getOrNull(2) ?: "Option B"
+                            c = tokens.getOrNull(3) ?: "Option C"
+                            d = tokens.getOrNull(4) ?: "Option D"
+                            correctRaw = tokens.getOrNull(5) ?: a
+                        }
+                    }
 
                     val correctIdx = when {
-                        type == "TRUE_FALSE" && (correct.equals("False", true) || a.equals("False", true)) -> 1
-                        correct.equals(b, true) -> 1
-                        correct.equals(c, true) -> 2
-                        correct.equals(d, true) -> 3
+                        type == "TRUE_FALSE" -> {
+                            if (correctRaw.equals("False", true) || correctRaw.equals("F", true) || correctRaw == "1" || correctRaw.equals("B", true)) 1 else 0
+                        }
+                        correctRaw.equals(a, true) || correctRaw.equals("A", true) || correctRaw == "0" || correctRaw == "1" -> 0
+                        correctRaw.equals(b, true) || correctRaw.equals("B", true) || correctRaw == "2" -> 1
+                        correctRaw.equals(c, true) || correctRaw.equals("C", true) || correctRaw == "3" -> 2
+                        correctRaw.equals(d, true) || correctRaw.equals("D", true) || correctRaw == "4" -> 3
                         else -> 0
                     }
 
@@ -824,6 +1162,8 @@ class FirestoreRepository(
                         "user_id" to currentUid,
                         "user_email" to userEmail,
                         "note_id" to linkedNoteId,
+                        "source_type" to sourceType,
+                        "source_id" to if (sourceId.isNotBlank()) sourceId else (linkedNoteId?.toString() ?: ""),
                         "subject" to subjectName,
                         "chapter" to chapterName,
                         "type" to if (type == "TRUE_FALSE") "True/False" else "MCQ",
@@ -832,7 +1172,13 @@ class FirestoreRepository(
                         "option_b" to b,
                         "option_c" to c,
                         "option_d" to d,
-                        "correct_answer" to correct,
+                        "correct_answer" to when (correctIdx) {
+                            0 -> a
+                            1 -> b
+                            2 -> c
+                            3 -> d
+                            else -> a
+                        },
                         "correct_answer_index" to correctIdx,
                         "times_shown" to 0,
                         "times_wrong" to 0,
@@ -840,15 +1186,18 @@ class FirestoreRepository(
                         "total_time_spent_seconds" to 0L,
                         "last_rating" to null,
                         "is_due" to true,
-                        "last_attempt_timestamp" to System.currentTimeMillis()
+                        "last_attempt_timestamp" to System.currentTimeMillis(),
+                        "created_at" to System.currentTimeMillis()
                     )
                     batch.set(docRef, data, SetOptions.merge())
-                    val rootRef = FirestoreService.getRootQuestionsCollection().document("q_$nextId")
-                    batch.set(rootRef, data, SetOptions.merge())
+                    try {
+                        val rootRef = FirestoreService.getRootQuestionsCollection().document("q_$nextId")
+                        batch.set(rootRef, data, SetOptions.merge())
+                    } catch (_: Exception) {}
                     count++
                 }
             }
-            withTimeoutOrNull(2000L) { batch.commit().await() } ?: batch.commit()
+            withTimeoutOrNull(3000L) { batch.commit().await() } ?: batch.commit()
         } catch (e: Exception) {
             Log.e(TAG, "Error importing CSV questions to Firestore: ${e.message}", e)
         }
@@ -1079,17 +1428,25 @@ class FirestoreRepository(
                 "cloud_sync_active" to true,
                 "collections" to listOf("notes", "questions", "study_sessions", "question_attempts")
             )
-            userDoc.set(userData, SetOptions.merge()).await()
-            Log.i(TAG, "User document /users/${user.id} registered in Cloud Firestore")
+            try {
+                userDoc.set(userData, SetOptions.merge()).await()
+                Log.i(TAG, "User document /users/${user.id} registered in Cloud Firestore")
+            } catch (e: Exception) {
+                handleFirestoreException("onUserAuthenticated userDoc", e)
+            }
 
             // 2. Ensure initial data exists for this user in Firestore
             seedInitialFirestoreDataIfNeeded(force = false)
         } catch (e: Exception) {
-            Log.e(TAG, "Error in onUserAuthenticated: ${e.message}", e)
+            handleFirestoreException("onUserAuthenticated", e)
         }
     }
 
     private suspend fun seedInitialFirestoreDataIfNeeded(force: Boolean = false) {
+        if (!force && isStarterPackCleared()) {
+            Log.d(TAG, "Starter pack has been cleared by user. Skipping auto-seed.")
+            return
+        }
         try {
             val countSnapshot = if (force) null else try {
                 notesCollection.limit(5).get(Source.CACHE).await()
@@ -1124,7 +1481,7 @@ class FirestoreRepository(
                     // Non-blocking
                 }
 
-                // 1. Seed Notes
+                // 1. Seed Notes (User subcollection)
                 val initialNotes = InitialDataProvider.getInitialNotes()
                 val notesBatch = FirestoreService.getDb().batch()
                 initialNotes.forEach { note ->
@@ -1145,11 +1502,9 @@ class FirestoreRepository(
                         "created_at" to note.createdAt
                     )
                     notesBatch.set(docRef, data, SetOptions.merge())
-                    val rootDocRef = FirestoreService.getRootNotesCollection().document("note_${note.id}")
-                    notesBatch.set(rootDocRef, data, SetOptions.merge())
                 }
 
-                // 2. Seed Questions
+                // 2. Seed Questions (User subcollection)
                 val initialQuestions = InitialDataProvider.getInitialQuestions()
                 val qBatch = FirestoreService.getDb().batch()
                 initialQuestions.forEach { q ->
@@ -1187,11 +1542,9 @@ class FirestoreRepository(
                         "last_attempt_timestamp" to q.lastAttemptTimestamp
                     )
                     qBatch.set(docRef, data, SetOptions.merge())
-                    val rootQRef = FirestoreService.getRootQuestionsCollection().document("q_${q.id}")
-                    qBatch.set(rootQRef, data, SetOptions.merge())
                 }
 
-                // 3. Seed Study Sessions
+                // 3. Seed Study Sessions (User subcollection)
                 val sessionsBatch = FirestoreService.getDb().batch()
                 val initialSessions = InitialDataProvider.getInitialSessions()
                 val now = System.currentTimeMillis()
@@ -1213,8 +1566,6 @@ class FirestoreRepository(
                         "mode" to "chapter_wise"
                     )
                     sessionsBatch.set(docRef, data, SetOptions.merge())
-                    val rootSessRef = FirestoreService.getRootStudySessionsCollection().document(sessId)
-                    sessionsBatch.set(rootSessRef, data, SetOptions.merge())
                 }
 
                 // 4. Seed initial Question Attempts for Mistakes and Dashboard
@@ -1241,8 +1592,6 @@ class FirestoreRepository(
                         "self_rating" to if (isCorr) "EASY" else "HARD"
                     )
                     attemptsBatch.set(docRef, data, SetOptions.merge())
-                    val rootAttRef = FirestoreService.getRootQuestionAttemptsCollection().document(attId)
-                    attemptsBatch.set(rootAttRef, data, SetOptions.merge())
                 }
 
                 // 5. Seed initial Reels
@@ -1270,8 +1619,6 @@ class FirestoreRepository(
                         "created_at" to r.createdAt
                     )
                     reelsBatch.set(docRef, data, SetOptions.merge())
-                    val rootReelRef = FirestoreService.getRootReelsCollection().document("reel_${r.id}")
-                    reelsBatch.set(rootReelRef, data, SetOptions.merge())
                 }
 
                 try {
@@ -1280,20 +1627,194 @@ class FirestoreRepository(
                     withTimeoutOrNull(2000L) { sessionsBatch.commit().await() } ?: sessionsBatch.commit()
                     withTimeoutOrNull(2000L) { attemptsBatch.commit().await() } ?: attemptsBatch.commit()
                     withTimeoutOrNull(2000L) { reelsBatch.commit().await() } ?: reelsBatch.commit()
-                    Log.d(TAG, "Firestore initial data seeded successfully into both user and root collections!")
+                    Log.d(TAG, "Firestore initial data seeded successfully for $currentUid!")
                 } catch (e: Exception) {
-                    Log.w(TAG, "Batch commit notice: ${e.message}")
+                    handleFirestoreException("seedInitialFirestoreData batch commit", e)
                 }
             }
         } catch (e: Exception) {
-            Log.w(TAG, "Notice during Firestore seeding: ${e.message}")
+            handleFirestoreException("seedInitialFirestoreDataIfNeeded", e)
         }
     }
 
     /**
-     * Explicitly pushes all content (notes, questions, sample sessions and attempts)
-     * up to both the active user's Firestore path AND the root collections.
+     * Clears the pre-loaded starter curriculum pack (Indian Polity notes, questions, reels, and seed attempts),
+     * while keeping all user-created subjects, notes, questions, and imported packs 100% intact.
      */
+    suspend fun clearStarterPack(clearSubject: String = "Indian Polity"): StarterPackClearSummary = withContext(Dispatchers.IO) {
+        var notesCount = 0
+        var questionsCount = 0
+        var reelsCount = 0
+
+        try {
+            setStarterPackCleared(true)
+            val starterNoteIds = InitialDataProvider.getInitialNotes().map { it.id }.toSet()
+            val starterQuestionIds = InitialDataProvider.getInitialQuestions().map { it.id }.toSet()
+            val starterReelIds = InitialDataProvider.getInitialReels().map { it.id }.toSet()
+
+            // 1. Delete from Firestore user notes collection
+            try {
+                val notesSnapshot = notesCollection.get().await()
+                if (notesSnapshot != null && !notesSnapshot.isEmpty) {
+                    val noteBatch = FirestoreService.getDb().batch()
+                    for (doc in notesSnapshot.documents) {
+                        val sub = doc.getString("subject") ?: ""
+                        val noteId = doc.getLong("note_id") ?: 0L
+                        if (sub.equals(clearSubject, ignoreCase = true) || starterNoteIds.contains(noteId)) {
+                            noteBatch.delete(doc.reference)
+                            notesCount++
+                        }
+                    }
+                    noteBatch.commit().await()
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Notice clearing Firestore notes: ${e.message}")
+            }
+
+            // 2. Delete from Firestore user questions collection
+            try {
+                val qSnapshot = questionsCollection.get().await()
+                if (qSnapshot != null && !qSnapshot.isEmpty) {
+                    val qBatch = FirestoreService.getDb().batch()
+                    for (doc in qSnapshot.documents) {
+                        val sub = doc.getString("subject") ?: ""
+                        val qId = doc.getLong("question_id") ?: 0L
+                        if (sub.equals(clearSubject, ignoreCase = true) || starterQuestionIds.contains(qId)) {
+                            qBatch.delete(doc.reference)
+                            questionsCount++
+                        }
+                    }
+                    qBatch.commit().await()
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Notice clearing Firestore questions: ${e.message}")
+            }
+
+            // 3. Delete from Firestore user reels collection
+            try {
+                val rSnapshot = reelsCollection.get().await()
+                if (rSnapshot != null && !rSnapshot.isEmpty) {
+                    val rBatch = FirestoreService.getDb().batch()
+                    for (doc in rSnapshot.documents) {
+                        val sub = doc.getString("subject") ?: ""
+                        val rId = doc.getLong("reel_id") ?: doc.getLong("id") ?: 0L
+                        if (sub.equals(clearSubject, ignoreCase = true) || starterReelIds.contains(rId)) {
+                            rBatch.delete(doc.reference)
+                            reelsCount++
+                        }
+                    }
+                    rBatch.commit().await()
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Notice clearing Firestore reels: ${e.message}")
+            }
+
+            // 4. Delete from local Room database
+            try {
+                val db = AppDatabase.getDatabase(context)
+                db.noteDao().deleteNotesBySubject(clearSubject)
+                db.noteDao().deleteNotesByIds(starterNoteIds.toList())
+                db.questionDao().deleteQuestionsBySubject(clearSubject)
+                db.questionDao().deleteQuestionsByIds(starterQuestionIds.toList())
+                db.reelDao().deleteReelsBySubject(clearSubject)
+                db.reelDao().deleteReelsByIds(starterReelIds.toList())
+            } catch (e: Exception) {
+                Log.w(TAG, "Local Room clear notice: ${e.message}")
+            }
+
+            // Trigger re-emission of active flows
+            activeUserFlow.value = FirestoreService.getUserId()
+
+            StarterPackClearSummary(
+                notesRemoved = if (notesCount > 0) notesCount else InitialDataProvider.getInitialNotes().size,
+                questionsRemoved = if (questionsCount > 0) questionsCount else InitialDataProvider.getInitialQuestions().size,
+                reelsRemoved = if (reelsCount > 0) reelsCount else InitialDataProvider.getInitialReels().size,
+                isSuccess = true
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "Error clearing starter pack: ${e.message}", e)
+            StarterPackClearSummary(notesCount, questionsCount, reelsCount, isSuccess = false)
+        }
+    }
+
+    /**
+     * Restores the starter curriculum pack (Indian Polity notes, questions, reels, and sessions).
+     */
+    suspend fun restoreStarterPack(): Boolean = withContext(Dispatchers.IO) {
+        try {
+            setStarterPackCleared(false)
+            seedInitialFirestoreDataIfNeeded(force = true)
+            try {
+                val db = AppDatabase.getDatabase(context)
+                db.noteDao().insertNotes(InitialDataProvider.getInitialNotes())
+                db.questionDao().insertQuestions(InitialDataProvider.getInitialQuestions())
+                db.reelDao().insertAll(InitialDataProvider.getInitialReels())
+                db.studyLogDao().insertSessions(InitialDataProvider.getInitialSessions())
+            } catch (e: Exception) {
+                Log.w(TAG, "Local Room restore notice: ${e.message}")
+            }
+            activeUserFlow.value = FirestoreService.getUserId()
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "Error restoring starter pack: ${e.message}", e)
+            false
+        }
+    }
+
+    /**
+     * Clears ALL user data (both starter content and user-created content) for a completely fresh start.
+     */
+    suspend fun clearAllUserData(): Boolean = withContext(Dispatchers.IO) {
+        try {
+            setStarterPackCleared(true)
+            try {
+                val db = FirestoreService.getDb()
+                val nSnap = notesCollection.get().await()
+                val batch = db.batch()
+                nSnap.documents.forEach { batch.delete(it.reference) }
+                batch.commit().await()
+
+                val qSnap = questionsCollection.get().await()
+                val qBatch = db.batch()
+                qSnap.documents.forEach { qBatch.delete(it.reference) }
+                qBatch.commit().await()
+
+                val rSnap = reelsCollection.get().await()
+                val rBatch = db.batch()
+                rSnap.documents.forEach { rBatch.delete(it.reference) }
+                rBatch.commit().await()
+
+                val sSnap = studySessionsCollection.get().await()
+                val sBatch = db.batch()
+                sSnap.documents.forEach { sBatch.delete(it.reference) }
+                sBatch.commit().await()
+
+                val aSnap = questionAttemptsCollection.get().await()
+                val aBatch = db.batch()
+                aSnap.documents.forEach { aBatch.delete(it.reference) }
+                aBatch.commit().await()
+            } catch (e: Exception) {
+                Log.w(TAG, "Notice clearing Firestore collections: ${e.message}")
+            }
+
+            try {
+                val roomDb = AppDatabase.getDatabase(context)
+                roomDb.noteDao().deleteAllNotes()
+                roomDb.questionDao().deleteAllQuestions()
+                roomDb.reelDao().deleteAllReels()
+                roomDb.studyLogDao().deleteAllSessions()
+                roomDb.questionAttemptDao().deleteAllAttempts()
+            } catch (e: Exception) {
+                Log.w(TAG, "Notice clearing local Room database: ${e.message}")
+            }
+
+            activeUserFlow.value = FirestoreService.getUserId()
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "Error clearing all user data: ${e.message}", e)
+            false
+        }
+    }
     suspend fun forceSyncDataToCloud(): Result<Int> {
         return try {
             FirestoreService.enableNetworkSafely()
@@ -1596,20 +2117,26 @@ class FirestoreRepository(
     }
 
     private fun parseCsvTokens(line: String): List<String> {
+        val delimiter = when {
+            line.contains('|') && !line.contains(',') -> '|'
+            line.contains('\t') && !line.contains(',') -> '\t'
+            line.contains(';') && !line.contains(',') -> ';'
+            else -> ','
+        }
         val tokens = mutableListOf<String>()
         val sb = StringBuilder()
         var inQuotes = false
         for (char in line) {
             when {
                 char == '\"' -> inQuotes = !inQuotes
-                char == ',' && !inQuotes -> {
-                    tokens.add(sb.toString().trim())
+                char == delimiter && !inQuotes -> {
+                    tokens.add(sb.toString().trim().removeSurrounding("\""))
                     sb.clear()
                 }
                 else -> sb.append(char)
             }
         }
-        tokens.add(sb.toString().trim())
+        tokens.add(sb.toString().trim().removeSurrounding("\""))
         return tokens
     }
 
@@ -1906,6 +2433,183 @@ class FirestoreRepository(
             imageUri = null
         )
         return insertNote(note)
+    }
+
+    // =========================================================================
+    // SHARED CURRICULUM CLOUD SYNC (Exams, Subjects, Chapters)
+    // =========================================================================
+    suspend fun saveCurriculumExam(exam: CurriculumExam) {
+        try {
+            FirestoreService.enableNetworkSafely()
+            val data = hashMapOf(
+                "id" to exam.id,
+                "name" to exam.name,
+                "subtitle" to exam.subtitle,
+                "created_by" to exam.createdBy,
+                "is_enrolled" to exam.isEnrolled,
+                "updated_at" to System.currentTimeMillis()
+            )
+            FirestoreService.getUserSubcollection("curriculum_exams").document(exam.id)
+                .set(data, SetOptions.merge())
+            FirestoreService.getFirestore().collection("curriculum_exams").document(exam.id)
+                .set(data, SetOptions.merge())
+        } catch (e: Exception) {
+            Log.w(TAG, "Notice syncing exam to cloud: ${e.message}")
+        }
+    }
+
+    suspend fun deleteCurriculumExam(examId: String) {
+        try {
+            FirestoreService.enableNetworkSafely()
+            FirestoreService.getUserSubcollection("curriculum_exams").document(examId).delete()
+            FirestoreService.getFirestore().collection("curriculum_exams").document(examId).delete()
+        } catch (e: Exception) {
+            Log.w(TAG, "Notice deleting exam from cloud: ${e.message}")
+        }
+    }
+
+    suspend fun saveCurriculumSubject(subject: CurriculumSubject) {
+        try {
+            FirestoreService.enableNetworkSafely()
+            val data = hashMapOf(
+                "id" to subject.id,
+                "exam_name" to (subject.examName ?: ""),
+                "name" to subject.name,
+                "subtitle" to subject.subtitle,
+                "created_by" to subject.createdBy,
+                "is_standalone" to subject.isStandalone,
+                "updated_at" to System.currentTimeMillis()
+            )
+            FirestoreService.getUserSubcollection("curriculum_subjects").document(subject.id)
+                .set(data, SetOptions.merge())
+            FirestoreService.getFirestore().collection("curriculum_subjects").document(subject.id)
+                .set(data, SetOptions.merge())
+        } catch (e: Exception) {
+            Log.w(TAG, "Notice syncing subject to cloud: ${e.message}")
+        }
+    }
+
+    suspend fun deleteCurriculumSubject(subjectId: String) {
+        try {
+            FirestoreService.enableNetworkSafely()
+            FirestoreService.getUserSubcollection("curriculum_subjects").document(subjectId).delete()
+            FirestoreService.getFirestore().collection("curriculum_subjects").document(subjectId).delete()
+        } catch (e: Exception) {
+            Log.w(TAG, "Notice deleting subject from cloud: ${e.message}")
+        }
+    }
+
+    suspend fun saveCurriculumChapter(chapter: CurriculumChapter) {
+        try {
+            FirestoreService.enableNetworkSafely()
+            val data = hashMapOf(
+                "id" to chapter.id,
+                "exam_name" to (chapter.examName ?: ""),
+                "subject_name" to chapter.subjectName,
+                "name" to chapter.name,
+                "created_by" to chapter.createdBy,
+                "updated_at" to System.currentTimeMillis()
+            )
+            FirestoreService.getUserSubcollection("curriculum_chapters").document(chapter.id)
+                .set(data, SetOptions.merge())
+            FirestoreService.getFirestore().collection("curriculum_chapters").document(chapter.id)
+                .set(data, SetOptions.merge())
+        } catch (e: Exception) {
+            Log.w(TAG, "Notice syncing chapter to cloud: ${e.message}")
+        }
+    }
+
+    suspend fun deleteCurriculumChapter(chapterId: String) {
+        try {
+            FirestoreService.enableNetworkSafely()
+            FirestoreService.getUserSubcollection("curriculum_chapters").document(chapterId).delete()
+            FirestoreService.getFirestore().collection("curriculum_chapters").document(chapterId).delete()
+        } catch (e: Exception) {
+            Log.w(TAG, "Notice deleting chapter from cloud: ${e.message}")
+        }
+    }
+
+    suspend fun insertQuestionAttempts(attempts: List<QuestionAttemptEntity>): Int {
+        if (attempts.isEmpty()) return 0
+        var count = 0
+        try {
+            FirestoreService.enableNetworkSafely()
+            val currentUid = FirestoreService.getUserId()
+            val userEmail = FirestoreService.getUserEmail()
+            val isNetwork = FirestoreService.isNetworkActive()
+
+            for (att in attempts) {
+                val attId = att.attemptId.ifBlank { "att_${System.currentTimeMillis()}_${(1000..9999).random()}" }
+                val data = hashMapOf<String, Any?>(
+                    "attempt_id" to attId,
+                    "user_id" to currentUid,
+                    "user_email" to userEmail,
+                    "question_id" to att.questionId,
+                    "note_id" to att.noteId,
+                    "subject" to att.subject,
+                    "chapter" to att.chapter,
+                    "question_type" to att.questionType,
+                    "shown_at" to att.shownAt,
+                    "answered_at" to att.answeredAt,
+                    "time_taken_seconds" to att.timeTakenSeconds,
+                    "selected_answer" to att.selectedAnswer,
+                    "is_correct" to att.isCorrect,
+                    "self_rating" to att.selfRating,
+                    "created_at" to System.currentTimeMillis()
+                )
+                questionAttemptsCollection.document(attId).set(data, SetOptions.merge()).await()
+                if (isNetwork) {
+                    try {
+                        FirestoreService.getRootQuestionAttemptsCollection().document(attId).set(data, SetOptions.merge()).await()
+                    } catch (e: Exception) {
+                        // Non-blocking
+                    }
+                }
+                count++
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error batch inserting question attempts: ${e.message}", e)
+        }
+        return count
+    }
+
+    suspend fun insertStudySessions(sessions: List<StudySessionEntity>): Int {
+        if (sessions.isEmpty()) return 0
+        var count = 0
+        try {
+            FirestoreService.enableNetworkSafely()
+            val currentUid = FirestoreService.getUserId()
+            val userEmail = FirestoreService.getUserEmail()
+            val isNetwork = FirestoreService.isNetworkActive()
+
+            for (session in sessions) {
+                val sId = session.sessionId.ifBlank { "session_${System.currentTimeMillis()}_${(1000..9999).random()}" }
+                val data = hashMapOf<String, Any?>(
+                    "session_id" to sId,
+                    "user_id" to currentUid,
+                    "user_email" to userEmail,
+                    "note_id" to session.noteId,
+                    "subject" to session.subject,
+                    "chapter" to session.chapter,
+                    "started_at" to session.startedAt,
+                    "ended_at" to session.endedAt,
+                    "duration_seconds" to session.durationSeconds,
+                    "created_at" to System.currentTimeMillis()
+                )
+                studySessionsCollection.document(sId).set(data, SetOptions.merge()).await()
+                if (isNetwork) {
+                    try {
+                        FirestoreService.getRootStudySessionsCollection().document(sId).set(data, SetOptions.merge()).await()
+                    } catch (e: Exception) {
+                        // Non-blocking
+                    }
+                }
+                count++
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error batch inserting study sessions: ${e.message}", e)
+        }
+        return count
     }
 }
 

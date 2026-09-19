@@ -35,6 +35,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -236,10 +237,11 @@ private fun ImageNoteView(
                 style = androidx.compose.ui.text.TextStyle(
                     fontFamily = FontFamily.Serif,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
+                    fontSize = 15.sp,
                     color = Color(0xFF1E293B)
                 ),
-                maxLines = 1,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
             )
 
@@ -402,10 +404,11 @@ private fun WrittenStudyNoteView(note: NoteEntity?) {
                 style = androidx.compose.ui.text.TextStyle(
                     fontFamily = FontFamily.Serif,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
+                    fontSize = 15.sp,
                     color = Color(0xFF1E293B)
                 ),
-                maxLines = 1,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
             )
 
@@ -492,6 +495,7 @@ private fun WrittenStudyNoteView(note: NoteEntity?) {
                     )
                 }
             }
+            Spacer(modifier = Modifier.height(54.dp))
         }
     }
 }

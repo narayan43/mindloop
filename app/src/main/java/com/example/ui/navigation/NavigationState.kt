@@ -26,7 +26,8 @@ sealed class ScreenDestination {
         val subjectName: String,
         val chapterName: String? = null,
         val specificQuestionId: Long? = null,
-        val onlyMistakes: Boolean = false
+        val onlyMistakes: Boolean = false,
+        val isReelTest: Boolean = false
     ) : ScreenDestination()
 
     // Auth flow
@@ -43,7 +44,13 @@ sealed class ScreenDestination {
         val examName: String = "UPSI",
         val subjectName: String = "Indian Polity",
         val chapterName: String? = null,
-        val initialReelId: Long? = null
+        val initialReelId: Long? = null,
+        val openUploadDialog: Boolean = false
     ) : ScreenDestination()
+
+    // Reels Test flow
+    object ReelTestExams : ScreenDestination()
+    data class ReelTestSubjectsGrid(val examName: String) : ScreenDestination()
+    data class ReelTestSubjectDetail(val examName: String, val subjectName: String) : ScreenDestination()
 }
 

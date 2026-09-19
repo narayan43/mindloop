@@ -194,6 +194,31 @@ object OfflineImageManager {
     }
 
     /**
+     * Resolves the existing local private image file if available on disk.
+     */
+    fun getExistingLocalImageFile(context: Context, noteId: Long, imageUri: String?): File? {
+        if (imageUri.isNullOrBlank()) return null
+        val uri = imageUri.trim()
+        if (uri.startsWith("file://") || uri.startsWith("/")) {
+            val localFile = File(uri.removePrefix("file://"))
+            if (localFile.exists() && localFile.length() > 0) return localFile
+        }
+        if (uri.startsWith("http://", ignoreCase = true) || uri.startsWith("https://", ignoreCase = true)) {
+            val localFile = getLocalFileForRemoteUrl(context, noteId, uri)
+            if (localFile.exists() && localFile.length() > 0) return localFile
+        }
+        val vaultDir = getVaultDirectory(context)
+        val files = vaultDir.listFiles() ?: emptyArray()
+        val found = files.find {
+            it.name.startsWith("vault_note_${noteId}_") ||
+            it.name.startsWith("note_${noteId}_") ||
+            it.name.startsWith("note_${noteId}.")
+        }
+        if (found != null && found.length() > 0) return found
+        return null
+    }
+
+    /**
      * Starts listening for network connectivity.
      * When internet becomes available, automatically runs scanAndDownloadAllNotes.
      */

@@ -45,4 +45,13 @@ interface ReelDao {
 
     @Query("SELECT COUNT(*) FROM reels")
     suspend fun getReelCount(): Int
+
+    @Query("DELETE FROM reels WHERE id IN (:ids)")
+    suspend fun deleteReelsByIds(ids: List<Long>): Int
+
+    @Query("DELETE FROM reels WHERE subject = :subject")
+    suspend fun deleteReelsBySubject(subject: String): Int
+
+    @Query("DELETE FROM reels")
+    suspend fun deleteAllReels(): Int
 }

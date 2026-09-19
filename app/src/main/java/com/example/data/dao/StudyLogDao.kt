@@ -23,4 +23,10 @@ interface StudyLogDao {
 
     @Query("SELECT * FROM study_sessions WHERE session_id = :sessionId LIMIT 1")
     suspend fun getSessionById(sessionId: String): StudySessionEntity?
+
+    @Query("DELETE FROM study_sessions WHERE session_id IN (:ids)")
+    suspend fun deleteSessionsByIds(ids: List<String>): Int
+
+    @Query("DELETE FROM study_sessions")
+    suspend fun deleteAllSessions(): Int
 }

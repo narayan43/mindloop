@@ -83,75 +83,44 @@ class AuthManager(
     suspend fun signInWithEmail(email: String, password: String): Result<AuthUser> {
         val cleanEmail = email.trim()
         val cleanPassword = password.trim()
+
         return try {
             val result = auth.signInWithEmailAndPassword(cleanEmail, cleanPassword).await()
             val user = result.user ?: throw IllegalStateException("Firebase returned null user after sign-in")
             Result.success(mapToAuthUser(user))
         } catch (e: Exception) {
             Log.w(TAG, "signInWithEmail note: ${e.message}")
-            // If this is the project owner/admin, gracefully authorize session even if Firebase password check fails in emulator
-            if (com.example.data.config.AdminConfig.ADMIN_EMAILS.any { it.equals(cleanEmail, ignoreCase = true) }) {
-                Log.i(TAG, "Authorized project admin session for $cleanEmail")
-                return Result.success(
-                    AuthUser(
-                        id = com.example.data.config.AdminConfig.PRIMARY_ADMIN_UID,
-                        name = "Narayan Rajput",
-                        email = cleanEmail,
-                        photoUrl = null,
-                        provider = PROVIDER_EMAIL,
-                        role = "admin"
-                    )
-                )
-            }
-
-            // If the error is FirebaseAuthInvalidCredentialsException (which Firebase throws for either wrong password
-            // or non-existent user account), try seamless account creation so first-time users can sign in immediately
-            // without being blocked if they entered their details in the Log In tab!
-            if (e is com.google.firebase.auth.FirebaseAuthInvalidCredentialsException ||
+            val userFriendlyMsg = when {
+                e is com.google.firebase.auth.FirebaseAuthInvalidCredentialsException ||
+                e.message?.contains("incorrect, malformed or has expired", ignoreCase = true) == true ||
                 e.message?.contains("invalid-credential", ignoreCase = true) == true ||
-                e.message?.contains("user-not-found", ignoreCase = true) == true ||
-                e.message?.contains("incorrect, malformed or has expired", ignoreCase = true) == true
-            ) {
-                try {
-                    val createResult = auth.createUserWithEmailAndPassword(cleanEmail, cleanPassword).await()
-                    val newUser = createResult.user
-                    if (newUser != null) {
-                        val name = cleanEmail.substringBefore("@").replaceFirstChar { it.uppercase() }
-                        try {
-                            val profileUpdates = com.google.firebase.auth.UserProfileChangeRequest.Builder()
-                                .setDisplayName(name)
-                                .build()
-                            newUser.updateProfile(profileUpdates).await()
-                        } catch (_: Exception) {}
-                        Log.i(TAG, "Seamlessly registered new aspirant account for $cleanEmail")
-                        return Result.success(mapToAuthUser(newUser))
-                    }
-                } catch (createEx: Exception) {
-                    Log.w(TAG, "Secondary user creation check note: ${createEx.message}")
-                    if (createEx is com.google.firebase.auth.FirebaseAuthUserCollisionException ||
-                        createEx.message?.contains("already in use", ignoreCase = true) == true
-                    ) {
-                        return Result.failure(Exception("Incorrect password for this account. Please verify your password or tap 'Forgot password?'."))
-                    }
-                }
+                e.message?.contains("wrong-password", ignoreCase = true) == true ->
+                    "The password or email is incorrect. Please verify your credentials or tap 'Forgot password?'."
+                e is com.google.firebase.auth.FirebaseAuthInvalidUserException ||
+                e.message?.contains("user-not-found", ignoreCase = true) == true ->
+                    "No account found with this email. Please switch to 'Sign Up' to create your account."
+                else -> e.localizedMessage ?: "Sign-in could not be completed. Please check your network and credentials."
             }
-            Result.failure(e)
+            Result.failure(Exception(userFriendlyMsg))
         }
     }
 
     suspend fun signUpWithEmail(fullName: String, email: String, password: String): Result<AuthUser> {
         val cleanEmail = email.trim()
         val cleanPassword = password.trim()
+
         return try {
             val result = auth.createUserWithEmailAndPassword(cleanEmail, cleanPassword).await()
             val user = result.user ?: throw IllegalStateException("Firebase returned null user after sign-up")
 
             // Update display name
             if (fullName.isNotBlank()) {
-                val profileUpdates = com.google.firebase.auth.UserProfileChangeRequest.Builder()
-                    .setDisplayName(fullName.trim())
-                    .build()
-                user.updateProfile(profileUpdates).await()
+                try {
+                    val profileUpdates = com.google.firebase.auth.UserProfileChangeRequest.Builder()
+                        .setDisplayName(fullName.trim())
+                        .build()
+                    user.updateProfile(profileUpdates).await()
+                } catch (_: Exception) {}
             }
 
             Result.success(
@@ -165,31 +134,9 @@ class AuthManager(
             )
         } catch (e: Exception) {
             Log.w(TAG, "signUpWithEmail note: ${e.message}")
-            if (com.example.data.config.AdminConfig.ADMIN_EMAILS.any { it.equals(cleanEmail, ignoreCase = true) }) {
-                Log.i(TAG, "Authorized project admin session on sign-up fallback for $cleanEmail")
-                return Result.success(
-                    AuthUser(
-                        id = com.example.data.config.AdminConfig.PRIMARY_ADMIN_UID,
-                        name = fullName.ifBlank { "Narayan Rajput" },
-                        email = cleanEmail,
-                        photoUrl = null,
-                        provider = PROVIDER_EMAIL,
-                        role = "admin"
-                    )
-                )
-            }
             if (e is com.google.firebase.auth.FirebaseAuthUserCollisionException ||
                 e.message?.contains("already in use", ignoreCase = true) == true
             ) {
-                // If account already exists with this email, attempt sign in with this password
-                try {
-                    val signInResult = auth.signInWithEmailAndPassword(cleanEmail, cleanPassword).await()
-                    val existingUser = signInResult.user
-                    if (existingUser != null) {
-                        Log.i(TAG, "Account already exists, signed in directly for $cleanEmail")
-                        return Result.success(mapToAuthUser(existingUser))
-                    }
-                } catch (_: Exception) {}
                 return Result.failure(Exception("An account already exists with this email. Please switch to the 'Log In' tab or reset your password."))
             }
             Result.failure(e)

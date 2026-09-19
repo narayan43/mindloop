@@ -13,10 +13,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -48,6 +51,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -65,9 +69,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.entity.QuestionEntity
+import com.example.data.model.SpacedRepetitionScheduler
+import com.example.data.model.SrsNextReviewProjection
 import com.example.ui.components.InteractiveCard
 import com.example.ui.components.InteractiveCardBorder
 import com.example.ui.components.MindLoopPrimaryButton
@@ -97,6 +104,7 @@ fun TestExamListScreen(
     onSelectExam: (String) -> Unit,
     onSelectCustomSubject: (String) -> Unit = {},
     onAddNewSubject: (String) -> Unit = {},
+    onOpenReelTests: () -> Unit = {},
     onViewSubjectStats: ((String) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
@@ -186,7 +194,7 @@ fun TestExamListScreen(
                     badgeColor = Terracotta,
                     isActive = true,
                     testTag = "test_exam_card_reels",
-                    onClick = { onSelectCustomSubject("Reels Concepts") }
+                    onClick = onOpenReelTests
                 )
             }
 
@@ -465,16 +473,17 @@ fun TestSubjectCard(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .height(150.dp)
+            .wrapContentHeight()
+            .heightIn(min = 150.dp)
             .testTag("test_subject_${subject.name.lowercase().replace(" ", "_")}"),
         shape = RoundedCornerShape(16.dp),
         elevation = 5.dp
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .padding(14.dp),
-            verticalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Box(
                 modifier = Modifier
@@ -635,11 +644,13 @@ fun TestSubjectDetailScreen(
             Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = subjectName,
-                fontSize = 22.sp,
+                fontSize = if (subjectName.length > 20) 18.sp else 21.sp,
                 fontWeight = FontWeight.Bold,
                 color = DeepIndigo,
                 modifier = Modifier.weight(1f),
-                maxLines = 1
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                lineHeight = 24.sp
             )
             // Stats button
             if (subjectStats != null || onViewStats != null) {
@@ -877,6 +888,7 @@ fun QuestionReviewScreen(
     questions: List<QuestionEntity>,
     onViewSourceNote: (noteId: Long?) -> Unit,
     onViewSourceReel: (reelId: Long) -> Unit = {},
+    isReelTest: Boolean = false,
     onRecordAttempt: (questionId: Long, isCorrect: Boolean, rating: String, timeSpentSec: Long) -> Unit,
     onLogQuestionAttempt: (
         attemptId: String,
@@ -967,6 +979,7 @@ fun QuestionReviewScreen(
             .fillMaxSize()
             .background(BackgroundOffWhite)
             .statusBarsPadding()
+            .navigationBarsPadding()
             .padding(horizontal = 20.dp)
             .verticalScroll(rememberScrollState())
     ) {
@@ -982,12 +995,19 @@ fun QuestionReviewScreen(
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = DeepIndigo)
             }
 
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 8.dp)
+            ) {
                 Text(
                     text = "Reviewing: $chapterName",
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
-                    color = DeepIndigo
+                    color = DeepIndigo,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = "${currentIndex + 1}/${questions.size.coerceAtLeast(1)} due today",
@@ -1220,7 +1240,7 @@ fun QuestionReviewScreen(
         Spacer(modifier = Modifier.height(18.dp))
 
         // "🔗 View Source Reel" or "🔗 View Source Note" secondary button
-        if (currentQuestion.sourceType.equals("reel", ignoreCase = true) ||
+        if (isReelTest || currentQuestion.sourceType.equals("reel", ignoreCase = true) ||
             (currentQuestion.sourceId.isNotBlank() && currentQuestion.linkedNoteId == null)
         ) {
             val reelId = currentQuestion.sourceId.toLongOrNull() ?: 1L
@@ -1251,23 +1271,34 @@ fun QuestionReviewScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
-        // Spaced Repetition Rating Buttons: Easy / Medium / Hard
+        // Spaced Repetition Dynamic Next Review Projection
+        val isAnswerCorrect = selectedAnswerIndex == currentQuestion.correctAnswerIndex
+        val effectiveMistakes = currentQuestion.timesWrong + (if (isAnswerCorrect) 0 else 1)
+        val (easyProj, medProj, hardProj) = remember(currentQuestion, isAnswerCorrect) {
+            SpacedRepetitionScheduler.getProjectionsForQuestion(
+                question = currentQuestion,
+                isCurrentAnswerCorrect = isAnswerCorrect
+            )
+        }
+
+        // Spaced Repetition Rating Prompt
         Text(
-            text = "How was this question?",
+            text = "Select recall difficulty to schedule next review:",
             fontSize = 13.sp,
-            fontWeight = FontWeight.Medium,
-            color = TextSecondary,
+            fontWeight = FontWeight.SemiBold,
+            color = TextPrimary,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(10.dp))
 
+        // Selectable Rating Buttons: Easy / Medium / Hard
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             // Easy Button (Sage Green)
             MindLoopPrimaryButton(
@@ -1280,12 +1311,15 @@ fun QuestionReviewScreen(
                     onRecordAttempt(currentQuestion.id, correct, "EASY", finalTime)
                     if (currentIndex < questions.size - 1) currentIndex++ else onBack()
                 },
-                modifier = Modifier.weight(1f).height(48.dp).testTag("rating_easy"),
+                modifier = Modifier.weight(1f).height(58.dp).testTag("rating_easy"),
                 shape = RoundedCornerShape(12.dp),
                 containerColor = SageGreen,
                 elevation = 4.dp
             ) {
-                Text("Easy", fontWeight = FontWeight.Bold, color = Color.White)
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Easy", fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = Color.White)
+                    Text(easyProj.relativeTimeText, fontSize = 10.5.sp, fontWeight = FontWeight.Medium, color = Color.White.copy(alpha = 0.92f))
+                }
             }
 
             // Medium Button (Amber)
@@ -1299,12 +1333,15 @@ fun QuestionReviewScreen(
                     onRecordAttempt(currentQuestion.id, correct, "MEDIUM", finalTime)
                     if (currentIndex < questions.size - 1) currentIndex++ else onBack()
                 },
-                modifier = Modifier.weight(1f).height(48.dp).testTag("rating_medium"),
+                modifier = Modifier.weight(1f).height(58.dp).testTag("rating_medium"),
                 shape = RoundedCornerShape(12.dp),
                 containerColor = Amber,
                 elevation = 4.dp
             ) {
-                Text("Medium", fontWeight = FontWeight.Bold, color = Color.White)
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Medium", fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = Color.White)
+                    Text(medProj.relativeTimeText, fontSize = 10.5.sp, fontWeight = FontWeight.Medium, color = Color.White.copy(alpha = 0.92f))
+                }
             }
 
             // Hard Button (Terracotta)
@@ -1318,15 +1355,160 @@ fun QuestionReviewScreen(
                     onRecordAttempt(currentQuestion.id, correct, "HARD", finalTime)
                     if (currentIndex < questions.size - 1) currentIndex++ else onBack()
                 },
-                modifier = Modifier.weight(1f).height(48.dp).testTag("rating_hard"),
+                modifier = Modifier.weight(1f).height(58.dp).testTag("rating_hard"),
                 shape = RoundedCornerShape(12.dp),
                 containerColor = Terracotta,
                 elevation = 4.dp
             ) {
-                Text("Hard", fontWeight = FontWeight.Bold, color = Color.White)
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Hard", fontWeight = FontWeight.Bold, fontSize = 13.5.sp, color = Color.White)
+                    Text(hardProj.relativeTimeText, fontSize = 10.5.sp, fontWeight = FontWeight.Medium, color = Color.White.copy(alpha = 0.92f))
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Next Review Schedule (SRS) Details Card placed below buttons
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(14.dp),
+            color = DeepIndigo.copy(alpha = 0.04f),
+            border = BorderStroke(1.dp, DeepIndigo.copy(alpha = 0.12f))
+        ) {
+            Column(modifier = Modifier.padding(12.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Timer,
+                            contentDescription = null,
+                            tint = DeepIndigo,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "Next Review Schedule (SRS)",
+                            fontSize = 12.5.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = DeepIndigo
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(if (effectiveMistakes > 0) Terracotta.copy(alpha = 0.12f) else SageGreenLight)
+                            .padding(horizontal = 7.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = if (effectiveMistakes > 0) "$effectiveMistakes Mistake${if (effectiveMistakes > 1) "s" else ""} on record" else "0 Mistakes",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (effectiveMistakes > 0) Terracotta else SageGreen
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Text(
+                    text = if (effectiveMistakes > 0) {
+                        "Next repetition interval is shortened based on your $effectiveMistakes past mistake${if (effectiveMistakes > 1) "s" else ""}:"
+                    } else {
+                        "Intervals expand progressively as recall confidence increases:"
+                    },
+                    fontSize = 11.5.sp,
+                    color = TextSecondary,
+                    lineHeight = 15.sp
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // 3 mini schedule cards displaying exact next review intervals & calendar days
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    SrsSchedulePill(
+                        label = "Easy",
+                        badge = easyProj.intervalBadge,
+                        dayText = easyProj.scheduledDayName,
+                        color = SageGreen,
+                        modifier = Modifier.weight(1f)
+                    )
+                    SrsSchedulePill(
+                        label = "Medium",
+                        badge = medProj.intervalBadge,
+                        dayText = medProj.scheduledDayName,
+                        color = Amber,
+                        modifier = Modifier.weight(1f)
+                    )
+                    SrsSchedulePill(
+                        label = "Hard",
+                        badge = hardProj.intervalBadge,
+                        dayText = hardProj.scheduledDayName,
+                        color = Terracotta,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
         }
 
         Spacer(modifier = Modifier.height(30.dp))
+    }
+}
+
+@Composable
+private fun SrsSchedulePill(
+    label: String,
+    badge: String,
+    dayText: String,
+    color: Color,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(10.dp),
+        color = color.copy(alpha = 0.10f),
+        border = BorderStroke(1.dp, color.copy(alpha = 0.35f))
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 6.dp, vertical = 6.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(6.dp)
+                        .clip(CircleShape)
+                        .background(color)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = label,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = color
+                )
+            }
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = "+$badge",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = TextPrimary
+            )
+            Text(
+                text = dayText,
+                fontSize = 9.5.sp,
+                color = TextSecondary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     }
 }

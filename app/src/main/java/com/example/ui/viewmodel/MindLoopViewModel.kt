@@ -9,6 +9,18 @@ import com.example.data.entity.QuestionAttemptEntity
 import com.example.data.entity.QuestionEntity
 import com.example.data.entity.ReelEntity
 import com.example.data.entity.StudySessionEntity
+import com.example.data.model.CurriculumChapter
+import com.example.data.model.CurriculumExam
+import com.example.data.model.CurriculumSubject
+import com.example.data.model.BackupNoteItem
+import com.example.data.model.BackupQuestionItem
+import com.example.data.model.BackupReelItem
+import com.example.data.model.BackupUserAttemptItem
+import com.example.data.model.BackupStudySessionItem
+import com.example.data.model.MindLoopCourseBackup
+import com.example.data.model.DataBackupManager
+import com.example.data.model.SpacedRepetitionScheduler
+import com.example.data.model.SrsNextReviewProjection
 import com.example.data.firestore.DashboardChapterAccuracy
 import com.example.data.firestore.DashboardMistakeRank
 import com.example.data.firestore.FirestoreRepository
@@ -61,6 +73,14 @@ data class SrsQuestionPriority(
     val recommendedIntervalHours: Float,
     val retentionEstimatePercent: Int,
     val priorityReason: String
+)
+
+data class StarterPackClearResult(
+    val notesRemoved: Int,
+    val questionsRemoved: Int,
+    val reelsRemoved: Int,
+    val isSuccess: Boolean,
+    val message: String
 )
 
 class MindLoopViewModel(
@@ -118,105 +138,434 @@ class MindLoopViewModel(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     // -------------------------------------------------------------------------
-    // CUSTOM / INDEPENDENT SUBJECTS & CHAPTERS MANAGEMENT
+    // UNIFIED SHARED CURRICULUM (Exams, Subjects, Chapters)
     // -------------------------------------------------------------------------
     private val curriculumPrefs by lazy {
         repository.context.getSharedPreferences("mindloop_curriculum_prefs", Context.MODE_PRIVATE)
     }
 
-    private fun loadCustomSubjects(): List<String> {
-        val stored = curriculumPrefs.getStringSet("custom_subjects_set", null)
-        return if (stored != null) {
-            val list = stored.toList().sorted()
-            if (!list.any { it.equals("Psychology", ignoreCase = true) }) {
-                listOf("Psychology") + list
-            } else list
-        } else {
-            listOf("Psychology")
-        }
-    }
-
-    private fun saveCustomSubjects(subjects: List<String>) {
-        curriculumPrefs.edit()
-            .putStringSet("custom_subjects_set", subjects.toSet())
-            .apply()
-    }
-
-    private fun loadCustomChapters(): Map<String, List<String>> {
-        val map = mutableMapOf<String, List<String>>()
-        val defaultPsychChapters = listOf(
-            "1. Deception Detection & Behavioral Analysis",
-            "2. Influence & Persuasion (Foundation & 6MX Profiling)"
+    private val defaultExams = listOf(
+        CurriculumExam(
+            id = "exam_upsi",
+            name = "UPSI – Police Sub-Inspector",
+            subtitle = "Polity, Law, General Hindi, Mental Aptitude",
+            createdBy = "admin",
+            isEnrolled = true
         )
-        map["Psychology"] = defaultPsychChapters
+    )
 
-        for (subj in loadCustomSubjects()) {
-            val stored = curriculumPrefs.getStringSet("custom_chapters_${subj.lowercase()}", null)
-            if (stored != null && stored.isNotEmpty()) {
-                val list = stored.toList().toMutableList()
-                if (subj.equals("Psychology", ignoreCase = true)) {
-                    list.removeAll { it.contains("Introduction") || it.contains("Biological Bases") || it.contains("Learning & Conditioning") || it.contains("Memory & Cognition") }
-                    for (ch in defaultPsychChapters) {
-                        if (!list.contains(ch)) list.add(ch)
-                    }
-                }
-                map[subj] = list.sorted()
-            } else if (!map.containsKey(subj)) {
-                map[subj] = emptyList()
+    private val defaultSubjects = listOf(
+        CurriculumSubject(
+            id = "subj_upsi_polity",
+            examName = "UPSI – Police Sub-Inspector",
+            name = "Indian Polity",
+            subtitle = "Constitution, Articles & Governance",
+            createdBy = "admin",
+            isStandalone = false
+        ),
+        CurriculumSubject(
+            id = "subj_upsi_law",
+            examName = "UPSI – Police Sub-Inspector",
+            name = "Basic Law / Mool Vidhi",
+            subtitle = "IPC, CrPC & Motor Vehicle Act",
+            createdBy = "admin",
+            isStandalone = false
+        ),
+        CurriculumSubject(
+            id = "subj_upsi_hindi",
+            examName = "UPSI – Police Sub-Inspector",
+            name = "General Hindi",
+            subtitle = "Vyakaran, Sahitya & Shabdavali",
+            createdBy = "admin",
+            isStandalone = false
+        ),
+        CurriculumSubject(
+            id = "subj_upsi_quant",
+            examName = "UPSI – Police Sub-Inspector",
+            name = "Numerical & Mental Ability",
+            subtitle = "Maths, Data Interpretation",
+            createdBy = "admin",
+            isStandalone = false
+        ),
+        CurriculumSubject(
+            id = "subj_upsi_reasoning",
+            examName = "UPSI – Police Sub-Inspector",
+            name = "Mental Aptitude / Reasoning",
+            subtitle = "Logical Reasoning & IQ",
+            createdBy = "admin",
+            isStandalone = false
+        ),
+        CurriculumSubject(
+            id = "subj_psychology",
+            examName = null,
+            name = "Psychology",
+            subtitle = "Cognitive Psychology, Memory & Attention",
+            createdBy = "admin",
+            isStandalone = true
+        )
+    )
+
+    private val defaultChapters = listOf(
+        CurriculumChapter(id = "chap_polity_1", examName = "UPSI – Police Sub-Inspector", subjectName = "Indian Polity", name = "1. Making of the Constitution", createdBy = "admin"),
+        CurriculumChapter(id = "chap_polity_2", examName = "UPSI – Police Sub-Inspector", subjectName = "Indian Polity", name = "2. Preamble", createdBy = "admin"),
+        CurriculumChapter(id = "chap_polity_3", examName = "UPSI – Police Sub-Inspector", subjectName = "Indian Polity", name = "3. Fundamental Rights", createdBy = "admin"),
+        CurriculumChapter(id = "chap_polity_4", examName = "UPSI – Police Sub-Inspector", subjectName = "Indian Polity", name = "4. Directive Principles of State Policy", createdBy = "admin"),
+        CurriculumChapter(id = "chap_polity_5", examName = "UPSI – Police Sub-Inspector", subjectName = "Indian Polity", name = "5. Fundamental Duties", createdBy = "admin"),
+        CurriculumChapter(id = "chap_polity_6", examName = "UPSI – Police Sub-Inspector", subjectName = "Indian Polity", name = "6. Union Executive (President & VP)", createdBy = "admin"),
+        CurriculumChapter(id = "chap_psych_1", examName = null, subjectName = "Psychology", name = "1. Deception Detection & Behavioral Analysis", createdBy = "admin"),
+        CurriculumChapter(id = "chap_psych_2", examName = null, subjectName = "Psychology", name = "2. Influence & Persuasion (Foundation & 6MX Profiling)", createdBy = "admin")
+    )
+
+    private fun loadExamsFromPrefs(): List<CurriculumExam> {
+        val raw = curriculumPrefs.getString("curriculum_exams_json", null)
+        if (raw.isNullOrBlank()) return defaultExams
+        return try {
+            val array = org.json.JSONArray(raw)
+            val list = mutableListOf<CurriculumExam>()
+            for (i in 0 until array.length()) {
+                val obj = array.getJSONObject(i)
+                list.add(
+                    CurriculumExam(
+                        id = obj.getString("id"),
+                        name = obj.getString("name"),
+                        subtitle = obj.optString("subtitle", ""),
+                        createdBy = obj.optString("createdBy", "admin"),
+                        isEnrolled = obj.optBoolean("isEnrolled", true)
+                    )
+                )
             }
+            if (!list.any { it.name.contains("UPSI", ignoreCase = true) }) {
+                defaultExams + list
+            } else list
+        } catch (e: Exception) {
+            defaultExams
         }
-        return map
     }
 
-    private fun saveCustomChapters(map: Map<String, List<String>>) {
-        val editor = curriculumPrefs.edit()
-        for ((subj, chapters) in map) {
-            editor.putStringSet("custom_chapters_${subj.lowercase()}", chapters.toSet())
+    private fun saveExamsToPrefs(exams: List<CurriculumExam>) {
+        val array = org.json.JSONArray()
+        for (item in exams) {
+            val obj = org.json.JSONObject().apply {
+                put("id", item.id)
+                put("name", item.name)
+                put("subtitle", item.subtitle)
+                put("createdBy", item.createdBy)
+                put("isEnrolled", item.isEnrolled)
+            }
+            array.put(obj)
         }
-        editor.apply()
+        curriculumPrefs.edit().putString("curriculum_exams_json", array.toString()).apply()
     }
 
-    private val _customSubjects = MutableStateFlow<List<String>>(loadCustomSubjects())
+    private fun loadSubjectsFromPrefs(): List<CurriculumSubject> {
+        val raw = curriculumPrefs.getString("curriculum_subjects_json", null)
+        if (raw.isNullOrBlank()) return defaultSubjects
+        return try {
+            val array = org.json.JSONArray(raw)
+            val list = mutableListOf<CurriculumSubject>()
+            for (i in 0 until array.length()) {
+                val obj = array.getJSONObject(i)
+                val exam = obj.optString("examName", "").ifBlank { null }
+                list.add(
+                    CurriculumSubject(
+                        id = obj.getString("id"),
+                        examName = exam,
+                        name = obj.getString("name"),
+                        subtitle = obj.optString("subtitle", ""),
+                        createdBy = obj.optString("createdBy", "admin"),
+                        isStandalone = obj.optBoolean("isStandalone", exam == null)
+                    )
+                )
+            }
+            // Ensure default subjects are present
+            val result = list.toMutableList()
+            for (def in defaultSubjects) {
+                if (!result.any { it.name.equals(def.name, ignoreCase = true) }) {
+                    result.add(def)
+                }
+            }
+            result
+        } catch (e: Exception) {
+            defaultSubjects
+        }
+    }
+
+    private fun saveSubjectsToPrefs(subjects: List<CurriculumSubject>) {
+        val array = org.json.JSONArray()
+        for (item in subjects) {
+            val obj = org.json.JSONObject().apply {
+                put("id", item.id)
+                put("examName", item.examName ?: "")
+                put("name", item.name)
+                put("subtitle", item.subtitle)
+                put("createdBy", item.createdBy)
+                put("isStandalone", item.isStandalone)
+            }
+            array.put(obj)
+        }
+        curriculumPrefs.edit().putString("curriculum_subjects_json", array.toString()).apply()
+    }
+
+    private fun loadChaptersFromPrefs(): List<CurriculumChapter> {
+        val raw = curriculumPrefs.getString("curriculum_chapters_json", null)
+        if (raw.isNullOrBlank()) return defaultChapters
+        return try {
+            val array = org.json.JSONArray(raw)
+            val list = mutableListOf<CurriculumChapter>()
+            for (i in 0 until array.length()) {
+                val obj = array.getJSONObject(i)
+                val exam = obj.optString("examName", "").ifBlank { null }
+                list.add(
+                    CurriculumChapter(
+                        id = obj.getString("id"),
+                        examName = exam,
+                        subjectName = obj.getString("subjectName"),
+                        name = obj.getString("name"),
+                        createdBy = obj.optString("createdBy", "admin")
+                    )
+                )
+            }
+            val result = list.toMutableList()
+            for (def in defaultChapters) {
+                if (!result.any { it.name.equals(def.name, ignoreCase = true) && it.subjectName.equals(def.subjectName, ignoreCase = true) }) {
+                    result.add(def)
+                }
+            }
+            result
+        } catch (e: Exception) {
+            defaultChapters
+        }
+    }
+
+    private fun saveChaptersToPrefs(chapters: List<CurriculumChapter>) {
+        val array = org.json.JSONArray()
+        for (item in chapters) {
+            val obj = org.json.JSONObject().apply {
+                put("id", item.id)
+                put("examName", item.examName ?: "")
+                put("subjectName", item.subjectName)
+                put("name", item.name)
+                put("createdBy", item.createdBy)
+            }
+            array.put(obj)
+        }
+        curriculumPrefs.edit().putString("curriculum_chapters_json", array.toString()).apply()
+    }
+
+    private val _allExams = MutableStateFlow<List<CurriculumExam>>(loadExamsFromPrefs())
+    val allExams: StateFlow<List<CurriculumExam>> = _allExams.asStateFlow()
+    val curriculumExams: StateFlow<List<CurriculumExam>> = allExams
+
+    private val _allSubjects = MutableStateFlow<List<CurriculumSubject>>(loadSubjectsFromPrefs())
+    val allSubjects: StateFlow<List<CurriculumSubject>> = _allSubjects.asStateFlow()
+    val curriculumSubjects: StateFlow<List<CurriculumSubject>> = allSubjects
+
+    private val _allChapters = MutableStateFlow<List<CurriculumChapter>>(loadChaptersFromPrefs())
+    val allChapters: StateFlow<List<CurriculumChapter>> = _allChapters.asStateFlow()
+    val curriculumChapters: StateFlow<List<CurriculumChapter>> = allChapters
+
+    // Backwards-compatible customSubjects and customChapters for existing UI screens
+    private val _customSubjects = MutableStateFlow<List<String>>(
+        _allSubjects.value.filter { it.isStandalone || it.createdBy != "admin" }.map { it.name }.distinct()
+    )
     val customSubjects: StateFlow<List<String>> = _customSubjects.asStateFlow()
 
-    private val _customChapters = MutableStateFlow<Map<String, List<String>>>(loadCustomChapters())
+    private val _customChapters = MutableStateFlow<Map<String, List<String>>>(
+        _allChapters.value.groupBy({ it.subjectName }, { it.name })
+    )
     val customChapters: StateFlow<Map<String, List<String>>> = _customChapters.asStateFlow()
 
-    fun addCustomSubject(subjectName: String, initialChapter: String? = null) {
-        val cleanSubj = subjectName.trim()
-        if (cleanSubj.isBlank()) return
-        val current = _customSubjects.value.toMutableList()
-        if (!current.any { it.equals(cleanSubj, ignoreCase = true) }) {
-            current.add(cleanSubj)
-            _customSubjects.value = current
-            saveCustomSubjects(current)
+    private fun syncLegacyState() {
+        _customSubjects.value = _allSubjects.value.filter { it.isStandalone || it.createdBy != "admin" }.map { it.name }.distinct()
+        _customChapters.value = _allChapters.value.groupBy({ it.subjectName }, { it.name })
+    }
+
+    fun canModify(createdBy: String): Boolean {
+        if (createdBy.equals("admin", ignoreCase = true)) return false
+        val currentUid = _currentUser.value?.id ?: "user"
+        return createdBy == currentUid || createdBy == "user" || createdBy.isNotBlank()
+    }
+
+    fun addExam(name: String, subtitle: String = "") {
+        val cleanName = name.trim()
+        if (cleanName.isBlank()) return
+        val currentUid = _currentUser.value?.id ?: "user"
+        val newExam = CurriculumExam(
+            id = "exam_${System.currentTimeMillis()}",
+            name = cleanName,
+            subtitle = subtitle.trim().ifBlank { "Enrolled Exam Course" },
+            createdBy = currentUid,
+            isEnrolled = true
+        )
+        val updated = _allExams.value + newExam
+        _allExams.value = updated
+        saveExamsToPrefs(updated)
+        syncLegacyState()
+        viewModelScope.launch { repository.saveCurriculumExam(newExam) }
+    }
+
+    fun editExam(id: String, newName: String, newSubtitle: String = "") {
+        val cleanName = newName.trim()
+        if (cleanName.isBlank()) return
+        val exam = _allExams.value.find { it.id == id } ?: return
+        if (!canModify(exam.createdBy)) return
+        val updated = _allExams.value.map {
+            if (it.id == id) it.copy(name = cleanName, subtitle = newSubtitle.trim()) else it
         }
-        if (!initialChapter.isNullOrBlank()) {
-            addCustomChapter(cleanSubj, initialChapter)
+        _allExams.value = updated
+        saveExamsToPrefs(updated)
+        syncLegacyState()
+        viewModelScope.launch {
+            repository.saveCurriculumExam(exam.copy(name = cleanName, subtitle = newSubtitle.trim()))
         }
     }
 
-    fun addCustomChapter(subjectName: String, chapterName: String) {
+    fun deleteExam(id: String) {
+        val exam = _allExams.value.find { it.id == id } ?: return
+        if (!canModify(exam.createdBy)) return
+        val updated = _allExams.value.filter { it.id != id }
+        _allExams.value = updated
+        saveExamsToPrefs(updated)
+        syncLegacyState()
+        viewModelScope.launch { repository.deleteCurriculumExam(id) }
+    }
+
+    fun addSubject(name: String, examName: String? = null, subtitle: String = "", initialChapter: String? = null) {
+        val cleanName = name.trim()
+        if (cleanName.isBlank()) return
+        val currentUid = _currentUser.value?.id ?: "user"
+        val isStandalone = examName.isNullOrBlank()
+        val newSubj = CurriculumSubject(
+            id = "subj_${System.currentTimeMillis()}",
+            examName = examName?.trim()?.ifBlank { null },
+            name = cleanName,
+            subtitle = subtitle.trim().ifBlank { if (isStandalone) "Self-Study & Micro-Learning" else "Subject under $examName" },
+            createdBy = currentUid,
+            isStandalone = isStandalone
+        )
+        val updated = _allSubjects.value + newSubj
+        _allSubjects.value = updated
+        saveSubjectsToPrefs(updated)
+        viewModelScope.launch { repository.saveCurriculumSubject(newSubj) }
+
+        if (!initialChapter.isNullOrBlank()) {
+            addChapter(subjectName = cleanName, chapterName = initialChapter, examName = examName)
+        } else {
+            syncLegacyState()
+        }
+    }
+
+    fun editSubject(id: String, newName: String, newSubtitle: String = "") {
+        val cleanName = newName.trim()
+        if (cleanName.isBlank()) return
+        val subj = _allSubjects.value.find { it.id == id } ?: return
+        if (!canModify(subj.createdBy)) return
+        val oldName = subj.name
+        val updated = _allSubjects.value.map {
+            if (it.id == id) it.copy(name = cleanName, subtitle = newSubtitle.trim()) else it
+        }
+        _allSubjects.value = updated
+        saveSubjectsToPrefs(updated)
+
+        // Also update chapters referencing the old subject name
+        if (!oldName.equals(cleanName, ignoreCase = true)) {
+            val updatedChapters = _allChapters.value.map {
+                if (it.subjectName.equals(oldName, ignoreCase = true)) it.copy(subjectName = cleanName) else it
+            }
+            _allChapters.value = updatedChapters
+            saveChaptersToPrefs(updatedChapters)
+        }
+        syncLegacyState()
+        viewModelScope.launch {
+            repository.saveCurriculumSubject(subj.copy(name = cleanName, subtitle = newSubtitle.trim()))
+        }
+    }
+
+    fun deleteSubject(id: String) {
+        val subj = _allSubjects.value.find { it.id == id } ?: return
+        if (!canModify(subj.createdBy)) return
+        val updated = _allSubjects.value.filter { it.id != id }
+        _allSubjects.value = updated
+        saveSubjectsToPrefs(updated)
+
+        // Also remove chapters for this subject
+        val updatedChapters = _allChapters.value.filter { !it.subjectName.equals(subj.name, ignoreCase = true) }
+        _allChapters.value = updatedChapters
+        saveChaptersToPrefs(updatedChapters)
+
+        syncLegacyState()
+        viewModelScope.launch { repository.deleteCurriculumSubject(id) }
+    }
+
+    fun addChapter(subjectName: String, chapterName: String, examName: String? = null) {
         val cleanSubj = subjectName.trim()
         val cleanChap = chapterName.trim()
         if (cleanSubj.isBlank() || cleanChap.isBlank()) return
+        val currentUid = _currentUser.value?.id ?: "user"
 
-        val currentSubjs = _customSubjects.value.toMutableList()
-        if (!currentSubjs.any { it.equals(cleanSubj, ignoreCase = true) }) {
-            currentSubjs.add(cleanSubj)
-            _customSubjects.value = currentSubjs
-            saveCustomSubjects(currentSubjs)
+        // Ensure subject exists if not present
+        if (!_allSubjects.value.any { it.name.equals(cleanSubj, ignoreCase = true) }) {
+            addSubject(name = cleanSubj, examName = examName)
         }
 
-        val map = _customChapters.value.toMutableMap()
-        val list = (map[cleanSubj] ?: emptyList()).toMutableList()
-        if (!list.any { it.equals(cleanChap, ignoreCase = true) }) {
-            list.add(cleanChap)
-            map[cleanSubj] = list
-            _customChapters.value = map
-            saveCustomChapters(map)
+        val newChap = CurriculumChapter(
+            id = "chap_${System.currentTimeMillis()}",
+            examName = examName?.trim()?.ifBlank { null },
+            subjectName = cleanSubj,
+            name = cleanChap,
+            createdBy = currentUid
+        )
+        val updated = _allChapters.value + newChap
+        _allChapters.value = updated
+        saveChaptersToPrefs(updated)
+        syncLegacyState()
+        viewModelScope.launch { repository.saveCurriculumChapter(newChap) }
+    }
+
+    fun editChapter(id: String, newName: String) {
+        val cleanName = newName.trim()
+        if (cleanName.isBlank()) return
+        val chap = _allChapters.value.find { it.id == id } ?: return
+        if (!canModify(chap.createdBy)) return
+        val updated = _allChapters.value.map {
+            if (it.id == id) it.copy(name = cleanName) else it
+        }
+        _allChapters.value = updated
+        saveChaptersToPrefs(updated)
+        syncLegacyState()
+        viewModelScope.launch {
+            repository.saveCurriculumChapter(chap.copy(name = cleanName))
         }
     }
+
+    fun deleteChapter(id: String) {
+        val chap = _allChapters.value.find { it.id == id } ?: return
+        if (!canModify(chap.createdBy)) return
+        val updated = _allChapters.value.filter { it.id != id }
+        _allChapters.value = updated
+        saveChaptersToPrefs(updated)
+        syncLegacyState()
+        viewModelScope.launch { repository.deleteCurriculumChapter(id) }
+    }
+
+    fun addCustomSubject(subjectName: String, initialChapter: String? = null) {
+        addSubject(name = subjectName, examName = null, initialChapter = initialChapter)
+    }
+
+    fun addCustomChapter(subjectName: String, chapterName: String) {
+        addChapter(subjectName = subjectName, chapterName = chapterName, examName = null)
+    }
+
+    fun canModifyItem(createdBy: String) = canModify(createdBy)
+    fun addCurriculumExam(name: String, subtitle: String = "") = addExam(name, subtitle)
+    fun editCurriculumExam(id: String, name: String, subtitle: String = "") = editExam(id, name, subtitle)
+    fun deleteCurriculumExam(id: String) = deleteExam(id)
+    fun addCurriculumSubject(name: String, examName: String? = null, subtitle: String = "") = addSubject(name, examName, subtitle)
+    fun editCurriculumSubject(id: String, name: String, subtitle: String = "") = editSubject(id, name, subtitle)
+    fun deleteCurriculumSubject(id: String) = deleteSubject(id)
+    fun addCurriculumChapter(name: String, examName: String? = null, subjectName: String) = addChapter(subjectName, name, examName)
+    fun editCurriculumChapter(id: String, name: String) = editChapter(id, name)
+    fun deleteCurriculumChapter(id: String) = deleteChapter(id)
 
     fun getSubjectDetailedStats(subjectName: String): SubjectDetailedStats {
         val notes = allNotes.value.filter { it.subjectName.equals(subjectName, ignoreCase = true) }
@@ -587,7 +936,9 @@ class MindLoopViewModel(
             is ScreenDestination.StudySubjectDetail, is ScreenDestination.StudyNotesFeed,
             is ScreenDestination.AddNotes -> _currentTab.value = BottomNavTab.STUDY
             is ScreenDestination.TestExams, is ScreenDestination.TestSubjectsGrid,
-            is ScreenDestination.TestSubjectDetail, is ScreenDestination.QuestionReview -> _currentTab.value = BottomNavTab.TEST
+            is ScreenDestination.TestSubjectDetail, is ScreenDestination.QuestionReview,
+            is ScreenDestination.ReelTestExams, is ScreenDestination.ReelTestSubjectsGrid,
+            is ScreenDestination.ReelTestSubjectDetail -> _currentTab.value = BottomNavTab.TEST
             is ScreenDestination.Auth, is ScreenDestination.AdminDashboard,
             is ScreenDestination.ReelExams, is ScreenDestination.ReelSubjectsGrid,
             is ScreenDestination.ReelSubjectDetail, is ScreenDestination.ReelFeed -> Unit
@@ -611,7 +962,9 @@ class MindLoopViewModel(
                 is ScreenDestination.StudySubjectDetail, is ScreenDestination.StudyNotesFeed,
                 is ScreenDestination.AddNotes -> _currentTab.value = BottomNavTab.STUDY
                 is ScreenDestination.TestExams, is ScreenDestination.TestSubjectsGrid,
-                is ScreenDestination.TestSubjectDetail, is ScreenDestination.QuestionReview -> _currentTab.value = BottomNavTab.TEST
+                is ScreenDestination.TestSubjectDetail, is ScreenDestination.QuestionReview,
+                is ScreenDestination.ReelTestExams, is ScreenDestination.ReelTestSubjectsGrid,
+                is ScreenDestination.ReelTestSubjectDetail -> _currentTab.value = BottomNavTab.TEST
                 is ScreenDestination.Auth, is ScreenDestination.AdminDashboard,
                 is ScreenDestination.ReelExams, is ScreenDestination.ReelSubjectsGrid,
                 is ScreenDestination.ReelSubjectDetail, is ScreenDestination.ReelFeed -> Unit
@@ -772,16 +1125,22 @@ class MindLoopViewModel(
      * Calculates the optimal review interval (in hours) based on SRS stability principles.
      */
     fun calculateRecommendedIntervalHours(question: QuestionEntity): Float {
-        val mistakes = question.timesWrong
-        val rating = question.lastRating?.uppercase()
-        return when {
-            mistakes >= 3 || rating == "HARD" -> 4.0f    // Urgent repeat within 4 hours
-            mistakes in 1..2 -> 12.0f                    // High difficulty: repeat within 12 hours
-            rating == "MEDIUM" -> 36.0f                  // Moderate recall: repeat within 1.5 days
-            rating == "EASY" && mistakes == 0 -> 120.0f  // Mastered: spaced out to 5 days
-            question.totalAttempts == 0 -> 8.0f          // Initial learning window
-            else -> 24.0f                                // Standard 1-day spacing
-        }
+        return SpacedRepetitionScheduler.projectNextReview(
+            question = question,
+            isCurrentAnswerCorrect = true,
+            rating = question.lastRating ?: "MEDIUM"
+        ).intervalHours
+    }
+
+    /**
+     * Returns the 3 dynamic SRS next-review projections (Easy, Medium, Hard)
+     * accounting for mistake frequency and past attempts.
+     */
+    fun getProjectedNextReviews(
+        question: QuestionEntity,
+        isCurrentAnswerCorrect: Boolean
+    ): Triple<SrsNextReviewProjection, SrsNextReviewProjection, SrsNextReviewProjection> {
+        return SpacedRepetitionScheduler.getProjectionsForQuestion(question, isCurrentAnswerCorrect)
     }
 
     /**
@@ -990,13 +1349,26 @@ class MindLoopViewModel(
         }
     }
 
+    fun addQuestions(questions: List<QuestionEntity>, onComplete: ((Int) -> Unit)? = null) {
+        if (questions.isEmpty()) return
+        val first = questions.first()
+        addCustomSubject(first.subjectName, first.chapterName)
+        viewModelScope.launch {
+            val count = repository.insertQuestions(questions)
+            onComplete?.invoke(count)
+        }
+    }
+
     suspend fun importCsvQuestions(
         subjectName: String,
         chapterName: String,
         linkedNoteId: Long?,
-        csvContent: String
+        csvContent: String,
+        sourceType: String = if (linkedNoteId != null) "note" else "note",
+        sourceId: String = linkedNoteId?.toString() ?: ""
     ): Int {
-        return repository.importCsvQuestions(subjectName, chapterName, linkedNoteId, csvContent)
+        addCustomSubject(subjectName, chapterName)
+        return repository.importCsvQuestions(subjectName, chapterName, linkedNoteId, csvContent, sourceType, sourceId)
     }
 
     suspend fun importCsvNotes(csvContent: String): Int {
@@ -1046,6 +1418,398 @@ class MindLoopViewModel(
             }.onFailure {
                 onComplete(false, 0)
             }
+        }
+    }
+
+    data class ImportSummary(
+        val notesImported: Int = 0,
+        val questionsImported: Int = 0,
+        val reelsImported: Int = 0,
+        val subjectsCreated: Int = 0,
+        val chaptersCreated: Int = 0,
+        val attemptsImported: Int = 0,
+        val sessionsImported: Int = 0
+    )
+
+    fun createCourseBackup(
+        selectedSubjects: Set<String>? = null,
+        includeNotes: Boolean = true,
+        includeQuestions: Boolean = true,
+        includeReels: Boolean = true,
+        includeCurriculum: Boolean = true,
+        includeUserData: Boolean = false
+    ): MindLoopCourseBackup {
+        val allNotesList = allNotes.value
+        val allQuestionsList = allQuestions.value
+        val allReelsList = allReels.value
+        val examsList = _allExams.value
+        val subjectsList = _allSubjects.value
+        val chaptersList = _allChapters.value
+        val allAttemptsList = questionAttempts.value
+        val allSessionsList = studySessions.value
+
+        val filteredSubjects = if (selectedSubjects != null) {
+            subjectsList.filter { selectedSubjects.contains(it.name) }
+        } else subjectsList
+
+        val allowedSubjectNames = selectedSubjects ?: subjectsList.map { it.name }.toSet()
+
+        val filteredNotes = if (includeNotes) {
+            allNotesList.filter { allowedSubjectNames.contains(it.subjectName) }.map { n ->
+                BackupNoteItem(
+                    id = n.id,
+                    examId = n.examId,
+                    subjectName = n.subjectName,
+                    chapterName = n.chapterName,
+                    chapterNumber = n.chapterNumber,
+                    title = n.title,
+                    summaryText = n.summaryText,
+                    imageUri = n.imageUri
+                )
+            }
+        } else emptyList()
+
+        val filteredQuestions = if (includeQuestions) {
+            allQuestionsList.filter { allowedSubjectNames.contains(it.subjectName) }.map { q ->
+                BackupQuestionItem(
+                    id = q.id,
+                    examId = q.examId,
+                    subjectName = q.subjectName,
+                    chapterName = q.chapterName,
+                    questionType = q.questionType,
+                    questionText = q.questionText,
+                    optionA = q.optionA,
+                    optionB = q.optionB,
+                    optionC = q.optionC,
+                    optionD = q.optionD,
+                    correctAnswerIndex = q.correctAnswerIndex,
+                    sourceType = q.sourceType,
+                    sourceId = q.sourceId
+                )
+            }
+        } else emptyList()
+
+        val filteredReels = if (includeReels) {
+            allReelsList.filter { allowedSubjectNames.contains(it.subject) }.map { r ->
+                BackupReelItem(
+                    id = r.id,
+                    exam = r.exam,
+                    subject = r.subject,
+                    chapter = r.chapter,
+                    title = r.title,
+                    description = r.description,
+                    videoUrl = r.videoUrl,
+                    durationSeconds = r.durationSeconds,
+                    uploadedBy = r.uploadedBy
+                )
+            }
+        } else emptyList()
+
+        val filteredChapters = if (selectedSubjects != null) {
+            chaptersList.filter { selectedSubjects.contains(it.subjectName) }
+        } else chaptersList
+
+        val filteredAttempts = if (includeUserData) {
+            allAttemptsList.filter { allowedSubjectNames.isEmpty() || allowedSubjectNames.contains(it.subject) }.map { a ->
+                BackupUserAttemptItem(
+                    attemptId = a.attemptId,
+                    questionId = a.questionId,
+                    noteId = a.noteId,
+                    subject = a.subject,
+                    chapter = a.chapter,
+                    questionType = a.questionType,
+                    shownAt = a.shownAt,
+                    answeredAt = a.answeredAt,
+                    timeTakenSeconds = a.timeTakenSeconds,
+                    selectedAnswer = a.selectedAnswer,
+                    isCorrect = a.isCorrect,
+                    selfRating = a.selfRating
+                )
+            }
+        } else emptyList<BackupUserAttemptItem>()
+
+        val filteredSessions = if (includeUserData) {
+            allSessionsList.filter { allowedSubjectNames.isEmpty() || allowedSubjectNames.contains(it.subject) }.map { s ->
+                BackupStudySessionItem(
+                    sessionId = s.sessionId,
+                    noteId = s.noteId,
+                    subject = s.subject,
+                    chapter = s.chapter,
+                    startedAt = s.startedAt,
+                    endedAt = s.endedAt,
+                    durationSeconds = s.durationSeconds
+                )
+            }
+        } else emptyList<BackupStudySessionItem>()
+
+        return MindLoopCourseBackup(
+            version = 1,
+            appName = "MindLoop",
+            exportedAt = System.currentTimeMillis(),
+            sourceUser = currentUser.value?.name ?: "MindLoop Aspirant",
+            exams = if (includeCurriculum) examsList else emptyList(),
+            subjects = if (includeCurriculum) filteredSubjects else emptyList(),
+            chapters = if (includeCurriculum) filteredChapters else emptyList(),
+            notes = filteredNotes,
+            questions = filteredQuestions,
+            reels = filteredReels,
+            userAttempts = filteredAttempts,
+            studySessions = filteredSessions
+        )
+    }
+
+    suspend fun importBackup(
+        backup: MindLoopCourseBackup,
+        importNotes: Boolean = true,
+        importQuestions: Boolean = true,
+        importReels: Boolean = true,
+        importCurriculum: Boolean = true,
+        importUserData: Boolean = true
+    ): ImportSummary {
+        var newSubjCount = 0
+        var newChapCount = 0
+
+        // 1. Sync & Merge Curriculum (Exams, Subjects, Chapters)
+        if (importCurriculum || backup.subjects.isNotEmpty() || backup.chapters.isNotEmpty()) {
+            val currentExams = _allExams.value.toMutableList()
+            for (e in backup.exams) {
+                if (!currentExams.any { it.name.equals(e.name, ignoreCase = true) }) {
+                    currentExams.add(e)
+                    viewModelScope.launch { repository.saveCurriculumExam(e) }
+                }
+            }
+            _allExams.value = currentExams
+            saveExamsToPrefs(currentExams)
+
+            val currentSubjects = _allSubjects.value.toMutableList()
+            for (s in backup.subjects) {
+                if (!currentSubjects.any { it.name.equals(s.name, ignoreCase = true) }) {
+                    currentSubjects.add(s)
+                    newSubjCount++
+                    viewModelScope.launch { repository.saveCurriculumSubject(s) }
+                }
+            }
+
+            // Ensure any subjects mentioned in notes, questions, reels exist
+            val incomingSubjects = mutableSetOf<String>()
+            if (importNotes) incomingSubjects.addAll(backup.notes.map { it.subjectName })
+            if (importQuestions) incomingSubjects.addAll(backup.questions.map { it.subjectName })
+            if (importReels) incomingSubjects.addAll(backup.reels.map { it.subject })
+
+            for (sName in incomingSubjects) {
+                if (sName.isNotBlank() && !currentSubjects.any { it.name.equals(sName, ignoreCase = true) }) {
+                    val newS = CurriculumSubject(
+                        id = "subj_${System.currentTimeMillis()}_${(100..999).random()}",
+                        examName = null,
+                        name = sName,
+                        subtitle = "Imported Subject",
+                        createdBy = "imported",
+                        isStandalone = true
+                    )
+                    currentSubjects.add(newS)
+                    newSubjCount++
+                    viewModelScope.launch { repository.saveCurriculumSubject(newS) }
+                }
+            }
+            _allSubjects.value = currentSubjects
+            saveSubjectsToPrefs(currentSubjects)
+
+            val currentChapters = _allChapters.value.toMutableList()
+            for (c in backup.chapters) {
+                if (!currentChapters.any { it.name.equals(c.name, ignoreCase = true) && it.subjectName.equals(c.subjectName, ignoreCase = true) }) {
+                    currentChapters.add(c)
+                    newChapCount++
+                    viewModelScope.launch { repository.saveCurriculumChapter(c) }
+                }
+            }
+
+            // Ensure any chapters mentioned in notes, questions, reels exist
+            val incomingChapters = mutableSetOf<Pair<String, String>>()
+            if (importNotes) backup.notes.forEach { incomingChapters.add(it.subjectName to it.chapterName) }
+            if (importQuestions) backup.questions.forEach { incomingChapters.add(it.subjectName to it.chapterName) }
+            if (importReels) backup.reels.forEach { incomingChapters.add(it.subject to it.chapter) }
+
+            for ((subj, chap) in incomingChapters) {
+                if (subj.isNotBlank() && chap.isNotBlank() && !currentChapters.any { it.name.equals(chap, ignoreCase = true) && it.subjectName.equals(subj, ignoreCase = true) }) {
+                    val newC = CurriculumChapter(
+                        id = "chap_${System.currentTimeMillis()}_${(100..999).random()}",
+                        examName = null,
+                        subjectName = subj,
+                        name = chap,
+                        createdBy = "imported"
+                    )
+                    currentChapters.add(newC)
+                    newChapCount++
+                    viewModelScope.launch { repository.saveCurriculumChapter(newC) }
+                }
+            }
+            _allChapters.value = currentChapters
+            saveChaptersToPrefs(currentChapters)
+            syncLegacyState()
+        }
+
+        // 2. Insert Notes
+        var notesInserted = 0
+        if (importNotes && backup.notes.isNotEmpty()) {
+            val noteEntities = backup.notes.map { n ->
+                NoteEntity(
+                    examId = n.examId,
+                    subjectName = n.subjectName,
+                    chapterName = n.chapterName,
+                    chapterNumber = n.chapterNumber,
+                    title = n.title,
+                    summaryText = n.summaryText,
+                    imageUri = n.imageUri,
+                    revisitCount = 1,
+                    timeSpentSeconds = 60,
+                    lastReadTimestamp = System.currentTimeMillis(),
+                    createdAt = System.currentTimeMillis()
+                )
+            }
+            notesInserted = repository.insertNotes(noteEntities)
+        }
+
+        // 3. Insert Questions
+        var questionsInserted = 0
+        if (importQuestions && backup.questions.isNotEmpty()) {
+            val questionEntities = backup.questions.map { q ->
+                QuestionEntity(
+                    linkedNoteId = null,
+                    examId = q.examId,
+                    subjectName = q.subjectName,
+                    chapterName = q.chapterName,
+                    questionType = q.questionType,
+                    questionText = q.questionText,
+                    optionA = q.optionA,
+                    optionB = q.optionB,
+                    optionC = q.optionC,
+                    optionD = q.optionD,
+                    correctAnswerIndex = q.correctAnswerIndex,
+                    timesShown = 0,
+                    timesWrong = 0,
+                    totalAttempts = 0,
+                    totalTimeSpentSeconds = 0,
+                    lastRating = null,
+                    isDue = true,
+                    sourceType = q.sourceType,
+                    sourceId = q.sourceId
+                )
+            }
+            questionsInserted = repository.insertQuestions(questionEntities)
+        }
+
+        // 4. Insert Reels
+        var reelsInserted = 0
+        if (importReels && backup.reels.isNotEmpty()) {
+            val reelEntities = backup.reels.map { r ->
+                ReelEntity(
+                    exam = r.exam,
+                    subject = r.subject,
+                    chapter = r.chapter,
+                    title = r.title,
+                    description = r.description,
+                    videoUrl = r.videoUrl,
+                    durationSeconds = r.durationSeconds,
+                    uploadedBy = r.uploadedBy
+                )
+            }
+            reelsInserted = repository.insertReels(reelEntities)
+        }
+
+        // 5. Insert User Activity Data (Question Attempts, Mistakes & Study Sessions)
+        var attemptsInserted = 0
+        var sessionsInserted = 0
+        if (importUserData && backup.hasUserData) {
+            if (backup.userAttempts.isNotEmpty()) {
+                val attemptEntities = backup.userAttempts.map { a ->
+                    QuestionAttemptEntity(
+                        attemptId = a.attemptId,
+                        questionId = a.questionId,
+                        noteId = a.noteId,
+                        subject = a.subject,
+                        chapter = a.chapter,
+                        questionType = a.questionType,
+                        shownAt = a.shownAt,
+                        answeredAt = a.answeredAt,
+                        timeTakenSeconds = a.timeTakenSeconds,
+                        selectedAnswer = a.selectedAnswer,
+                        isCorrect = a.isCorrect,
+                        selfRating = a.selfRating
+                    )
+                }
+                attemptsInserted = repository.insertQuestionAttempts(attemptEntities)
+            }
+
+            if (backup.studySessions.isNotEmpty()) {
+                val sessionEntities = backup.studySessions.map { s ->
+                    StudySessionEntity(
+                        sessionId = s.sessionId,
+                        noteId = s.noteId,
+                        subject = s.subject,
+                        chapter = s.chapter,
+                        startedAt = s.startedAt,
+                        endedAt = s.endedAt,
+                        durationSeconds = s.durationSeconds
+                    )
+                }
+                sessionsInserted = repository.insertStudySessions(sessionEntities)
+            }
+        }
+
+        return ImportSummary(
+            notesImported = notesInserted,
+            questionsImported = questionsInserted,
+            reelsImported = reelsInserted,
+            subjectsCreated = newSubjCount,
+            chaptersCreated = newChapCount,
+            attemptsImported = attemptsInserted,
+            sessionsImported = sessionsInserted
+        )
+    }
+
+    val isStarterPackCleared: StateFlow<Boolean> = repository.starterPackClearedFlow.asStateFlow()
+
+    fun clearStarterPack(onComplete: (StarterPackClearResult) -> Unit) {
+        viewModelScope.launch {
+            val summary = repository.clearStarterPack("Indian Polity")
+            val msg = if (summary.isSuccess) {
+                "Starter Pack cleared! (${summary.notesRemoved} notes, ${summary.questionsRemoved} questions, ${summary.reelsRemoved} reels removed). Your custom data remains 100% untouched."
+            } else {
+                "Failed to clear starter pack."
+            }
+            onComplete(
+                StarterPackClearResult(
+                    notesRemoved = summary.notesRemoved,
+                    questionsRemoved = summary.questionsRemoved,
+                    reelsRemoved = summary.reelsRemoved,
+                    isSuccess = summary.isSuccess,
+                    message = msg
+                )
+            )
+        }
+    }
+
+    fun restoreStarterPack(onComplete: (Boolean, String) -> Unit) {
+        viewModelScope.launch {
+            val success = repository.restoreStarterPack()
+            val msg = if (success) {
+                "Starter Pack (Indian Polity) restored successfully!"
+            } else {
+                "Failed to restore starter pack."
+            }
+            onComplete(success, msg)
+        }
+    }
+
+    fun clearAllUserData(onComplete: (Boolean, String) -> Unit) {
+        viewModelScope.launch {
+            val success = repository.clearAllUserData()
+            val msg = if (success) {
+                "All app content and study records cleared successfully!"
+            } else {
+                "Failed to clear all data."
+            }
+            onComplete(success, msg)
         }
     }
 

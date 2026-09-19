@@ -28,16 +28,22 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.MenuBook
-import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CloudDone
+import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.CloudSync
+import androidx.compose.material.icons.filled.CloudUpload
+import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -109,6 +115,9 @@ fun HomeScreen(
     onProfileClick: () -> Unit = {},
     onSyncClick: () -> Unit = {},
     onAdminClick: (() -> Unit)? = null,
+    onExportClick: (() -> Unit)? = null,
+    onImportClick: (() -> Unit)? = null,
+    onClearStarterPack: (() -> Unit)? = null,
     isAdmin: Boolean = false,
     modifier: Modifier = Modifier
 ) {
@@ -154,18 +163,21 @@ fun HomeScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
+            Column(modifier = Modifier.weight(1f, fill = false).padding(end = 12.dp)) {
                 Text(
                     text = "Good Morning, $firstName",
-                    fontSize = 24.sp,
+                    fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = (-0.5).sp,
-                    color = DeepIndigo
+                    color = DeepIndigo,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    lineHeight = 26.sp
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = dateString,
-                    fontSize = 14.sp,
+                    fontSize = 13.5.sp,
                     color = slate500,
                     fontWeight = FontWeight.Medium
                 )
@@ -216,6 +228,7 @@ fun HomeScreen(
                         modifier = Modifier.size(24.dp)
                     )
                 }
+
 
                 // Avatar circle - Clickable to open Auth / Account screen
                 Box(
@@ -274,7 +287,7 @@ fun HomeScreen(
 
                 Spacer(modifier = Modifier.width(14.dp))
 
-                Column {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = "$streakDays Day Streak!",
                         fontSize = 18.sp,
@@ -285,7 +298,8 @@ fun HomeScreen(
                     Text(
                         text = "You're in the top 5% this week. Keep it going!",
                         fontSize = 12.sp,
-                        color = slate500
+                        color = slate500,
+                        lineHeight = 16.sp
                     )
                 }
             }
@@ -342,6 +356,171 @@ fun HomeScreen(
                 testTag = "action_mistakes",
                 onClick = onMistakesClick
             )
+        }
+
+        if (onExportClick != null || onImportClick != null) {
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // Course Data Transfer Banner (Export & Import Data) - Clean vertical hierarchy so text never squishes or clips
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("home_data_transfer_banner"),
+                shape = RoundedCornerShape(14.dp),
+                color = SurfaceWhite,
+                border = BorderStroke(1.dp, slateBorder)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(14.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(34.dp)
+                                .clip(CircleShape)
+                                .background(DeepIndigo.copy(alpha = 0.08f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Share,
+                                contentDescription = null,
+                                tint = DeepIndigo,
+                                modifier = Modifier.size(17.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Study Pack Transfer (.mlpack)",
+                                fontSize = 13.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = DeepIndigo
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "Export & import course packs with offline videos",
+                                fontSize = 11.sp,
+                                color = slate500,
+                                lineHeight = 15.sp
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        if (onExportClick != null) {
+                            Surface(
+                                onClick = onExportClick,
+                                shape = RoundedCornerShape(9.dp),
+                                color = DeepIndigo.copy(alpha = 0.08f),
+                                border = BorderStroke(1.dp, DeepIndigo.copy(alpha = 0.2f)),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .testTag("banner_export_button")
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp, horizontal = 10.dp),
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.CloudUpload,
+                                        contentDescription = null,
+                                        tint = DeepIndigo,
+                                        modifier = Modifier.size(15.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = "Export .mlpack",
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = DeepIndigo
+                                    )
+                                }
+                            }
+                        }
+
+                        if (onImportClick != null) {
+                            Surface(
+                                onClick = onImportClick,
+                                shape = RoundedCornerShape(9.dp),
+                                color = DeepIndigo,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .testTag("banner_import_button")
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp, horizontal = 10.dp),
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.CloudDownload,
+                                        contentDescription = null,
+                                        tint = Color.White,
+                                        modifier = Modifier.size(15.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = "Import .mlpack",
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    if (onClearStarterPack != null) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Surface(
+                            onClick = onClearStarterPack,
+                            shape = RoundedCornerShape(9.dp),
+                            color = Terracotta.copy(alpha = 0.08f),
+                            border = BorderStroke(1.dp, Terracotta.copy(alpha = 0.25f)),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag("banner_clear_starter_pack_button")
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp, horizontal = 10.dp),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.DeleteSweep,
+                                    contentDescription = null,
+                                    tint = Terracotta,
+                                    modifier = Modifier.size(15.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "Clear / Restore Starter Pack",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Terracotta
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -482,7 +661,7 @@ fun HomeScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column {
+                        Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
                             Text(
                                 text = "$streakDays Day Streak",
                                 fontSize = 18.sp,
@@ -493,7 +672,8 @@ fun HomeScreen(
                             Text(
                                 text = "Target: 45m / day • 6 of 7 days completed",
                                 fontSize = 12.sp,
-                                color = TextSecondary
+                                color = TextSecondary,
+                                lineHeight = 16.sp
                             )
                         }
                         Text("🔥", fontSize = 24.sp)
@@ -562,23 +742,23 @@ fun HomeScreen(
             }
             AccuracyDonutChart(slices = donutSlices)
 
-            // 4. Row of three compact stat tiles: 'Avg. Time/Question', 'Total Attempts', 'Accuracy %'
+            // 4. Row of three compact stat tiles: 'Avg. Time/Q', 'Total Attempts', 'Accuracy %'
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 HomeStatTile(
-                    label = "Avg. Time/Question",
+                    label = "Avg. Time\n/ Question",
                     value = "${avgTimePerQuestionSec}s",
                     modifier = Modifier.weight(1f)
                 )
                 HomeStatTile(
-                    label = "Total Attempts",
+                    label = "Total\nAttempts",
                     value = "$totalAttemptsCount",
                     modifier = Modifier.weight(1f)
                 )
                 HomeStatTile(
-                    label = "Accuracy %",
+                    label = "Overall\nAccuracy",
                     value = "$overallAccuracyPercent%",
                     modifier = Modifier.weight(1f)
                 )
@@ -716,21 +896,30 @@ private fun HomeStatTile(
         border = BorderStroke(1.dp, Color(0xFFF1F5F9))
     ) {
         Column(
-            modifier = Modifier.padding(vertical = 12.dp, horizontal = 8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 10.dp, horizontal = 6.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = label,
-                fontSize = 10.5.sp,
+                fontSize = 11.sp,
                 color = TextSecondary,
-                maxLines = 1
+                textAlign = TextAlign.Center,
+                lineHeight = 14.sp,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = value,
-                fontSize = 18.sp,
+                fontSize = 17.sp,
                 fontWeight = FontWeight.Bold,
-                color = DeepIndigo
+                color = DeepIndigo,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
@@ -790,20 +979,28 @@ private fun MinimalActionRowCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 12.dp)
+            ) {
                 Text(
                     text = category,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 1.sp,
-                    color = Color.White.copy(alpha = 0.7f)
+                    color = Color.White.copy(alpha = 0.7f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = title,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.White
+                    color = Color.White,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
 

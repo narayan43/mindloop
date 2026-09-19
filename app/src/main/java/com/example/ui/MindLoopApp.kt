@@ -13,6 +13,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -29,6 +30,9 @@ import com.example.ui.screens.ReelExamListScreen
 import com.example.ui.screens.ReelSubjectsGridScreen
 import com.example.ui.screens.ReelSubjectDetailScreen
 import com.example.ui.screens.ReelFeedScreen
+import com.example.ui.screens.ReelTestExamsScreen
+import com.example.ui.screens.ReelTestSubjectsGridScreen
+import com.example.ui.screens.ReelTestSubjectDetailScreen
 import com.example.ui.screens.StudyExamListScreen
 import com.example.ui.screens.StudyNotesFeedScreen
 import com.example.ui.screens.StudySubjectDetailScreen
@@ -56,6 +60,11 @@ fun MindLoopApp(
     val mostRevisitedNotes by viewModel.mostRevisitedNotes.collectAsState()
     val customSubjects by viewModel.customSubjects.collectAsState()
     val customChapters by viewModel.customChapters.collectAsState()
+    val curriculumExams by viewModel.curriculumExams.collectAsState()
+    val curriculumSubjects by viewModel.curriculumSubjects.collectAsState()
+    val curriculumChapters by viewModel.curriculumChapters.collectAsState()
+    val allQuestionAttempts by viewModel.questionAttempts.collectAsState()
+    val allStudySessions by viewModel.studySessions.collectAsState()
 
     // Dynamic dashboard stats from Firestore
     val weeklyDayCounts by viewModel.weeklyDayCounts.collectAsState()
@@ -79,9 +88,15 @@ fun MindLoopApp(
     var addQuestionSourceType by remember { mutableStateOf("note") }
     var addQuestionSourceId by remember { mutableStateOf("1") }
 
+    // Course Data Transfer (Export & Import) Sheets State
+    var showExportSheet by remember { mutableStateOf(false) }
+    var showImportSheet by remember { mutableStateOf(false) }
+    var showClearStarterPackSheet by remember { mutableStateOf(false) }
+
     val isAuthScreen = currentDestination is ScreenDestination.Auth || currentUser == null
     val context = androidx.compose.ui.platform.LocalContext.current
     val activity = context as? android.app.Activity
+    val coroutineScope = rememberCoroutineScope()
 
     val isUserAdmin = remember(currentUser) {
         com.example.data.config.AdminConfig.isAdmin(
@@ -146,7 +161,10 @@ fun MindLoopApp(
                             },
                             onOpenAdmin = if (isUserAdmin) {
                                 { viewModel.navigateTo(ScreenDestination.AdminDashboard) }
-                            } else null
+                            } else null,
+                            onExportData = { showExportSheet = true },
+                            onImportData = { showImportSheet = true },
+                            onClearStarterPack = { showClearStarterPackSheet = true }
                         )
                     }
 
@@ -208,6 +226,9 @@ fun MindLoopApp(
                             onAdminClick = if (isUserAdmin) {
                                 { viewModel.navigateTo(ScreenDestination.AdminDashboard) }
                             } else null,
+                            onExportClick = { showExportSheet = true },
+                            onImportClick = { showImportSheet = true },
+                            onClearStarterPack = { showClearStarterPackSheet = true },
                             isAdmin = isUserAdmin
                         )
                     }
@@ -441,6 +462,9 @@ fun MindLoopApp(
                             onAddNewSubject = { subjectName ->
                                 viewModel.addCustomSubject(subjectName)
                             },
+                            onOpenReelTests = {
+                                viewModel.navigateTo(ScreenDestination.ReelTestExams)
+                            },
                             onViewSubjectStats = { subjectName ->
                                 viewModel.navigateTo(
                                     ScreenDestination.TestSubjectDetail(
@@ -508,9 +532,21 @@ fun MindLoopApp(
                             allQuestions
                         }
 
-                        val isReelDestination = destination.subjectName.contains("Reel", ignoreCase = true)
+                        val isReelDestination = destination.isReelTest || destination.subjectName.contains("Reel", ignoreCase = true)
                         val reviewQuestions = if (destination.specificQuestionId != null) {
                             allQuestions.filter { it.id == destination.specificQuestionId }
+                        } else if (destination.isReelTest) {
+                            val reelBase = poolQuestions.filter { it.sourceType.equals("reel", ignoreCase = true) }
+                            val bySubject = reelBase.filter { it.subjectName.equals(destination.subjectName, ignoreCase = true) }
+                            if (destination.chapterName != null && destination.chapterName != "All Chapters") {
+                                val cleanChapter = destination.chapterName.substringAfter(".").trim().ifEmpty { destination.chapterName }
+                                bySubject.filter {
+                                    it.chapterName.equals(destination.chapterName, ignoreCase = true) ||
+                                    it.chapterName.contains(cleanChapter, ignoreCase = true)
+                                }.ifEmpty { bySubject }.ifEmpty { reelBase }
+                            } else {
+                                bySubject.ifEmpty { reelBase }
+                            }
                         } else if (destination.chapterName != null && destination.chapterName != "All Chapters") {
                             val cleanChapter = destination.chapterName.substringAfter(".").trim().ifEmpty { destination.chapterName }
                             val filteredPool = poolQuestions.filter {
@@ -657,13 +693,21 @@ fun MindLoopApp(
                                 viewModel.navigateTo(ScreenDestination.ReelSubjectsGrid(examName = exam))
                             },
                             onSelectSubject = { subject ->
-                                viewModel.navigateTo(ScreenDestination.ReelSubjectDetail(examName = "UPSI", subjectName = subject))
+                                viewModel.navigateTo(ScreenDestination.ReelSubjectDetail(examName = "Self-Study & Micro-Learning", subjectName = subject))
                             },
                             onUploadReelClick = {
                                 viewModel.navigateTo(ScreenDestination.ReelFeed(initialReelId = null))
                             },
                             allReels = allReels,
-                            customSubjects = customSubjects
+                            exams = curriculumExams,
+                            subjects = curriculumSubjects,
+                            canModify = { createdBy -> viewModel.canModifyItem(createdBy) },
+                            onAddExam = { name, subtitle -> viewModel.addCurriculumExam(name, subtitle) },
+                            onAddSubject = { name, examName, subtitle -> viewModel.addCurriculumSubject(name, examName, subtitle) },
+                            onEditExam = { id, name, subtitle -> viewModel.editCurriculumExam(id, name, subtitle) },
+                            onDeleteExam = { id -> viewModel.deleteCurriculumExam(id) },
+                            onEditSubject = { id, name, subtitle -> viewModel.editCurriculumSubject(id, name, subtitle) },
+                            onDeleteSubject = { id -> viewModel.deleteCurriculumSubject(id) }
                         )
                     }
 
@@ -674,7 +718,12 @@ fun MindLoopApp(
                             onSelectSubject = { subject ->
                                 viewModel.navigateTo(ScreenDestination.ReelSubjectDetail(examName = destination.examName, subjectName = subject))
                             },
-                            allReels = allReels
+                            allReels = allReels,
+                            subjects = curriculumSubjects,
+                            canModify = { createdBy -> viewModel.canModifyItem(createdBy) },
+                            onAddSubject = { name, examName, subtitle -> viewModel.addCurriculumSubject(name, examName, subtitle) },
+                            onEditSubject = { id, name, subtitle -> viewModel.editCurriculumSubject(id, name, subtitle) },
+                            onDeleteSubject = { id -> viewModel.deleteCurriculumSubject(id) }
                         )
                     }
 
@@ -715,21 +764,114 @@ fun MindLoopApp(
                                 viewModel.navigateTo(
                                     ScreenDestination.ReelFeed(
                                         examName = destination.examName,
-                                        subjectName = destination.subjectName
+                                        subjectName = destination.subjectName,
+                                        openUploadDialog = true
                                     )
                                 )
                             },
-                            allReels = allReels
+                            onUploadChapterReel = { chapter ->
+                                viewModel.navigateTo(
+                                    ScreenDestination.ReelFeed(
+                                        examName = destination.examName,
+                                        subjectName = destination.subjectName,
+                                        chapterName = chapter,
+                                        openUploadDialog = true
+                                    )
+                                )
+                            },
+                            allReels = allReels,
+                            chapters = curriculumChapters,
+                            canModify = { createdBy -> viewModel.canModifyItem(createdBy) },
+                            onAddChapter = { name, examName, subjectName -> viewModel.addCurriculumChapter(name, examName, subjectName) },
+                            onEditChapter = { id, name -> viewModel.editCurriculumChapter(id, name) },
+                            onDeleteChapter = { id -> viewModel.deleteCurriculumChapter(id) }
+                        )
+                    }
+
+                    is ScreenDestination.ReelTestExams -> {
+                        val reelQuestions = allQuestions.filter { it.sourceType.equals("reel", ignoreCase = true) }
+                        ReelTestExamsScreen(
+                            onBackClick = { viewModel.navigateBack() },
+                            onSelectExam = { exam ->
+                                viewModel.navigateTo(ScreenDestination.ReelTestSubjectsGrid(exam))
+                            },
+                            onSelectSubject = { subject ->
+                                viewModel.navigateTo(
+                                    ScreenDestination.ReelTestSubjectDetail(
+                                        examName = "Self-Study & Micro-Learning",
+                                        subjectName = subject
+                                    )
+                                )
+                            },
+                            exams = curriculumExams,
+                            subjects = curriculumSubjects,
+                            reelQuestions = reelQuestions
+                        )
+                    }
+
+                    is ScreenDestination.ReelTestSubjectsGrid -> {
+                        val reelQuestions = allQuestions.filter { it.sourceType.equals("reel", ignoreCase = true) }
+                        ReelTestSubjectsGridScreen(
+                            examName = destination.examName,
+                            onBackClick = { viewModel.navigateBack() },
+                            onSelectSubject = { subject ->
+                                viewModel.navigateTo(
+                                    ScreenDestination.ReelTestSubjectDetail(
+                                        examName = destination.examName,
+                                        subjectName = subject
+                                    )
+                                )
+                            },
+                            subjects = curriculumSubjects,
+                            reelQuestions = reelQuestions
+                        )
+                    }
+
+                    is ScreenDestination.ReelTestSubjectDetail -> {
+                        val reelQuestions = allQuestions.filter { it.sourceType.equals("reel", ignoreCase = true) }
+                        ReelTestSubjectDetailScreen(
+                            examName = destination.examName,
+                            subjectName = destination.subjectName,
+                            onBackClick = { viewModel.navigateBack() },
+                            onStartChapterTest = { chapter ->
+                                viewModel.navigateTo(
+                                    ScreenDestination.QuestionReview(
+                                        subjectName = destination.subjectName,
+                                        chapterName = chapter,
+                                        isReelTest = true
+                                    )
+                                )
+                            },
+                            onStartFullSubjectTest = {
+                                viewModel.navigateTo(
+                                    ScreenDestination.QuestionReview(
+                                        subjectName = destination.subjectName,
+                                        chapterName = "All Chapters",
+                                        isReelTest = true
+                                    )
+                                )
+                            },
+                            onNavigateToReels = { chapter ->
+                                viewModel.navigateTo(
+                                    ScreenDestination.ReelFeed(
+                                        examName = destination.examName,
+                                        subjectName = destination.subjectName,
+                                        chapterName = chapter
+                                    )
+                                )
+                            },
+                            chapters = curriculumChapters,
+                            reelQuestions = reelQuestions
                         )
                     }
 
                     is ScreenDestination.ReelFeed -> {
-                        val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
                         ReelFeedScreen(
                             initialReelId = destination.initialReelId,
                             filterExam = destination.examName,
                             filterSubject = destination.subjectName,
                             filterChapter = destination.chapterName,
+                            initialOpenUploadDialog = destination.openUploadDialog,
                             onBackClick = { viewModel.navigateBack() },
                             onAddQuestion = { reelId, subject, chapter ->
                                 addQuestionLinkedNoteId = null
@@ -742,7 +884,7 @@ fun MindLoopApp(
                             onRecordWatch = { reelId, watchSecs ->
                                 viewModel.recordReelWatch(reelId, watchSecs)
                             },
-                            onUploadReel = { title, desc, subj, chap, uri ->
+                            onUploadReel = { title, desc, exam, subj, chap, uri ->
                                 coroutineScope.launch {
                                     val newId = System.currentTimeMillis()
                                     val savedPath = com.example.util.ReelVideoCacheManager.saveUploadedVideo(context, newId, uri)
@@ -752,14 +894,58 @@ fun MindLoopApp(
                                         description = desc,
                                         subject = subj,
                                         chapter = chap,
-                                        exam = destination.examName ?: "UPSI",
+                                        exam = exam,
                                         videoUrl = savedPath,
                                         durationSeconds = 30
                                     )
                                     viewModel.insertReel(newReel)
                                 }
                             },
-                            allReels = allReels
+                            exams = curriculumExams,
+                            subjects = curriculumSubjects,
+                            chapters = curriculumChapters,
+                            onAddExam = { name, subtitle ->
+                                viewModel.addCurriculumExam(name, subtitle)
+                            },
+                            onAddSubject = { name, examName, subtitle ->
+                                viewModel.addCurriculumSubject(name, examName?.ifBlank { null }, subtitle)
+                            },
+                            onAddChapter = { name, examName, subjectName ->
+                                viewModel.addCurriculumChapter(name, examName?.ifBlank { null }, subjectName)
+                            },
+                            allReels = allReels,
+                            allQuestions = allQuestions,
+                            onSaveQuestionDirect = { subj, chap, type, text, optA, optB, optC, optD, correctIdx, srcType, srcId ->
+                                viewModel.addQuestion(
+                                    linkedNoteId = null,
+                                    subjectName = subj,
+                                    chapterName = chap,
+                                    questionType = type,
+                                    questionText = text,
+                                    optionA = optA,
+                                    optionB = optB,
+                                    optionC = optC,
+                                    optionD = optD,
+                                    correctIndex = correctIdx,
+                                    sourceType = srcType,
+                                    sourceId = srcId
+                                )
+                            },
+                            onSaveBulkQuestions = { bulkQuestions ->
+                                viewModel.addQuestions(bulkQuestions)
+                            },
+                            onImportCsvQuestions = { subj, chap, reelId, csv ->
+                                coroutineScope.launch {
+                                    viewModel.importCsvQuestions(
+                                        subjectName = subj,
+                                        chapterName = chap,
+                                        linkedNoteId = null,
+                                        csvContent = csv,
+                                        sourceType = "reel",
+                                        sourceId = reelId.toString()
+                                    )
+                                }
+                            }
                         )
                     }
                 }
@@ -805,7 +991,65 @@ fun MindLoopApp(
                             sourceType = srcType,
                             sourceId = srcId
                         )
+                    },
+                    onSaveBulkQuestions = { bulkQuestions ->
+                        viewModel.addQuestions(bulkQuestions)
+                        showAddQuestionSheet = false
+                    },
+                    onImportCsv = { csvContent ->
+                        coroutineScope.launch {
+                            viewModel.importCsvQuestions(
+                                subjectName = addQuestionSubject,
+                                chapterName = addQuestionChapter,
+                                linkedNoteId = addQuestionLinkedNoteId,
+                                csvContent = csvContent,
+                                sourceType = addQuestionSourceType,
+                                sourceId = addQuestionSourceId
+                            )
+                        }
+                        showAddQuestionSheet = false
                     }
+                )
+            }
+
+            // Modal Bottom Sheet: Export Data
+            if (showExportSheet) {
+                com.example.ui.screens.ExportDataBottomSheet(
+                    allNotes = allNotes,
+                    allQuestions = allQuestions,
+                    allReels = allReels,
+                    allSubjects = curriculumSubjects,
+                    allExams = curriculumExams,
+                    allChapters = curriculumChapters,
+                    allQuestionAttempts = allQuestionAttempts,
+                    allStudySessions = allStudySessions,
+                    currentUserName = currentUser?.name ?: "Student Aspirant",
+                    onDismiss = { showExportSheet = false }
+                )
+            }
+
+            // Modal Bottom Sheet: Import Data
+            if (showImportSheet) {
+                com.example.ui.screens.ImportDataBottomSheet(
+                    onDismiss = { showImportSheet = false },
+                    onConfirmImport = { backup, notes, questions, reels, curriculum, userData ->
+                        viewModel.importBackup(
+                            backup = backup,
+                            importNotes = notes,
+                            importQuestions = questions,
+                            importReels = reels,
+                            importCurriculum = curriculum,
+                            importUserData = userData
+                        )
+                    }
+                )
+            }
+
+            // Modal Bottom Sheet: Clear Starter Pack
+            if (showClearStarterPackSheet) {
+                com.example.ui.screens.ClearStarterPackBottomSheet(
+                    viewModel = viewModel,
+                    onDismiss = { showClearStarterPackSheet = false }
                 )
             }
         }

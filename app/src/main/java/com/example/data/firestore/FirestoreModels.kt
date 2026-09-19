@@ -117,3 +117,32 @@ data class DashboardSummary(
     val totalAttemptsCount: Int = 0,
     val overallAccuracyPercent: Int = 0
 )
+
+data class FirestoreCurriculumExam(
+    val id: String = "",
+    val name: String = "",
+    val subtitle: String = "",
+    val created_by: String = "admin",
+    val is_enrolled: Boolean = true,
+    val created_at: Long = System.currentTimeMillis()
+)
+
+data class FirestoreCurriculumSubject(
+    val id: String = "",
+    val exam_name: String? = null,
+    val name: String = "",
+    val subtitle: String = "",
+    val created_by: String = "admin",
+    val is_standalone: Boolean = false,
+    val created_at: Long = System.currentTimeMillis()
+)
+
+data class FirestoreCurriculumChapter(
+    val id: String = "",
+    val exam_name: String? = null,
+    val subject_name: String = "",
+    val name: String = "",
+    val created_by: String = "admin",
+    val created_at: Long = System.currentTimeMillis()
+)
+
