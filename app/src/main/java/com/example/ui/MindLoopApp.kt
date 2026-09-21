@@ -30,6 +30,7 @@ import com.example.ui.screens.ReelExamListScreen
 import com.example.ui.screens.ReelSubjectsGridScreen
 import com.example.ui.screens.ReelSubjectDetailScreen
 import com.example.ui.screens.ReelFeedScreen
+import com.example.ui.screens.ReelUploadItem
 import com.example.ui.screens.ReelTestExamsScreen
 import com.example.ui.screens.ReelTestSubjectsGridScreen
 import com.example.ui.screens.ReelTestSubjectDetailScreen
@@ -79,6 +80,7 @@ fun MindLoopApp(
     val totalStudyTimeThisWeekStr by viewModel.totalStudyTimeThisWeekStr.collectAsState()
     val chapterAccuracies by viewModel.chapterAccuracies.collectAsState()
     val currentUser by viewModel.currentUser.collectAsState()
+    val themeMode by viewModel.themeMode.collectAsState()
 
     // Add Question Bottom Sheet State
     var showAddQuestionSheet by remember { mutableStateOf(false) }
@@ -229,7 +231,22 @@ fun MindLoopApp(
                             onExportClick = { showExportSheet = true },
                             onImportClick = { showImportSheet = true },
                             onClearStarterPack = { showClearStarterPackSheet = true },
-                            isAdmin = isUserAdmin
+                            isAdmin = isUserAdmin,
+                            themeMode = themeMode,
+                            onToggleTheme = {
+                                val nextMode = when (themeMode) {
+                                    "LIGHT" -> "DARK"
+                                    "DARK" -> "SYSTEM"
+                                    else -> "LIGHT"
+                                }
+                                viewModel.setThemeMode(nextMode)
+                                val toastMsg = when (nextMode) {
+                                    "DARK" -> "Dark Mode enabled"
+                                    "LIGHT" -> "Light Mode enabled"
+                                    else -> "System theme enabled"
+                                }
+                                android.widget.Toast.makeText(context, toastMsg, android.widget.Toast.LENGTH_SHORT).show()
+                            }
                         )
                     }
 
@@ -899,6 +916,26 @@ fun MindLoopApp(
                                         durationSeconds = 30
                                     )
                                     viewModel.insertReel(newReel)
+                                }
+                            },
+                            onUploadMultipleReels = { items ->
+                                coroutineScope.launch {
+                                    val baseTime = System.currentTimeMillis()
+                                    items.forEachIndexed { index, item ->
+                                        val newId = baseTime + index
+                                        val savedPath = com.example.util.ReelVideoCacheManager.saveUploadedVideo(context, newId, item.uri)
+                                        val newReel = com.example.data.entity.ReelEntity(
+                                            id = newId,
+                                            title = item.title,
+                                            description = item.description,
+                                            subject = item.subject,
+                                            chapter = item.chapter,
+                                            exam = item.exam,
+                                            videoUrl = savedPath,
+                                            durationSeconds = 30
+                                        )
+                                        viewModel.insertReel(newReel)
+                                    }
                                 }
                             },
                             exams = curriculumExams,

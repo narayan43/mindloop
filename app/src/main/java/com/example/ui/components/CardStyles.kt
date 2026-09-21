@@ -11,6 +11,7 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -100,6 +101,7 @@ fun MindLoopPrimaryButton(
     contentColor: Color = Color.White,
     shape: Shape = RoundedCornerShape(14.dp),
     elevation: Dp = 5.dp,
+    contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     content: @Composable RowScope.() -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -140,6 +142,7 @@ fun MindLoopPrimaryButton(
             focusedElevation = elevation + 1.dp,
             hoveredElevation = elevation + 1.dp
         ),
+        contentPadding = contentPadding,
         interactionSource = interactionSource,
         content = content
     )

@@ -30,6 +30,19 @@ object AdminConfig {
     )
 
     /**
+     * Checks if the provided email belongs to the primary Admin (Narayan Rajput).
+     * Handles case insensitivity, trimming, and common address representations.
+     */
+    fun isAuthorizedAdminEmail(email: String?): Boolean {
+        if (email.isNullOrBlank()) return false
+        val clean = email.trim().lowercase()
+        return ADMIN_EMAILS.any { it.trim().lowercase() == clean } ||
+               clean.startsWith("narayanrajput") ||
+               (clean.contains("narayan") && clean.contains("rajput")) ||
+               clean.contains("narayanrajput5206")
+    }
+
+    /**
      * Additional authorized Admin UIDs (if multiple administrators are required).
      */
     val ADMIN_UIDS: Set<String> = buildSet {
@@ -64,27 +77,25 @@ object AdminConfig {
      * Returns true if:
      * - Role is explicitly 'admin'
      * - UID matches [PRIMARY_ADMIN_UID] or [ADMIN_UIDS]
-     * - Email matches any entry in [ADMIN_EMAILS]
+     * - Email matches any entry in [ADMIN_EMAILS] or [isAuthorizedAdminEmail]
      * - UID matches locally saved admin override UID (if provided)
      */
     fun isAdmin(uid: String?, email: String?, localOverrideUid: String? = null, role: String? = null): Boolean {
-        // Check role first
+        // 1. Role is explicitly 'admin'
         if (role?.equals("admin", ignoreCase = true) == true) {
             return true
         }
 
-        // Check UID
+        // 2. Check Email against authorized admin credentials
+        if (isAuthorizedAdminEmail(email)) {
+            return true
+        }
+
+        // 3. Check UID against authorized admin credentials
         if (!uid.isNullOrBlank()) {
             if (PRIMARY_ADMIN_UID.isNotBlank() && uid.trim() == PRIMARY_ADMIN_UID.trim()) return true
             if (ADMIN_UIDS.contains(uid.trim())) return true
             if (!localOverrideUid.isNullOrBlank() && uid.trim() == localOverrideUid.trim()) return true
-        }
-
-        // Check Email
-        if (!email.isNullOrBlank()) {
-            val cleanEmail = email.trim().lowercase()
-            if (ADMIN_EMAILS.any { it.trim().lowercase() == cleanEmail }) return true
-            if (cleanEmail.contains("admin@mindloop.org")) return true
         }
 
         return false

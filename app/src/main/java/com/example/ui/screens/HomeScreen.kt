@@ -33,6 +33,9 @@ import androidx.compose.material.icons.filled.CloudDone
 import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.CloudSync
 import androidx.compose.material.icons.filled.CloudUpload
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.filled.BrightnessAuto
 import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Share
@@ -119,6 +122,8 @@ fun HomeScreen(
     onImportClick: (() -> Unit)? = null,
     onClearStarterPack: (() -> Unit)? = null,
     isAdmin: Boolean = false,
+    themeMode: String = "SYSTEM",
+    onToggleTheme: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
@@ -207,6 +212,36 @@ fun HomeScreen(
                             modifier = Modifier.size(22.dp)
                         )
                     }
+                }
+
+                // Dark / Light Mode toggle button
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .shadow(elevation = 2.dp, shape = CircleShape)
+                        .clip(CircleShape)
+                        .background(Color.White)
+                        .border(1.dp, Color(0xFFE2E8F0), CircleShape)
+                        .clickable(onClick = onToggleTheme)
+                        .testTag("theme_mode_toggle_button"),
+                    contentAlignment = Alignment.Center
+                ) {
+                    val themeIcon = when (themeMode) {
+                        "DARK" -> Icons.Default.DarkMode
+                        "LIGHT" -> Icons.Default.LightMode
+                        else -> Icons.Default.BrightnessAuto
+                    }
+                    val themeTint = when (themeMode) {
+                        "DARK" -> Color(0xFF818CF8)
+                        "LIGHT" -> Color(0xFFF59E0B)
+                        else -> DeepIndigo
+                    }
+                    Icon(
+                        imageVector = themeIcon,
+                        contentDescription = "Toggle Theme: $themeMode",
+                        tint = themeTint,
+                        modifier = Modifier.size(22.dp)
+                    )
                 }
 
                 // Cloud Sync button to trigger Firestore sync

@@ -137,6 +137,23 @@ class MindLoopViewModel(
     val allReels: StateFlow<List<ReelEntity>> = repository.allReels
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    // App-wide Dark Mode preference: "SYSTEM", "LIGHT", "DARK"
+    private val themePrefs by lazy {
+        repository.context.getSharedPreferences("mindloop_theme_prefs", Context.MODE_PRIVATE)
+    }
+    private val _themeMode = MutableStateFlow(themePrefs.getString("theme_mode", "SYSTEM") ?: "SYSTEM")
+    val themeMode: StateFlow<String> = _themeMode.asStateFlow()
+
+    fun setThemeMode(mode: String) {
+        val validMode = when (mode.uppercase()) {
+            "LIGHT" -> "LIGHT"
+            "DARK" -> "DARK"
+            else -> "SYSTEM"
+        }
+        themePrefs.edit().putString("theme_mode", validMode).apply()
+        _themeMode.value = validMode
+    }
+
     // -------------------------------------------------------------------------
     // UNIFIED SHARED CURRICULUM (Exams, Subjects, Chapters)
     // -------------------------------------------------------------------------
@@ -227,8 +244,8 @@ class MindLoopViewModel(
                 list.add(
                     CurriculumExam(
                         id = obj.getString("id"),
-                        name = obj.getString("name"),
-                        subtitle = obj.optString("subtitle", ""),
+                        name = obj.getString("name").replace(Regex("[\\r\\n]+"), " ").trim(),
+                        subtitle = obj.optString("subtitle", "").replace(Regex("[\\r\\n]+"), " ").trim(),
                         createdBy = obj.optString("createdBy", "admin"),
                         isEnrolled = obj.optBoolean("isEnrolled", true)
                     )
@@ -269,9 +286,9 @@ class MindLoopViewModel(
                 list.add(
                     CurriculumSubject(
                         id = obj.getString("id"),
-                        examName = exam,
-                        name = obj.getString("name"),
-                        subtitle = obj.optString("subtitle", ""),
+                        examName = exam?.replace(Regex("[\\r\\n]+"), " ")?.trim(),
+                        name = obj.getString("name").replace(Regex("[\\r\\n]+"), " ").trim(),
+                        subtitle = obj.optString("subtitle", "").replace(Regex("[\\r\\n]+"), " ").trim(),
                         createdBy = obj.optString("createdBy", "admin"),
                         isStandalone = obj.optBoolean("isStandalone", exam == null)
                     )
@@ -318,9 +335,9 @@ class MindLoopViewModel(
                 list.add(
                     CurriculumChapter(
                         id = obj.getString("id"),
-                        examName = exam,
-                        subjectName = obj.getString("subjectName"),
-                        name = obj.getString("name"),
+                        examName = exam?.replace(Regex("[\\r\\n]+"), " ")?.trim(),
+                        subjectName = obj.getString("subjectName").replace(Regex("[\\r\\n]+"), " ").trim(),
+                        name = obj.getString("name").replace(Regex("[\\r\\n]+"), " ").trim(),
                         createdBy = obj.optString("createdBy", "admin")
                     )
                 )
@@ -431,15 +448,17 @@ class MindLoopViewModel(
     }
 
     fun addSubject(name: String, examName: String? = null, subtitle: String = "", initialChapter: String? = null) {
-        val cleanName = name.trim()
+        val cleanName = name.replace(Regex("[\\r\\n]+"), " ").trim()
+        val cleanSub = subtitle.replace(Regex("[\\r\\n]+"), " ").trim()
+        val cleanExam = examName?.replace(Regex("[\\r\\n]+"), " ")?.trim()?.ifBlank { null }
         if (cleanName.isBlank()) return
         val currentUid = _currentUser.value?.id ?: "user"
-        val isStandalone = examName.isNullOrBlank()
+        val isStandalone = cleanExam.isNullOrBlank()
         val newSubj = CurriculumSubject(
             id = "subj_${System.currentTimeMillis()}",
-            examName = examName?.trim()?.ifBlank { null },
+            examName = cleanExam,
             name = cleanName,
-            subtitle = subtitle.trim().ifBlank { if (isStandalone) "Self-Study & Micro-Learning" else "Subject under $examName" },
+            subtitle = cleanSub.ifBlank { if (isStandalone) "Self-Study & Micro-Learning" else "Subject under $cleanExam" },
             createdBy = currentUid,
             isStandalone = isStandalone
         )
@@ -449,20 +468,21 @@ class MindLoopViewModel(
         viewModelScope.launch { repository.saveCurriculumSubject(newSubj) }
 
         if (!initialChapter.isNullOrBlank()) {
-            addChapter(subjectName = cleanName, chapterName = initialChapter, examName = examName)
+            addChapter(subjectName = cleanName, chapterName = initialChapter, examName = cleanExam)
         } else {
             syncLegacyState()
         }
     }
 
     fun editSubject(id: String, newName: String, newSubtitle: String = "") {
-        val cleanName = newName.trim()
+        val cleanName = newName.replace(Regex("[\\r\\n]+"), " ").trim()
+        val cleanSub = newSubtitle.replace(Regex("[\\r\\n]+"), " ").trim()
         if (cleanName.isBlank()) return
         val subj = _allSubjects.value.find { it.id == id } ?: return
         if (!canModify(subj.createdBy)) return
         val oldName = subj.name
         val updated = _allSubjects.value.map {
-            if (it.id == id) it.copy(name = cleanName, subtitle = newSubtitle.trim()) else it
+            if (it.id == id) it.copy(name = cleanName, subtitle = cleanSub) else it
         }
         _allSubjects.value = updated
         saveSubjectsToPrefs(updated)
@@ -477,7 +497,7 @@ class MindLoopViewModel(
         }
         syncLegacyState()
         viewModelScope.launch {
-            repository.saveCurriculumSubject(subj.copy(name = cleanName, subtitle = newSubtitle.trim()))
+            repository.saveCurriculumSubject(subj.copy(name = cleanName, subtitle = cleanSub))
         }
     }
 
@@ -498,19 +518,20 @@ class MindLoopViewModel(
     }
 
     fun addChapter(subjectName: String, chapterName: String, examName: String? = null) {
-        val cleanSubj = subjectName.trim()
-        val cleanChap = chapterName.trim()
+        val cleanSubj = subjectName.replace(Regex("[\\r\\n]+"), " ").trim()
+        val cleanChap = chapterName.replace(Regex("[\\r\\n]+"), " ").trim()
+        val cleanExam = examName?.replace(Regex("[\\r\\n]+"), " ")?.trim()?.ifBlank { null }
         if (cleanSubj.isBlank() || cleanChap.isBlank()) return
         val currentUid = _currentUser.value?.id ?: "user"
 
         // Ensure subject exists if not present
         if (!_allSubjects.value.any { it.name.equals(cleanSubj, ignoreCase = true) }) {
-            addSubject(name = cleanSubj, examName = examName)
+            addSubject(name = cleanSubj, examName = cleanExam)
         }
 
         val newChap = CurriculumChapter(
             id = "chap_${System.currentTimeMillis()}",
-            examName = examName?.trim()?.ifBlank { null },
+            examName = cleanExam,
             subjectName = cleanSubj,
             name = cleanChap,
             createdBy = currentUid
@@ -523,7 +544,7 @@ class MindLoopViewModel(
     }
 
     fun editChapter(id: String, newName: String) {
-        val cleanName = newName.trim()
+        val cleanName = newName.replace(Regex("[\\r\\n]+"), " ").trim()
         if (cleanName.isBlank()) return
         val chap = _allChapters.value.find { it.id == id } ?: return
         if (!canModify(chap.createdBy)) return
@@ -1340,6 +1361,19 @@ class MindLoopViewModel(
         viewModelScope.launch {
             val id = repository.insertReel(reel)
             onComplete?.invoke(id)
+        }
+    }
+
+    fun insertReels(reelsList: List<ReelEntity>, onComplete: ((Int) -> Unit)? = null) {
+        if (reelsList.isEmpty()) {
+            onComplete?.invoke(0)
+            return
+        }
+        val first = reelsList.first()
+        addCustomSubject(first.subject, first.chapter)
+        viewModelScope.launch {
+            val count = repository.insertReels(reelsList)
+            onComplete?.invoke(count)
         }
     }
 

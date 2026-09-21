@@ -108,8 +108,8 @@ fun HandwrittenNoteViewer(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFFE8DFD8)) // Kraft cardboard outer backing
-            .padding(10.dp)
+            .background(if (isImageNote) Color(0xFFF1F5F9) else Color(0xFFE8DFD8)) // Kraft cardboard outer backing only for written notes
+            .padding(if (isImageNote) 0.dp else 10.dp)
             .then(gestureModifier)
     ) {
         Card(
@@ -121,9 +121,9 @@ fun HandwrittenNoteViewer(
                     translationX = offset.x,
                     translationY = offset.y
                 ),
-            shape = RoundedCornerShape(10.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFFCFBF9)),
-            elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+            shape = RoundedCornerShape(if (isImageNote) 14.dp else 10.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
             if (isImageNote) {
                 // Pure Image Note: no text mashup, shows textbook / notes photo
@@ -219,31 +219,53 @@ private fun ImageNoteView(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(12.dp)
+            .padding(horizontal = 6.dp, vertical = 6.dp)
     ) {
-        // Header
+        // Streamlined, compact Header (Single Row)
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 6.dp, vertical = 2.dp)
         ) {
             Box(
                 modifier = Modifier
                     .size(8.dp)
                     .background(Color(0xFFC1666B), CircleShape)
             )
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = note?.title?.ifBlank { "Image Note" } ?: "Image Note",
                 style = androidx.compose.ui.text.TextStyle(
                     fontFamily = FontFamily.Serif,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 15.sp,
+                    fontSize = 14.sp,
                     color = Color(0xFF1E293B)
                 ),
-                maxLines = 2,
+                maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
             )
+
+            val isOffline = remember(note?.id, note?.imageUri) {
+                OfflineImageManager.isImageDownloadedLocally(context, note?.id ?: 0L, note?.imageUri)
+            }
+            if (isOffline) {
+                Spacer(modifier = Modifier.width(6.dp))
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color(0xFF0F766E).copy(alpha = 0.12f))
+                        .padding(horizontal = 5.dp, vertical = 2.dp)
+                ) {
+                    Text(
+                        text = "🔒 Offline",
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF0F766E)
+                    )
+                }
+            }
 
             // Fullscreen Expand
             IconButton(
@@ -259,70 +281,26 @@ private fun ImageNoteView(
             }
         }
 
-        Spacer(modifier = Modifier.height(4.dp))
-
-        // Badge row: Offline status & Chapter
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "📷 Image Note • ${note?.chapterName ?: ""}",
-                fontSize = 11.5.sp,
-                color = TextSecondary,
-                fontFamily = FontFamily.Serif
-            )
-
-            val isOffline = remember(note?.id, note?.imageUri) {
-                OfflineImageManager.isImageDownloadedLocally(context, note?.id ?: 0L, note?.imageUri)
-            }
-            if (isOffline) {
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(Color(0xFF0F766E).copy(alpha = 0.12f))
-                        .padding(horizontal = 6.dp, vertical = 2.dp)
-                ) {
-                    Text(
-                        text = "🔒 Saved Offline",
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF0F766E)
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(6.dp))
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(1.dp)
-                .background(Color(0xFF86B3D1).copy(alpha = 0.4f))
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
         // Multi-image switcher controls (if more than 1 image attached)
         if (totalImages > 1) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 6.dp),
+                    .padding(horizontal = 6.dp, vertical = 2.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
                     onClick = { activeImageIndex = (activeImageIndex - 1).coerceAtLeast(0) },
                     enabled = activeImageIndex > 0,
-                    modifier = Modifier.size(30.dp)
+                    modifier = Modifier.size(28.dp)
                 ) {
                     Icon(Icons.Default.ChevronLeft, contentDescription = "Previous Photo", tint = DeepIndigo)
                 }
 
                 Text(
                     text = "Photo ${activeImageIndex + 1} of $totalImages",
-                    fontSize = 12.sp,
+                    fontSize = 11.5.sp,
                     fontWeight = FontWeight.Bold,
                     color = DeepIndigo
                 )
@@ -330,14 +308,14 @@ private fun ImageNoteView(
                 IconButton(
                     onClick = { activeImageIndex = (activeImageIndex + 1).coerceAtMost(totalImages - 1) },
                     enabled = activeImageIndex < totalImages - 1,
-                    modifier = Modifier.size(30.dp)
+                    modifier = Modifier.size(28.dp)
                 ) {
                     Icon(Icons.Default.ChevronRight, contentDescription = "Next Photo", tint = DeepIndigo)
                 }
             }
         }
 
-        // The Image Note: fills the card cleanly
+        // The Image Note: expands and fills the card cleanly
         val rawUri = imageUris.getOrNull(activeImageIndex) ?: imageUris.firstOrNull()
         val resolvedImage = remember(note?.id, rawUri) {
             ImageStorageHelper.resolveImageSource(context, note?.id ?: 0L, rawUri)
@@ -347,9 +325,8 @@ private fun ImageNoteView(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(8.dp))
-                .background(Color(0xFFF1F5F9))
-                .border(1.dp, Color(0xFFCBD5E1), RoundedCornerShape(8.dp))
+                .clip(RoundedCornerShape(10.dp))
+                .background(Color(0xFFF8FAFC))
                 .clickable(onClick = onExpandFullscreen),
             contentAlignment = Alignment.Center
         ) {
@@ -358,19 +335,6 @@ private fun ImageNoteView(
                 contentDescription = note?.title ?: "Note Image",
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Fit
-            )
-        }
-
-        Spacer(modifier = Modifier.height(6.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Tap image to view full screen • Use + / - to zoom",
-                fontSize = 11.sp,
-                color = TextSecondary
             )
         }
     }

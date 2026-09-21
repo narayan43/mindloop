@@ -7,8 +7,12 @@ import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+
+val LocalIsDarkTheme = staticCompositionLocalOf { false }
 
 private val LightColorScheme = lightColorScheme(
     primary = DeepIndigo,
@@ -37,19 +41,27 @@ private val LightColorScheme = lightColorScheme(
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary = DeepIndigoLight,
-    onPrimary = Color.White,
-    primaryContainer = DeepIndigo,
-    onPrimaryContainer = Color.White,
-    secondary = SageGreen,
-    onSecondary = Color.White,
-    tertiary = Amber,
-    error = Terracotta,
-    background = Color(0xFF141923),
-    surface = Color(0xFF1C2230),
-    onBackground = Color(0xFFF1F5F9),
-    onSurface = Color(0xFFF1F5F9),
-    outline = Color(0xFF2E384D)
+    primary = Color(0xFF818CF8),
+    onPrimary = Color(0xFF0F172A),
+    primaryContainer = Color(0xFF1E293B),
+    onPrimaryContainer = Color(0xFFE2E8F0),
+    secondary = Color(0xFF34D399),
+    onSecondary = Color(0xFF064E3B),
+    secondaryContainer = Color(0xFF064E3B),
+    onSecondaryContainer = Color(0xFFA7F3D0),
+    tertiary = Color(0xFFFBBF24),
+    onTertiary = Color(0xFF451A03),
+    error = Color(0xFFF87171),
+    onError = Color.White,
+    errorContainer = Color(0xFF7F1D1D),
+    onErrorContainer = Color(0xFFFECACA),
+    background = Color(0xFF0F172A),
+    onBackground = Color(0xFFF8FAFC),
+    surface = Color(0xFF1E293B),
+    onSurface = Color(0xFFF8FAFC),
+    surfaceVariant = Color(0xFF1E293B),
+    onSurfaceVariant = Color(0xFF94A3B8),
+    outline = Color(0xFF334155)
 )
 
 val MindLoopShapes = Shapes(
@@ -64,13 +76,14 @@ fun MindLoopTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    // We intentionally adhere to the MindLoop custom palette for clean minimalism
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        shapes = MindLoopShapes,
-        content = content
-    )
+    CompositionLocalProvider(LocalIsDarkTheme provides darkTheme) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography,
+            shapes = MindLoopShapes,
+            content = content
+        )
+    }
 }

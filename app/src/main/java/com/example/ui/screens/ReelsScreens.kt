@@ -3,6 +3,7 @@ package com.example.ui.screens
 import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
+import android.provider.OpenableColumns
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -86,6 +87,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
@@ -103,6 +106,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -330,7 +334,9 @@ fun AddOrEditCurriculumItemDialog(
             Button(
                 onClick = {
                     if (name.isNotBlank()) {
-                        onConfirm(name.trim(), subtitle.trim(), chosenType)
+                        val cleanName = name.replace(Regex("[\\r\\n]+"), " ").trim()
+                        val cleanSub = subtitle.replace(Regex("[\\r\\n]+"), " ").trim()
+                        onConfirm(cleanName, cleanSub, chosenType)
                     }
                 },
                 enabled = name.isNotBlank(),
@@ -1146,9 +1152,10 @@ fun ReelSubjectDetailScreen(
     val displayChapters = remember(curriculumChaptersForSubject, subjectReels) {
         val list = mutableListOf<DisplayChapter>()
         curriculumChaptersForSubject.forEach { ch ->
-            list.add(DisplayChapter(id = ch.id, name = ch.name, createdBy = ch.createdBy, canUserModify = canModify(ch.createdBy)))
+            val cleanName = ch.name.replace(Regex("[\\r\\n]+"), " ").trim()
+            list.add(DisplayChapter(id = ch.id, name = cleanName, createdBy = ch.createdBy, canUserModify = canModify(ch.createdBy)))
         }
-        subjectReels.map { it.chapter }.distinct().forEach { reelChapterName ->
+        subjectReels.map { it.chapter.replace(Regex("[\\r\\n]+"), " ").trim() }.distinct().forEach { reelChapterName ->
             if (list.none { it.name.equals(reelChapterName, ignoreCase = true) }) {
                 list.add(DisplayChapter(id = null, name = reelChapterName, createdBy = "admin", canUserModify = false))
             }
@@ -1312,8 +1319,10 @@ fun ReelSubjectDetailScreen(
 
             // Chapter Cards with "Watch Chapter" button & Edit/Delete
             items(displayChapters) { displayCh ->
-                val chapterName = displayCh.name
-                val reelsInChapter = subjectReels.filter { it.chapter.equals(chapterName, ignoreCase = true) }
+                val chapterName = displayCh.name.replace(Regex("[\\r\\n]+"), " ").trim()
+                val reelsInChapter = subjectReels.filter {
+                    it.chapter.replace(Regex("[\\r\\n]+"), " ").trim().equals(chapterName, ignoreCase = true)
+                }
                 val totalSec = reelsInChapter.sumOf { it.durationSeconds }
 
                 InteractiveCard(
@@ -1327,49 +1336,60 @@ fun ReelSubjectDetailScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp)
+                            .padding(horizontal = 16.dp, vertical = 14.dp)
                     ) {
+                        // 1. Chapter Title Row (Full width with 2 lines max & ellipsis)
+                        Text(
+                            text = chapterName,
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = DeepIndigo,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            lineHeight = 20.sp
+                        )
+
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        // 2. Metadata Stats and Action Controls
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Column(modifier = Modifier.weight(1f)) {
+                            // Left: reels count and duration
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                modifier = Modifier.weight(1f, fill = false)
+                            ) {
                                 Text(
-                                    text = chapterName,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = DeepIndigo
+                                    text = "${reelsInChapter.size} reels",
+                                    fontSize = 12.sp,
+                                    color = TextSecondary
                                 )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    Text(
-                                        text = "${reelsInChapter.size} reels",
-                                        fontSize = 12.sp,
-                                        color = TextSecondary
-                                    )
+                                Text("•", fontSize = 12.sp, color = TextSecondary)
+                                Text(
+                                    text = "${totalSec}s total",
+                                    fontSize = 12.sp,
+                                    color = TextSecondary
+                                )
+                                if (displayCh.canUserModify) {
                                     Text("•", fontSize = 12.sp, color = TextSecondary)
                                     Text(
-                                        text = "${totalSec}s total",
-                                        fontSize = 12.sp,
-                                        color = TextSecondary
+                                        text = "Your chapter",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        color = SageGreen
                                     )
-                                    if (displayCh.canUserModify) {
-                                        Text("•", fontSize = 12.sp, color = TextSecondary)
-                                        Text(
-                                            text = "Created by you",
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Medium,
-                                            color = SageGreen
-                                        )
-                                    }
                                 }
                             }
 
-                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            // Right: Action buttons (Edit/Delete + Upload + Watch)
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
                                 if (displayCh.canUserModify && displayCh.id != null) {
                                     IconButton(
                                         onClick = {
@@ -1400,7 +1420,7 @@ fun ReelSubjectDetailScreen(
                                         }
                                     },
                                     modifier = Modifier
-                                        .size(32.dp)
+                                        .size(30.dp)
                                         .testTag("upload_chapter_${chapterName.lowercase().replace(" ", "_")}")
                                 ) {
                                     Icon(
@@ -1415,15 +1435,17 @@ fun ReelSubjectDetailScreen(
                                     onClick = { onWatchChapter(chapterName) },
                                     colors = ButtonDefaults.buttonColors(containerColor = DeepIndigo),
                                     shape = RoundedCornerShape(10.dp),
-                                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp),
-                                    modifier = Modifier.testTag("watch_chapter_${chapterName.lowercase().replace(" ", "_")}")
+                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                                    modifier = Modifier
+                                        .height(34.dp)
+                                        .testTag("watch_chapter_${chapterName.lowercase().replace(" ", "_")}")
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.PlayArrow,
                                         contentDescription = null,
-                                        modifier = Modifier.size(16.dp)
+                                        modifier = Modifier.size(15.dp)
                                     )
-                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Spacer(modifier = Modifier.width(3.dp))
                                     Text("Watch", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                                 }
                             }
@@ -1498,6 +1520,7 @@ fun ReelFeedScreen(
     onAddQuestion: (reelId: Long, subject: String, chapter: String) -> Unit,
     onRecordWatch: (reelId: Long, watchSeconds: Long) -> Unit,
     onUploadReel: (title: String, description: String, exam: String, subject: String, chapter: String, uri: Uri) -> Unit,
+    onUploadMultipleReels: ((List<ReelUploadItem>) -> Unit)? = null,
     exams: List<CurriculumExam> = emptyList(),
     subjects: List<CurriculumSubject> = emptyList(),
     chapters: List<CurriculumChapter> = emptyList(),
@@ -1922,6 +1945,16 @@ fun ReelFeedScreen(
                 showUploadDialog = false
                 onUploadReel(title, desc, exam, subj, chap, uri)
             },
+            onConfirmMultipleUpload = { items, exam, subj, chap ->
+                showUploadDialog = false
+                if (onUploadMultipleReels != null) {
+                    onUploadMultipleReels(items)
+                } else {
+                    items.forEach { item ->
+                        onUploadReel(item.title, item.description, item.exam, item.subject, item.chapter, item.uri)
+                    }
+                }
+            },
             onAddExam = onAddExam,
             onAddSubject = onAddSubject,
             onAddChapter = onAddChapter
@@ -1951,6 +1984,9 @@ private fun SingleReelPlayerItem(
     // Playback tracking
     var videoProgress by remember { mutableFloatStateOf(0f) }
     var currentPositionSec by remember { mutableIntStateOf(0) }
+    var durationSec by remember { mutableIntStateOf(reel.durationSeconds) }
+    var isUserScrubbing by remember { mutableStateOf(false) }
+    var scrubProgress by remember { mutableFloatStateOf(0f) }
     var watchSecondsAccumulator by remember { mutableLongStateOf(0L) }
 
     // VideoView & MediaPlayer reference
@@ -1999,9 +2035,9 @@ private fun SingleReelPlayerItem(
     }
 
     // Periodic watch time & progress polling loop
-    LaunchedEffect(isActive, isPlaying) {
-        while (isActive && isPlaying) {
-            delay(1000)
+    LaunchedEffect(isActive, isPlaying, isUserScrubbing) {
+        while (isActive && isPlaying && !isUserScrubbing) {
+            delay(500)
             watchSecondsAccumulator += 1
             videoViewRef?.let { vv ->
                 try {
@@ -2010,6 +2046,7 @@ private fun SingleReelPlayerItem(
                     if (dur > 0) {
                         videoProgress = (pos.toFloat() / dur.toFloat()).coerceIn(0f, 1f)
                         currentPositionSec = pos / 1000
+                        durationSec = dur / 1000
                     }
                 } catch (e: Exception) {
                     // Ignore
@@ -2369,25 +2406,151 @@ private fun SingleReelPlayerItem(
                 )
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-            // Video Scrubber / Progress Bar
-            LinearProgressIndicator(
-                progress = { videoProgress },
+            // Video Scrubber / Timeline Slider (Rewind & Fast-forward)
+            val currentProg = if (isUserScrubbing) scrubProgress else videoProgress
+            val totalSeconds = if (durationSec > 0) durationSec else reel.durationSeconds
+            val displaySec = if (isUserScrubbing) {
+                (scrubProgress * totalSeconds).toInt()
+            } else {
+                currentPositionSec
+            }
+            val formattedTime = String.format("%02d:%02d / %02d:%02d", displaySec / 60, displaySec % 60, totalSeconds / 60, totalSeconds % 60)
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = formattedTime,
+                    color = Color.White.copy(alpha = 0.85f),
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                if (isUserScrubbing) {
+                    Text(
+                        text = "Seeking...",
+                        color = Terracotta,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            Slider(
+                value = currentProg.coerceIn(0f, 1f),
+                onValueChange = { newValue ->
+                    isUserScrubbing = true
+                    scrubProgress = newValue
+                },
+                onValueChangeFinished = {
+                    val targetProg = scrubProgress
+                    isUserScrubbing = false
+                    videoViewRef?.let { vv ->
+                        try {
+                            val dur = vv.duration
+                            if (dur > 0) {
+                                val targetMs = (targetProg * dur).toInt()
+                                vv.seekTo(targetMs)
+                                videoProgress = targetProg
+                                currentPositionSec = targetMs / 1000
+                            }
+                        } catch (e: Exception) {
+                            // Ignore seek failure
+                        }
+                    }
+                },
+                colors = SliderDefaults.colors(
+                    thumbColor = Terracotta,
+                    activeTrackColor = Terracotta,
+                    inactiveTrackColor = Color.White.copy(alpha = 0.35f)
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(3.dp)
-                    .clip(RoundedCornerShape(2.dp)),
-                color = Terracotta,
-                trackColor = Color.White.copy(alpha = 0.3f)
+                    .height(26.dp)
+                    .testTag("reel_timeline_slider")
             )
         }
     }
 }
 
 // =========================================================================
-// 6. UPLOAD REEL DIALOG
+// 6. UPLOAD REEL DIALOG & BATCH PROCESSING
 // =========================================================================
+
+data class ReelUploadItem(
+    val title: String,
+    val description: String,
+    val exam: String,
+    val subject: String,
+    val chapter: String,
+    val uri: Uri
+)
+
+data class SelectedReelItem(
+    val id: String = java.util.UUID.randomUUID().toString(),
+    val uri: Uri,
+    val rawFileName: String,
+    val title: String,
+    val notes: String = ""
+)
+
+object ReelFileUtils {
+    /**
+     * Cleans a raw filename by stripping video file extensions (.mp4, .wap, .webm, .mkv, .mov, etc.),
+     * replacing underscores with spaces, and normalizing spaces.
+     */
+    fun cleanReelTitle(rawName: String): String {
+        val withoutExt = rawName.replace(
+            Regex("(?i)\\.(mp4|wap|webm|mkv|mov|avi|3gp|m4v|flv|wmv|ts|mpg|mpeg)$"),
+            ""
+        )
+        val noUnderscores = withoutExt.replace('_', ' ')
+        val cleaned = noUnderscores.replace(Regex("\\s+"), " ").trim()
+        return cleaned.ifBlank { "Study Reel" }
+    }
+
+    /**
+     * Resolves the display filename from a content:// or file:// URI and returns a clean title.
+     */
+    fun extractCleanFileName(context: Context, uri: Uri): String {
+        var fileName: String? = null
+        try {
+            if (uri.scheme == "content") {
+                context.contentResolver.query(
+                    uri,
+                    arrayOf(OpenableColumns.DISPLAY_NAME),
+                    null,
+                    null,
+                    null
+                )?.use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        val idx = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                        if (idx >= 0) {
+                            fileName = cursor.getString(idx)
+                        }
+                    }
+                }
+            }
+        } catch (_: Exception) {}
+
+        if (fileName.isNullOrBlank()) {
+            val path = uri.path
+            if (!path.isNullOrBlank()) {
+                val decoded = Uri.decode(path)
+                fileName = decoded.substringAfterLast('/')
+            }
+        }
+        if (fileName.isNullOrBlank()) {
+            fileName = uri.lastPathSegment
+        }
+
+        return cleanReelTitle(fileName ?: "Study Reel")
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UploadReelDialog(
@@ -2399,13 +2562,15 @@ fun UploadReelDialog(
     chapters: List<CurriculumChapter> = emptyList(),
     onDismiss: () -> Unit,
     onConfirmUpload: (title: String, description: String, exam: String, subject: String, chapter: String, uri: Uri) -> Unit,
+    onConfirmMultipleUpload: ((items: List<ReelUploadItem>, exam: String, subject: String, chapter: String) -> Unit)? = null,
     onAddExam: ((name: String, subtitle: String) -> Unit)? = null,
     onAddSubject: ((name: String, examName: String?, subtitle: String) -> Unit)? = null,
     onAddChapter: ((name: String, examName: String?, subjectName: String) -> Unit)? = null
 ) {
+    val context = LocalContext.current
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var selectedVideoUri by remember { mutableStateOf<Uri?>(null) }
+    val selectedVideos = remember { mutableStateListOf<SelectedReelItem>() }
 
     // Detect if default context is Self-Study
     val isInitialSelfStudy = remember(defaultExam, defaultSubject) {
@@ -2482,8 +2647,10 @@ fun UploadReelDialog(
         )
     }
 
-    LaunchedEffect(rawChapters) {
-        if (selectedChapter != entireSubjectOption && !rawChapters.any { it.equals(selectedChapter, ignoreCase = true) }) {
+    LaunchedEffect(rawChapters, defaultChapter) {
+        if (!defaultChapter.isNullOrBlank() && defaultChapter != "All Chapters" && defaultChapter != "Entire Subject") {
+            selectedChapter = defaultChapter
+        } else if (selectedChapter != entireSubjectOption && !rawChapters.any { it.equals(selectedChapter, ignoreCase = true) }) {
             selectedChapter = rawChapters.firstOrNull() ?: entireSubjectOption
         }
     }
@@ -2502,11 +2669,45 @@ fun UploadReelDialog(
     var newSubjectName by remember { mutableStateOf("") }
     var newChapterName by remember { mutableStateOf("") }
 
-    val videoPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia()
-    ) { uri: Uri? ->
-        if (uri != null) {
-            selectedVideoUri = uri
+    // Video Pickers: Multiple Visual Media Picker
+    val multipleVideoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickMultipleVisualMedia(maxItems = 100)
+    ) { uris: List<Uri> ->
+        if (uris.isNotEmpty()) {
+            uris.forEach { u ->
+                val cleanTitle = ReelFileUtils.extractCleanFileName(context, u)
+                selectedVideos.add(
+                    SelectedReelItem(
+                        uri = u,
+                        rawFileName = cleanTitle,
+                        title = cleanTitle
+                    )
+                )
+            }
+            if (selectedVideos.isNotEmpty() && title.isBlank()) {
+                title = selectedVideos.first().title
+            }
+        }
+    }
+
+    // Document Picker for multiple video files
+    val documentPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenMultipleDocuments()
+    ) { uris: List<Uri> ->
+        if (uris.isNotEmpty()) {
+            uris.forEach { u ->
+                val cleanTitle = ReelFileUtils.extractCleanFileName(context, u)
+                selectedVideos.add(
+                    SelectedReelItem(
+                        uri = u,
+                        rawFileName = cleanTitle,
+                        title = cleanTitle
+                    )
+                )
+            }
+            if (selectedVideos.isNotEmpty() && title.isBlank()) {
+                title = selectedVideos.first().title
+            }
         }
     }
 
@@ -2592,8 +2793,9 @@ fun UploadReelDialog(
                 Button(
                     onClick = {
                         if (newChapterName.isNotBlank()) {
-                            onAddChapter?.invoke(newChapterName.trim(), if (isSelfStudyMode) null else selectedExam, selectedSubject)
-                            selectedChapter = newChapterName.trim()
+                            val cleanChapter = newChapterName.replace(Regex("[\\r\\n]+"), " ").trim()
+                            onAddChapter?.invoke(cleanChapter, if (isSelfStudyMode) null else selectedExam, selectedSubject)
+                            selectedChapter = cleanChapter
                             newChapterName = ""
                             showAddChapterDialog = false
                         }
@@ -2616,7 +2818,7 @@ fun UploadReelDialog(
             ) {
                 Icon(Icons.Default.CloudUpload, contentDescription = null, tint = Terracotta)
                 Text(
-                    text = "Upload Study Reel",
+                    text = if (selectedVideos.size > 1) "Upload Multiple Reels (${selectedVideos.size})" else "Upload Study Reel",
                     fontWeight = FontWeight.Bold,
                     color = DeepIndigo,
                     fontSize = 18.sp
@@ -2631,59 +2833,285 @@ fun UploadReelDialog(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text(
-                    text = "Categorize your video clip by track, subject, and chapter so students can study sequentially.",
+                    text = "Upload reels directly into this chapter. Video file names are automatically cleaned and auto-filled as titles (e.g. filename.mp4 → filename).",
                     fontSize = 12.sp,
                     color = TextSecondary
                 )
 
                 // Context auto-fill banner
-                if (!defaultSubject.isNullOrBlank()) {
-                    Surface(
-                        shape = RoundedCornerShape(10.dp),
-                        color = SageGreenLight,
-                        border = BorderStroke(1.dp, SageGreen.copy(alpha = 0.4f)),
-                        modifier = Modifier.fillMaxWidth()
+                Surface(
+                    shape = RoundedCornerShape(10.dp),
+                    color = SageGreenLight,
+                    border = BorderStroke(1.dp, SageGreen.copy(alpha = 0.4f)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Check,
-                                contentDescription = null,
-                                tint = SageGreenDark,
-                                modifier = Modifier.size(16.dp)
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = null,
+                            tint = SageGreenDark,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Column {
+                            Text(
+                                text = "Target Study Context",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = SageGreenDark
                             )
-                            Column {
-                                Text(
-                                    text = "Auto-filled from active study context",
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = SageGreenDark
-                                )
-                                Text(
-                                    text = "${selectedSubject} • ${if (selectedChapter.startsWith("Entire Subject")) "Entire Subject" else selectedChapter}",
-                                    fontSize = 11.sp,
-                                    color = TextPrimary
-                                )
-                            }
+                            Text(
+                                text = "${selectedSubject} • ${if (selectedChapter.startsWith("Entire Subject")) "Entire Subject" else selectedChapter}",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = TextPrimary
+                            )
                         }
                     }
                 }
 
-                // 1. Reel Title
-                OutlinedTextField(
-                    value = title,
-                    onValueChange = { title = it },
-                    label = { Text("Reel Title *") },
-                    placeholder = { Text("e.g. Article 21 Explained") },
-                    singleLine = true,
-                    shape = RoundedCornerShape(10.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .testTag("upload_reel_input_title")
-                )
+                // Video selection action buttons
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = {
+                            multipleVideoPickerLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly)
+                            )
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (selectedVideos.isNotEmpty()) SageGreen else DeepIndigo
+                        ),
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .testTag("pick_multiple_videos_button")
+                    ) {
+                        Icon(
+                            imageVector = if (selectedVideos.isNotEmpty()) Icons.Default.VideoLibrary else Icons.Default.CloudUpload,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = if (selectedVideos.isEmpty()) "Select Video(s)" else "+ Add Videos (${selectedVideos.size})",
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 12.sp
+                        )
+                    }
+
+                    OutlinedButton(
+                        onClick = {
+                            documentPickerLauncher.launch(arrayOf("video/*", "*/*"))
+                        },
+                        shape = RoundedCornerShape(10.dp),
+                        border = BorderStroke(1.dp, DeepIndigo.copy(alpha = 0.4f)),
+                        modifier = Modifier.testTag("browse_files_button")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.UploadFile,
+                            contentDescription = "Browse Files",
+                            tint = DeepIndigo,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Files", color = DeepIndigo, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                    }
+                }
+
+                // Selected video(s) and auto-filled title(s)
+                if (selectedVideos.isEmpty()) {
+                    Surface(
+                        shape = RoundedCornerShape(10.dp),
+                        color = BackgroundOffWhite,
+                        border = BorderStroke(1.dp, CardBorder),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(12.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(Icons.Default.Movie, contentDescription = null, tint = TextMuted, modifier = Modifier.size(22.dp))
+                            Text(
+                                text = "No videos selected yet",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = TextSecondary
+                            )
+                            Text(
+                                text = "Select 1 or multiple videos above. File names will auto-fill as titles (extension stripped).",
+                                fontSize = 11.sp,
+                                color = TextMuted,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                            )
+                        }
+                    }
+                } else if (selectedVideos.size == 1) {
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Icon(Icons.Default.CheckCircle, contentDescription = null, tint = SageGreen, modifier = Modifier.size(16.dp))
+                                Text(
+                                    text = "1 Video Selected",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = SageGreenDark
+                                )
+                            }
+                            TextButton(
+                                onClick = {
+                                    selectedVideos.clear()
+                                    title = ""
+                                }
+                            ) {
+                                Text("Remove", fontSize = 11.sp, color = Terracotta)
+                            }
+                        }
+
+                        OutlinedTextField(
+                            value = title,
+                            onValueChange = { newTitle ->
+                                title = newTitle
+                                if (selectedVideos.isNotEmpty()) {
+                                    selectedVideos[0] = selectedVideos[0].copy(title = newTitle)
+                                }
+                            },
+                            label = { Text("Reel Title *") },
+                            placeholder = { Text("Autofilled from filename") },
+                            supportingText = {
+                                Text("Autofilled from filename without extension (.mp4/.wap)", fontSize = 10.sp, color = SageGreenDark)
+                            },
+                            singleLine = true,
+                            shape = RoundedCornerShape(10.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag("upload_reel_input_title")
+                        )
+                    }
+                } else {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Surface(
+                                    shape = CircleShape,
+                                    color = SageGreen
+                                ) {
+                                    Text(
+                                        text = "${selectedVideos.size}",
+                                        color = Color.White,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp)
+                                    )
+                                }
+                                Text(
+                                    text = "Reels in Batch Queue",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = DeepIndigo
+                                )
+                            }
+
+                            TextButton(
+                                onClick = {
+                                    selectedVideos.clear()
+                                    title = ""
+                                }
+                            ) {
+                                Text("Clear All", fontSize = 11.sp, color = Terracotta)
+                            }
+                        }
+
+                        Text(
+                            text = "Titles auto-extracted from file names (stripping .mp4, .wap, etc.). You can edit them below:",
+                            fontSize = 11.sp,
+                            color = TextSecondary
+                        )
+
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            selectedVideos.forEachIndexed { index, item ->
+                                Card(
+                                    shape = RoundedCornerShape(10.dp),
+                                    colors = CardDefaults.cardColors(containerColor = BackgroundOffWhite),
+                                    border = BorderStroke(1.dp, CardBorder),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(10.dp),
+                                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                            ) {
+                                                Icon(Icons.Default.Movie, contentDescription = null, tint = DeepIndigo, modifier = Modifier.size(14.dp))
+                                                Text(
+                                                    text = "Reel #${index + 1}",
+                                                    fontSize = 11.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = DeepIndigo
+                                                )
+                                            }
+
+                                            IconButton(
+                                                onClick = {
+                                                    selectedVideos.removeAt(index)
+                                                    if (selectedVideos.size == 1) {
+                                                        title = selectedVideos.first().title
+                                                    }
+                                                },
+                                                modifier = Modifier.size(24.dp)
+                                            ) {
+                                                Icon(Icons.Default.Close, contentDescription = "Remove", tint = TextMuted, modifier = Modifier.size(16.dp))
+                                            }
+                                        }
+
+                                        OutlinedTextField(
+                                            value = item.title,
+                                            onValueChange = { newT ->
+                                                selectedVideos[index] = item.copy(title = newT)
+                                            },
+                                            label = { Text("Title (Autofilled)") },
+                                            singleLine = true,
+                                            shape = RoundedCornerShape(8.dp),
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .testTag("batch_reel_title_$index")
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 
                 // 2. Track Switcher: Exam Course vs Self-Study
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -3085,36 +3513,12 @@ fun UploadReelDialog(
                 )
 
                 Spacer(modifier = Modifier.height(2.dp))
-
-                // 7. Video Picker Button
-                Button(
-                    onClick = {
-                        videoPickerLauncher.launch(
-                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly)
-                        )
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (selectedVideoUri != null) SageGreen else DeepIndigo
-                    ),
-                    shape = RoundedCornerShape(10.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .testTag("pick_video_button")
-                ) {
-                    Icon(
-                        imageVector = if (selectedVideoUri != null) Icons.Default.Movie else Icons.Default.CloudUpload,
-                        contentDescription = null
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = if (selectedVideoUri != null) "Video Clip Selected ✓ (Tap to change)" else "Choose Video from Device",
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
             }
         },
         confirmButton = {
-            val isFormValid = title.isNotBlank() && selectedVideoUri != null && selectedSubject.isNotBlank()
+            val isFormValid = selectedVideos.isNotEmpty() && selectedSubject.isNotBlank() &&
+                (if (selectedVideos.size == 1) (title.isNotBlank() || selectedVideos[0].title.isNotBlank()) else selectedVideos.all { it.title.isNotBlank() })
+
             Button(
                 onClick = {
                     if (isFormValid) {
@@ -3128,14 +3532,37 @@ fun UploadReelDialog(
                         } else {
                             selectedExam.trim().ifBlank { "UPSI – Police Sub-Inspector" }
                         }
-                        onConfirmUpload(
-                            title.trim(),
-                            description.trim(),
-                            finalExam,
-                            selectedSubject.trim(),
-                            finalChapter,
-                            selectedVideoUri!!
-                        )
+
+                        if (selectedVideos.size == 1) {
+                            val single = selectedVideos.first()
+                            val finalTitle = title.trim().ifBlank { single.title.trim() }
+                            onConfirmUpload(
+                                finalTitle,
+                                description.trim(),
+                                finalExam,
+                                selectedSubject.trim(),
+                                finalChapter,
+                                single.uri
+                            )
+                        } else {
+                            val uploadItems = selectedVideos.map { item ->
+                                ReelUploadItem(
+                                    title = item.title.trim().ifBlank { item.rawFileName },
+                                    description = description.trim(),
+                                    exam = finalExam,
+                                    subject = selectedSubject.trim(),
+                                    chapter = finalChapter,
+                                    uri = item.uri
+                                )
+                            }
+                            if (onConfirmMultipleUpload != null) {
+                                onConfirmMultipleUpload(uploadItems, finalExam, selectedSubject.trim(), finalChapter)
+                            } else {
+                                uploadItems.forEach { itm ->
+                                    onConfirmUpload(itm.title, itm.description, itm.exam, itm.subject, itm.chapter, itm.uri)
+                                }
+                            }
+                        }
                     }
                 },
                 enabled = isFormValid,
@@ -3143,7 +3570,9 @@ fun UploadReelDialog(
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.testTag("confirm_upload_reel_button")
             ) {
-                Text("Upload Reel")
+                Text(
+                    text = if (selectedVideos.size > 1) "Upload ${selectedVideos.size} Reels" else "Upload Reel"
+                )
             }
         },
         dismissButton = {

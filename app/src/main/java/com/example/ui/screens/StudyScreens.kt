@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -53,6 +54,8 @@ import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Newspaper
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.Psychology
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.PickVisualMediaRequest
@@ -247,7 +250,7 @@ fun AddChapterDialog(
             Button(
                 onClick = {
                     if (chapterName.isNotBlank()) {
-                        onConfirm(chapterName.trim())
+                        onConfirm(chapterName.replace(Regex("[\\r\\n]+"), " ").trim())
                     }
                 },
                 enabled = chapterName.isNotBlank(),
@@ -1531,9 +1534,9 @@ fun StudyNotesFeedScreen(
             .background(BackgroundOffWhite)
             .statusBarsPadding()
             .navigationBarsPadding()
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 8.dp)
     ) {
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(6.dp))
 
         // Header: Back button + Chapter Name + Note Counter Badge with Nav Buttons
         Row(
@@ -1713,31 +1716,31 @@ fun StudyNotesFeedScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
-        // Action Buttons: "+ Note / Photo", "+ Add Question" & Stopwatch
+        // Action Buttons: "+ Note", "+ Question" & Stopwatch
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             MindLoopPrimaryButton(
                 onClick = { showAddNoteDialog = true },
                 modifier = Modifier
-                    .weight(1.1f)
-                    .height(46.dp)
+                    .weight(1.05f)
+                    .height(44.dp)
                     .testTag("feed_add_note_button"),
                 shape = RoundedCornerShape(12.dp),
-                containerColor = SageGreen
+                containerColor = SageGreen,
+                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp)
             ) {
-                Icon(Icons.Default.CameraAlt, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+                Icon(Icons.Default.CameraAlt, contentDescription = null, tint = Color.White, modifier = Modifier.size(15.dp))
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = "+ Note / Photo",
+                    text = "+ Note",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    maxLines = 1
                 )
             }
 
@@ -1747,38 +1750,39 @@ fun StudyNotesFeedScreen(
                     onAddQuestionClick(noteId, currentChapter)
                 },
                 modifier = Modifier
-                    .weight(1f)
-                    .height(46.dp)
+                    .weight(1.1f)
+                    .height(44.dp)
                     .testTag("feed_add_question_button"),
                 shape = RoundedCornerShape(12.dp),
-                containerColor = DeepIndigo
+                containerColor = DeepIndigo,
+                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp)
             ) {
-                Icon(Icons.Default.Add, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
-                Spacer(modifier = Modifier.width(4.dp))
+                Icon(Icons.Default.Add, contentDescription = null, tint = Color.White, modifier = Modifier.size(15.dp))
+                Spacer(modifier = Modifier.width(3.dp))
                 Text(
-                    text = "Add Question",
+                    text = "+ Question",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    maxLines = 1
                 )
             }
 
             MindLoopPrimaryButton(
                 onClick = { isTimerRunning = !isTimerRunning },
                 modifier = Modifier
-                    .weight(0.9f)
-                    .height(46.dp)
+                    .weight(0.85f)
+                    .height(44.dp)
                     .testTag("feed_timer_button"),
                 shape = RoundedCornerShape(12.dp),
-                containerColor = DeepIndigo
+                containerColor = DeepIndigo,
+                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp)
             ) {
-                Icon(Icons.Default.Timer, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
-                Spacer(modifier = Modifier.width(4.dp))
+                Icon(Icons.Default.Timer, contentDescription = null, tint = Color.White, modifier = Modifier.size(15.dp))
+                Spacer(modifier = Modifier.width(3.dp))
                 Text(
                     text = timeFormatted,
-                    fontSize = 13.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
                     maxLines = 1
@@ -1786,7 +1790,7 @@ fun StudyNotesFeedScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(8.dp))
     }
 
     if (showAddNoteDialog) {
@@ -2256,6 +2260,32 @@ fun AddNotesScreen(
     var uploadedCount by remember { mutableIntStateOf(4) }
     var csvStatusMessage by remember { mutableStateOf<String?>(null) }
     var isUploadingCsv by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+
+    val csvFilePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri != null) {
+            coroutineScope.launch {
+                isUploadingCsv = true
+                try {
+                    val csvText = context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() } ?: ""
+                    if (csvText.isNotBlank()) {
+                        val finalSubject = if (isCustomSubject && customSubjectName.isNotBlank()) customSubjectName.trim() else selectedSubject
+                        val finalChapter = if (isCustomChapter && customChapterName.isNotBlank()) customChapterName.trim() else selectedChapter
+                        val imported = onImportCsv(finalSubject, finalChapter, csvText)
+                        csvStatusMessage = "Successfully imported $imported questions linked to $finalSubject → $finalChapter!"
+                    } else {
+                        csvStatusMessage = "Selected file was empty."
+                    }
+                } catch (e: Exception) {
+                    csvStatusMessage = "Import failed: ${e.localizedMessage}"
+                } finally {
+                    isUploadingCsv = false
+                }
+            }
+        }
+    }
 
     val baseSubjects = listOf("Indian Polity", "Geography", "History", "Current Affairs", "Economics", "General Science")
     val allSubjects = (baseSubjects + customSubjects).distinct()
@@ -2602,15 +2632,7 @@ fun AddNotesScreen(
 
         MindLoopSecondaryButton(
             onClick = {
-                // Simulate sample CSV questions addition tagged to selectedSubject -> selectedChapter
-                val sampleCsv = """
-                    Type,Question,OptionA,OptionB,OptionC,OptionD,CorrectAnswer
-                    MCQ,"Which Article of Constitution abolishes Untouchability?","Article 14","Article 15","Article 17","Article 19","C"
-                    TF,"Right to Property is a Fundamental Right in India.","True","False","B"
-                    MCQ,"How many schedules were there originally in the Indian Constitution?","8 Schedules","10 Schedules","12 Schedules","7 Schedules","A"
-                """.trimIndent()
-                // In actual runtime, import questions
-                csvStatusMessage = "3 Questions imported and linked to $selectedSubject → $selectedChapter!"
+                csvFilePickerLauncher.launch(arrayOf("text/*", "application/*", "*/*"))
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -2620,16 +2642,58 @@ fun AddNotesScreen(
         ) {
             Icon(Icons.Outlined.Folder, contentDescription = null, tint = DeepIndigo)
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Upload CSV File", color = DeepIndigo, fontWeight = FontWeight.SemiBold)
+            Text(
+                text = if (isUploadingCsv) "Importing Questions..." else "Choose CSV File from Device",
+                color = DeepIndigo,
+                fontWeight = FontWeight.SemiBold
+            )
         }
 
         Spacer(modifier = Modifier.height(6.dp))
 
-        Text(
-            text = csvStatusMessage ?: "Questions will be added to $selectedSubject → $selectedChapter",
-            fontSize = 11.5.sp,
-            color = if (csvStatusMessage != null) SageGreen else TextSecondary
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = csvStatusMessage ?: "CSV questions will be linked to $selectedSubject → $selectedChapter",
+                fontSize = 11.5.sp,
+                color = if (csvStatusMessage != null) SageGreen else TextSecondary,
+                modifier = Modifier.weight(1f)
+            )
+
+            TextButton(
+                onClick = {
+                    coroutineScope.launch {
+                        isUploadingCsv = true
+                        try {
+                            val sampleCsv = """
+                                Type,Question,OptionA,OptionB,OptionC,OptionD,CorrectAnswer
+                                MCQ,"Which Article of Constitution abolishes Untouchability?","Article 14","Article 15","Article 17","Article 19","C"
+                                TF,"Right to Property is a Fundamental Right in India.","True","False","B"
+                                MCQ,"How many schedules were there originally in the Indian Constitution?","8 Schedules","10 Schedules","12 Schedules","7 Schedules","A"
+                            """.trimIndent()
+                            val finalSubject = if (isCustomSubject && customSubjectName.isNotBlank()) customSubjectName.trim() else selectedSubject
+                            val finalChapter = if (isCustomChapter && customChapterName.isNotBlank()) customChapterName.trim() else selectedChapter
+                            val imported = onImportCsv(finalSubject, finalChapter, sampleCsv)
+                            csvStatusMessage = "Imported $imported sample questions into $finalSubject → $finalChapter!"
+                        } catch (e: Exception) {
+                            csvStatusMessage = "Sample import error: ${e.localizedMessage}"
+                        } finally {
+                            isUploadingCsv = false
+                        }
+                    }
+                }
+            ) {
+                Text(
+                    text = "Load Sample",
+                    fontSize = 11.sp,
+                    color = DeepIndigo,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.weight(1f))
 

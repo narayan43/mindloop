@@ -247,8 +247,7 @@ fun AdminDashboardScreen(
         AdminConfig.isAdmin(
             uid = currentUserId,
             email = currentUserEmail,
-            localOverrideUid = localOverrideUid,
-            role = "admin"
+            localOverrideUid = localOverrideUid
         )
     }
 
