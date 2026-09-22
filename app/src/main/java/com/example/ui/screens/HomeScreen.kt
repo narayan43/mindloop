@@ -70,12 +70,17 @@ import com.example.ui.components.TimeSpentBySubjectChart
 import com.example.ui.components.WeeklyQuestionsBarChart
 import com.example.ui.components.tapAffordance
 import com.example.ui.theme.Amber
-import com.example.ui.theme.BackgroundOffWhite
+import com.example.ui.theme.AppBackground
+import com.example.ui.theme.AppBorder
+import com.example.ui.theme.AppSurface
+import com.example.ui.theme.AppSurfaceElevated
+import com.example.ui.theme.AppTextPrimary
+import com.example.ui.theme.AppTextSecondary
 import com.example.ui.theme.DeepIndigo
+import com.example.ui.theme.LocalIsDarkTheme
 import com.example.ui.theme.SageGreen
 import com.example.ui.theme.SageGreenDark
 import com.example.ui.theme.SageGreenLight
-import com.example.ui.theme.SurfaceWhite
 import com.example.ui.theme.Terracotta
 import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TextSecondary
@@ -155,7 +160,7 @@ fun HomeScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundOffWhite)
+            .background(AppBackground)
             .statusBarsPadding()
             .padding(horizontal = 20.dp)
             .verticalScroll(scrollState)
@@ -174,7 +179,7 @@ fun HomeScreen(
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = (-0.5).sp,
-                    color = DeepIndigo,
+                    color = AppTextPrimary,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     lineHeight = 26.sp
@@ -183,7 +188,7 @@ fun HomeScreen(
                 Text(
                     text = dateString,
                     fontSize = 13.5.sp,
-                    color = slate500,
+                    color = AppTextSecondary,
                     fontWeight = FontWeight.Medium
                 )
             }
@@ -220,8 +225,8 @@ fun HomeScreen(
                         .size(44.dp)
                         .shadow(elevation = 2.dp, shape = CircleShape)
                         .clip(CircleShape)
-                        .background(Color.White)
-                        .border(1.dp, Color(0xFFE2E8F0), CircleShape)
+                        .background(AppSurface)
+                        .border(1.dp, AppBorder, CircleShape)
                         .clickable(onClick = onToggleTheme)
                         .testTag("theme_mode_toggle_button"),
                     contentAlignment = Alignment.Center
@@ -234,7 +239,7 @@ fun HomeScreen(
                     val themeTint = when (themeMode) {
                         "DARK" -> Color(0xFF818CF8)
                         "LIGHT" -> Color(0xFFF59E0B)
-                        else -> DeepIndigo
+                        else -> if (LocalIsDarkTheme.current) Color(0xFF818CF8) else DeepIndigo
                     }
                     Icon(
                         imageVector = themeIcon,
@@ -250,8 +255,8 @@ fun HomeScreen(
                         .size(44.dp)
                         .shadow(elevation = 2.dp, shape = CircleShape)
                         .clip(CircleShape)
-                        .background(Color.White)
-                        .border(1.dp, Color(0xFFE2E8F0), CircleShape)
+                        .background(AppSurface)
+                        .border(1.dp, AppBorder, CircleShape)
                         .clickable(onClick = onSyncClick)
                         .testTag("firestore_sync_button"),
                     contentAlignment = Alignment.Center
@@ -259,7 +264,7 @@ fun HomeScreen(
                     Icon(
                         imageVector = Icons.Filled.CloudSync,
                         contentDescription = "Sync to Firestore",
-                        tint = DeepIndigo,
+                        tint = if (LocalIsDarkTheme.current) Color(0xFF818CF8) else DeepIndigo,
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -271,8 +276,8 @@ fun HomeScreen(
                         .size(48.dp)
                         .shadow(elevation = 3.dp, shape = CircleShape)
                         .clip(CircleShape)
-                        .background(Color(0xFFE0E7FF))
-                        .border(2.dp, Color.White, CircleShape)
+                        .background(if (LocalIsDarkTheme.current) Color(0xFF312E81) else Color(0xFFE0E7FF))
+                        .border(2.dp, AppBorder, CircleShape)
                         .clickable(onClick = onProfileClick)
                         .testTag("user_avatar_button"),
                     contentAlignment = Alignment.Center
@@ -281,7 +286,7 @@ fun HomeScreen(
                         text = initials,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
-                        color = Color(0xFF4338CA)
+                        color = if (LocalIsDarkTheme.current) Color(0xFFA5B4FC) else Color(0xFF4338CA)
                     )
                 }
             }
@@ -295,8 +300,8 @@ fun HomeScreen(
                 .fillMaxWidth()
                 .testTag("streak_card"),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-            border = BorderStroke(1.dp, slateBorder),
+            colors = CardDefaults.cardColors(containerColor = AppSurface),
+            border = BorderStroke(1.dp, AppBorder),
             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
         ) {
             Row(
@@ -327,13 +332,13 @@ fun HomeScreen(
                         text = "$streakDays Day Streak!",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = DeepIndigo
+                        color = AppTextPrimary
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = "You're in the top 5% this week. Keep it going!",
                         fontSize = 12.sp,
-                        color = slate500,
+                        color = AppTextSecondary,
                         lineHeight = 16.sp
                     )
                 }
@@ -402,8 +407,8 @@ fun HomeScreen(
                     .fillMaxWidth()
                     .testTag("home_data_transfer_banner"),
                 shape = RoundedCornerShape(14.dp),
-                color = SurfaceWhite,
-                border = BorderStroke(1.dp, slateBorder)
+                color = AppSurface,
+                border = BorderStroke(1.dp, AppBorder)
             ) {
                 Column(
                     modifier = Modifier
@@ -424,7 +429,7 @@ fun HomeScreen(
                             Icon(
                                 imageVector = Icons.Default.Share,
                                 contentDescription = null,
-                                tint = DeepIndigo,
+                                tint = if (LocalIsDarkTheme.current) Color(0xFF818CF8) else DeepIndigo,
                                 modifier = Modifier.size(17.dp)
                             )
                         }
@@ -434,13 +439,13 @@ fun HomeScreen(
                                 text = "Study Pack Transfer (.mlpack)",
                                 fontSize = 13.5.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = DeepIndigo
+                                color = AppTextPrimary
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = "Export & import course packs with offline videos",
                                 fontSize = 11.sp,
-                                color = slate500,
+                                color = AppTextSecondary,
                                 lineHeight = 15.sp
                             )
                         }
@@ -566,8 +571,8 @@ fun HomeScreen(
                 .fillMaxWidth()
                 .testTag("today_snapshot_card"),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-            border = BorderStroke(1.dp, slateBorder),
+            colors = CardDefaults.cardColors(containerColor = AppSurface),
+            border = BorderStroke(1.dp, AppBorder),
             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
         ) {
             Column(modifier = Modifier.padding(20.dp)) {
@@ -576,7 +581,7 @@ fun HomeScreen(
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 1.5.sp,
-                    color = slate400
+                    color = AppTextSecondary
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -593,14 +598,14 @@ fun HomeScreen(
                         Text(
                             text = "Studied",
                             fontSize = 12.sp,
-                            color = slate400
+                            color = AppTextSecondary
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = formattedStudyTime,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            color = DeepIndigo
+                            color = AppTextPrimary
                         )
                     }
 
@@ -609,7 +614,7 @@ fun HomeScreen(
                         modifier = Modifier
                             .width(1.dp)
                             .height(36.dp)
-                            .background(slateBorder)
+                            .background(AppBorder)
                     )
 
                     // Solved
@@ -620,14 +625,14 @@ fun HomeScreen(
                         Text(
                             text = "Solved",
                             fontSize = 12.sp,
-                            color = slate400
+                            color = AppTextSecondary
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "$todayQuestionsDone",
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            color = DeepIndigo
+                            color = AppTextPrimary
                         )
                     }
 
@@ -636,7 +641,7 @@ fun HomeScreen(
                         modifier = Modifier
                             .width(1.dp)
                             .height(36.dp)
-                            .background(slateBorder)
+                            .background(AppBorder)
                     )
 
                     // Accuracy
@@ -647,7 +652,7 @@ fun HomeScreen(
                         Text(
                             text = "Accuracy",
                             fontSize = 12.sp,
-                            color = slate400
+                            color = AppTextSecondary
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
@@ -670,7 +675,7 @@ fun HomeScreen(
             text = "Stats",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = DeepIndigo,
+            color = AppTextPrimary,
             modifier = Modifier.testTag("section_stats_heading")
         )
 
@@ -686,8 +691,8 @@ fun HomeScreen(
                     .fillMaxWidth()
                     .testTag("stats_streak_grid_card"),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-                border = BorderStroke(1.dp, slateBorder),
+                colors = CardDefaults.cardColors(containerColor = AppSurface),
+                border = BorderStroke(1.dp, AppBorder),
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
             ) {
                 Column(modifier = Modifier.padding(18.dp)) {
@@ -701,13 +706,13 @@ fun HomeScreen(
                                 text = "$streakDays Day Streak",
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = DeepIndigo
+                                color = AppTextPrimary
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = "Target: 45m / day • 6 of 7 days completed",
                                 fontSize = 12.sp,
-                                color = TextSecondary,
+                                color = AppTextSecondary,
                                 lineHeight = 16.sp
                             )
                         }
@@ -811,8 +816,8 @@ fun HomeScreen(
                     .fillMaxWidth()
                     .testTag("stats_most_revisited_notes_card"),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-                border = BorderStroke(1.dp, slateBorder),
+                colors = CardDefaults.cardColors(containerColor = AppSurface),
+                border = BorderStroke(1.dp, AppBorder),
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -820,7 +825,7 @@ fun HomeScreen(
                         text = "Most Revisited Notes",
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp,
-                        color = DeepIndigo
+                        color = AppTextPrimary
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -844,8 +849,8 @@ fun HomeScreen(
                                     .tapAffordance(shape = RoundedCornerShape(14.dp), elevation = 4.5.dp)
                                     .clickable { onNoteClick(note.id) },
                                 shape = RoundedCornerShape(14.dp),
-                                colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-                                border = BorderStroke(1.dp, InteractiveCardBorder),
+                                colors = CardDefaults.cardColors(containerColor = AppSurfaceElevated),
+                                border = BorderStroke(1.dp, AppBorder),
                                 elevation = CardDefaults.cardElevation(
                                     defaultElevation = 4.5.dp,
                                     pressedElevation = 1.5.dp
@@ -861,13 +866,13 @@ fun HomeScreen(
                                     modifier = Modifier
                                         .size(36.dp)
                                         .clip(RoundedCornerShape(8.dp))
-                                        .background(Color(0xFFEEF2F6)),
+                                        .background(if (LocalIsDarkTheme.current) Color(0xFF334155) else Color(0xFFEEF2F6)),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
                                         imageVector = Icons.AutoMirrored.Outlined.MenuBook,
                                         contentDescription = null,
-                                        tint = DeepIndigo,
+                                        tint = if (LocalIsDarkTheme.current) Color(0xFF818CF8) else DeepIndigo,
                                         modifier = Modifier.size(18.dp)
                                     )
                                 }
@@ -879,13 +884,13 @@ fun HomeScreen(
                                         text = note.title,
                                         fontSize = 13.5.sp,
                                         fontWeight = FontWeight.SemiBold,
-                                        color = DeepIndigo,
+                                        color = AppTextPrimary,
                                         maxLines = 1
                                     )
                                     Text(
                                         text = "${note.subjectName} • Chapter ${note.chapterNumber}",
                                         fontSize = 11.5.sp,
-                                        color = TextSecondary
+                                        color = AppTextSecondary
                                     )
                                 }
 
@@ -926,9 +931,9 @@ private fun HomeStatTile(
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+        colors = CardDefaults.cardColors(containerColor = AppSurface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        border = BorderStroke(1.dp, Color(0xFFF1F5F9))
+        border = BorderStroke(1.dp, AppBorder)
     ) {
         Column(
             modifier = Modifier
@@ -940,7 +945,7 @@ private fun HomeStatTile(
             Text(
                 text = label,
                 fontSize = 11.sp,
-                color = TextSecondary,
+                color = AppTextSecondary,
                 textAlign = TextAlign.Center,
                 lineHeight = 14.sp,
                 maxLines = 2,
@@ -951,7 +956,7 @@ private fun HomeStatTile(
                 text = value,
                 fontSize = 17.sp,
                 fontWeight = FontWeight.Bold,
-                color = DeepIndigo,
+                color = AppTextPrimary,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis

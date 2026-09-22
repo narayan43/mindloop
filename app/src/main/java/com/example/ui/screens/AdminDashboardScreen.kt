@@ -110,9 +110,26 @@ import com.example.ui.components.TimeSpentBySubjectChart
 import com.example.ui.components.WeeklyQuestionsBarChart
 import com.example.ui.components.tapAffordance
 import com.example.ui.theme.Amber
+import com.example.ui.theme.AppAccentPrimary
+import com.example.ui.theme.AppBackground
+import com.example.ui.theme.AppBorder
+import com.example.ui.theme.AppErrorBg
+import com.example.ui.theme.AppErrorText
+import com.example.ui.theme.AppIconCircleBg
+import com.example.ui.theme.AppOptionCardBg
+import com.example.ui.theme.AppSuccessBg
+import com.example.ui.theme.AppSuccessText
+import com.example.ui.theme.AppSurface
+import com.example.ui.theme.AppSurfaceElevated
+import com.example.ui.theme.AppTextPrimary
+import com.example.ui.theme.AppTextSecondary
+import com.example.ui.theme.AppTrackColor
+import com.example.ui.theme.AppWarningBg
+import com.example.ui.theme.AppWarningText
 import com.example.ui.theme.BackgroundOffWhite
 import com.example.ui.theme.CardBorder
 import com.example.ui.theme.DeepIndigo
+import com.example.ui.theme.LocalIsDarkTheme
 import com.example.ui.theme.SageGreen
 import com.example.ui.theme.SurfaceWhite
 import com.example.ui.theme.Terracotta
@@ -375,7 +392,7 @@ fun AdminDashboardScreen(
         Box(
             modifier = modifier
                 .fillMaxSize()
-                .background(BackgroundOffWhite)
+                .background(AppBackground)
                 .statusBarsPadding()
                 .padding(24.dp),
             contentAlignment = Alignment.Center
@@ -385,8 +402,8 @@ fun AdminDashboardScreen(
                     .fillMaxWidth()
                     .tapAffordance(),
                 shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-                border = BorderStroke(1.dp, CardBorder)
+                colors = CardDefaults.cardColors(containerColor = AppSurface),
+                border = BorderStroke(1.dp, AppBorder)
             ) {
                 Column(
                     modifier = Modifier.padding(28.dp),
@@ -395,13 +412,13 @@ fun AdminDashboardScreen(
                     Box(
                         modifier = Modifier
                             .size(72.dp)
-                            .background(Terracotta.copy(alpha = 0.12f), CircleShape),
+                            .background(AppErrorBg, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.Lock,
                             contentDescription = "Restricted",
-                            tint = Terracotta,
+                            tint = AppErrorText,
                             modifier = Modifier.size(36.dp)
                         )
                     }
@@ -412,7 +429,7 @@ fun AdminDashboardScreen(
                         text = "Admin Access Restricted",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = DeepIndigo,
+                        color = AppTextPrimary,
                         textAlign = TextAlign.Center
                     )
 
@@ -421,7 +438,7 @@ fun AdminDashboardScreen(
                     Text(
                         text = "This administrative section requires an authorized account with role == 'admin' or UID matching the primary admin key.\n\nActive Account UID:\n$currentUserId",
                         fontSize = 13.sp,
-                        color = TextSecondary,
+                        color = AppTextSecondary,
                         textAlign = TextAlign.Center,
                         lineHeight = 18.sp
                     )
@@ -433,7 +450,7 @@ fun AdminDashboardScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .tapAffordance(),
-                        colors = ButtonDefaults.buttonColors(containerColor = DeepIndigo),
+                        colors = ButtonDefaults.buttonColors(containerColor = AppAccentPrimary),
                         shape = RoundedCornerShape(14.dp)
                     ) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
@@ -449,11 +466,11 @@ fun AdminDashboardScreen(
                             .fillMaxWidth()
                             .tapAffordance(),
                         shape = RoundedCornerShape(14.dp),
-                        border = BorderStroke(1.dp, CardBorder)
+                        border = BorderStroke(1.dp, AppBorder)
                     ) {
-                        Icon(Icons.Default.Key, contentDescription = null, tint = DeepIndigo)
+                        Icon(Icons.Default.Key, contentDescription = null, tint = AppAccentPrimary)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Configure Admin UID Override", color = DeepIndigo, fontWeight = FontWeight.SemiBold)
+                        Text("Configure Admin UID Override", color = AppAccentPrimary, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
@@ -481,12 +498,12 @@ fun AdminDashboardScreen(
     Scaffold(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundOffWhite),
+            .background(AppBackground),
         topBar = {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(SurfaceWhite)
+                    .background(AppSurface)
                     .statusBarsPadding()
             ) {
                 // Top Header Bar
@@ -522,12 +539,12 @@ fun AdminDashboardScreen(
                         },
                         modifier = Modifier
                             .size(42.dp)
-                            .background(BackgroundOffWhite, CircleShape)
+                            .background(AppIconCircleBg, CircleShape)
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
-                            tint = DeepIndigo
+                            tint = AppTextPrimary
                         )
                     }
 
@@ -539,26 +556,26 @@ fun AdminDashboardScreen(
                                 text = "Admin Panel",
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = DeepIndigo
+                                color = AppTextPrimary
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Box(
                                 modifier = Modifier
-                                    .background(SageGreen.copy(alpha = 0.18f), RoundedCornerShape(6.dp))
+                                    .background(AppSuccessBg, RoundedCornerShape(6.dp))
                                     .padding(horizontal = 6.dp, vertical = 2.dp)
                             ) {
                                 Text(
                                     text = "role: admin",
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = SageGreen
+                                    color = AppSuccessText
                                 )
                             }
                         }
                         Text(
                             text = "Curriculum, Question Banks & Student Oversight",
                             fontSize = 12.sp,
-                            color = TextSecondary,
+                            color = AppTextSecondary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -568,12 +585,12 @@ fun AdminDashboardScreen(
                         onClick = { showConfigureUidDialog = true },
                         modifier = Modifier
                             .size(38.dp)
-                            .background(BackgroundOffWhite, CircleShape)
+                            .background(AppIconCircleBg, CircleShape)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Key,
                             contentDescription = "Admin UID Key",
-                            tint = DeepIndigo,
+                            tint = AppAccentPrimary,
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -582,14 +599,14 @@ fun AdminDashboardScreen(
                 // Dedicated Segmented Top Tabs: Overview | Content | Students
                 ScrollableTabRow(
                     selectedTabIndex = selectedTopTab,
-                    containerColor = SurfaceWhite,
-                    contentColor = DeepIndigo,
+                    containerColor = AppSurface,
+                    contentColor = AppAccentPrimary,
                     edgePadding = 16.dp,
                     indicator = { tabPositions ->
                         if (selectedTopTab < tabPositions.size) {
                             TabRowDefaults.SecondaryIndicator(
                                 Modifier.tabIndicatorOffset(tabPositions[selectedTopTab]),
-                                color = DeepIndigo,
+                                color = AppAccentPrimary,
                                 height = 3.dp
                             )
                         }
@@ -599,7 +616,7 @@ fun AdminDashboardScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(1.dp)
-                                .background(CardBorder)
+                                .background(AppBorder)
                         )
                     }
                 ) {
@@ -615,7 +632,7 @@ fun AdminDashboardScreen(
                                     text = title,
                                     fontSize = 14.sp,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                    color = if (isSelected) DeepIndigo else TextMuted
+                                    color = if (isSelected) AppAccentPrimary else AppTextSecondary
                                 )
                             }
                         )
@@ -628,7 +645,7 @@ fun AdminDashboardScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(BackgroundOffWhite)
+                .background(AppBackground)
         ) {
             when (selectedTopTab) {
                 // -------------------------------------------------------------
@@ -900,7 +917,7 @@ private fun AdminOverviewTab(
             text = "Platform Analytics & Content Metrics",
             fontSize = 13.sp,
             fontWeight = FontWeight.SemiBold,
-            color = TextSecondary,
+            color = AppTextSecondary,
             letterSpacing = 0.5.sp
         )
 
@@ -916,7 +933,7 @@ private fun AdminOverviewTab(
                     title = "Total Students",
                     value = studentsCount.toString(),
                     icon = Icons.Default.People,
-                    accentColor = DeepIndigo,
+                    accentColor = AppAccentPrimary,
                     onClick = onSwitchToStudents
                 )
             }
@@ -943,7 +960,7 @@ private fun AdminOverviewTab(
                     title = "Total Notes",
                     value = allNotes.size.coerceAtLeast(48).toString(),
                     icon = Icons.Default.AutoStories,
-                    accentColor = DeepIndigo,
+                    accentColor = AppAccentPrimary,
                     onClick = onSwitchToContent
                 )
             }
@@ -966,8 +983,8 @@ private fun AdminOverviewTab(
                 .fillMaxWidth()
                 .tapAffordance(),
             shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-            border = BorderStroke(1.dp, CardBorder)
+            colors = CardDefaults.cardColors(containerColor = AppSurface),
+            border = BorderStroke(1.dp, AppBorder)
         ) {
             Column(modifier = Modifier.padding(18.dp)) {
                 Row(
@@ -980,25 +997,25 @@ private fun AdminOverviewTab(
                             text = "Questions Attempted",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
-                            color = DeepIndigo
+                            color = AppTextPrimary
                         )
                         Text(
                             text = "All Students • Last 7 Days",
                             fontSize = 12.sp,
-                            color = TextSecondary
+                            color = AppTextSecondary
                         )
                     }
 
                     Box(
                         modifier = Modifier
-                            .background(SageGreen.copy(alpha = 0.15f), RoundedCornerShape(8.dp))
+                            .background(AppSuccessBg, RoundedCornerShape(8.dp))
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                     ) {
                         Text(
                             text = "+24% vs last week",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = SageGreen
+                            color = AppSuccessText
                         )
                     }
                 }
@@ -1032,11 +1049,11 @@ private fun AdminOverviewTab(
                 text = "Recently Added Content",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                color = DeepIndigo
+                color = AppTextPrimary
             )
 
             TextButton(onClick = onSwitchToContent) {
-                Text("Manage All", fontSize = 13.sp, color = DeepIndigo, fontWeight = FontWeight.SemiBold)
+                Text("Manage All", fontSize = 13.sp, color = AppAccentPrimary, fontWeight = FontWeight.SemiBold)
             }
         }
 
@@ -1109,8 +1126,8 @@ private fun AdminOverviewTab(
                     .padding(vertical = 4.dp)
                     .tapAffordance(),
                 shape = RoundedCornerShape(14.dp),
-                colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-                border = BorderStroke(1.dp, CardBorder)
+                colors = CardDefaults.cardColors(containerColor = AppSurface),
+                border = BorderStroke(1.dp, AppBorder)
             ) {
                 Row(
                     modifier = Modifier
@@ -1121,7 +1138,7 @@ private fun AdminOverviewTab(
                     Box(
                         modifier = Modifier
                             .background(
-                                if (item.isQuestion) DeepIndigo.copy(alpha = 0.12f) else SageGreen.copy(alpha = 0.15f),
+                                if (item.isQuestion) AppAccentPrimary.copy(alpha = 0.15f) else AppSuccessBg,
                                 RoundedCornerShape(8.dp)
                             )
                             .padding(horizontal = 8.dp, vertical = 4.dp)
@@ -1130,7 +1147,7 @@ private fun AdminOverviewTab(
                             text = if (item.isQuestion) "QUESTION" else "NOTE",
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (item.isQuestion) DeepIndigo else SageGreen
+                            color = if (item.isQuestion) AppAccentPrimary else AppSuccessText
                         )
                     }
 
@@ -1141,7 +1158,7 @@ private fun AdminOverviewTab(
                             text = item.title,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = TextPrimary,
+                            color = AppTextPrimary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -1149,7 +1166,7 @@ private fun AdminOverviewTab(
                         Text(
                             text = "${item.subject} • ${item.chapter}",
                             fontSize = 12.sp,
-                            color = TextSecondary
+                            color = AppTextSecondary
                         )
                     }
 
@@ -1158,7 +1175,7 @@ private fun AdminOverviewTab(
                     Text(
                         text = item.timeAgo,
                         fontSize = 11.sp,
-                        color = TextMuted
+                        color = AppTextSecondary
                     )
                 }
             }
@@ -1191,8 +1208,8 @@ private fun StatCard(
             .clickable { onClick() }
             .tapAffordance(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-        border = BorderStroke(1.dp, CardBorder)
+        colors = CardDefaults.cardColors(containerColor = AppSurface),
+        border = BorderStroke(1.dp, AppBorder)
     ) {
         Column(modifier = Modifier.padding(14.dp)) {
             Box(
@@ -1215,7 +1232,7 @@ private fun StatCard(
                 text = value,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
-                color = DeepIndigo
+                color = AppTextPrimary
             )
 
             Spacer(modifier = Modifier.height(2.dp))
@@ -1223,7 +1240,7 @@ private fun StatCard(
             Text(
                 text = title,
                 fontSize = 12.sp,
-                color = TextSecondary,
+                color = AppTextSecondary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -1294,12 +1311,12 @@ private fun AdminContentTab(
                                 text = "Exam Syllabus Management",
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = DeepIndigo
+                                color = AppTextPrimary
                             )
                             Text(
                                 text = "Select an exam to manage subjects, chapters, and question banks",
                                 fontSize = 12.sp,
-                                color = TextSecondary
+                                color = AppTextSecondary
                             )
                         }
                     }
@@ -1311,8 +1328,8 @@ private fun AdminContentTab(
                                 .clickable { onUpdateContentLevel(ContentDrillLevel.Subjects(exam)) }
                                 .tapAffordance(),
                             shape = RoundedCornerShape(18.dp),
-                            colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-                            border = BorderStroke(1.dp, CardBorder)
+                            colors = CardDefaults.cardColors(containerColor = AppSurface),
+                            border = BorderStroke(1.dp, AppBorder)
                         ) {
                             Row(
                                 modifier = Modifier
@@ -1324,7 +1341,7 @@ private fun AdminContentTab(
                                 Box(
                                     modifier = Modifier
                                         .size(48.dp)
-                                        .background(DeepIndigo.copy(alpha = 0.08f), RoundedCornerShape(12.dp)),
+                                        .background(AppIconCircleBg, RoundedCornerShape(12.dp)),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(text = exam.iconEmoji, fontSize = 24.sp)
@@ -1338,13 +1355,13 @@ private fun AdminContentTab(
                                             text = exam.name,
                                             fontSize = 15.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = DeepIndigo
+                                            color = AppTextPrimary
                                         )
                                         Spacer(modifier = Modifier.width(8.dp))
                                         Box(
                                             modifier = Modifier
                                                 .background(
-                                                    if (exam.isActive) SageGreen.copy(alpha = 0.15f) else Amber.copy(alpha = 0.15f),
+                                                    if (exam.isActive) AppSuccessBg else AppWarningBg,
                                                     RoundedCornerShape(6.dp)
                                                 )
                                                 .padding(horizontal = 6.dp, vertical = 2.dp)
@@ -1353,7 +1370,7 @@ private fun AdminContentTab(
                                                 text = exam.badgeText,
                                                 fontSize = 10.sp,
                                                 fontWeight = FontWeight.Bold,
-                                                color = if (exam.isActive) SageGreen else Amber
+                                                color = if (exam.isActive) AppSuccessText else AppWarningText
                                             )
                                         }
                                     }
@@ -1361,7 +1378,7 @@ private fun AdminContentTab(
                                     Text(
                                         text = exam.subtitle,
                                         fontSize = 12.sp,
-                                        color = TextSecondary
+                                        color = AppTextSecondary
                                     )
                                 }
 
@@ -1373,7 +1390,7 @@ private fun AdminContentTab(
                                     Icon(
                                         imageVector = Icons.Default.Edit,
                                         contentDescription = "Edit Exam",
-                                        tint = DeepIndigo,
+                                        tint = AppAccentPrimary,
                                         modifier = Modifier.size(18.dp)
                                     )
                                 }
@@ -1393,7 +1410,7 @@ private fun AdminContentTab(
                         .align(Alignment.BottomEnd)
                         .padding(20.dp)
                         .tapAffordance(),
-                    containerColor = DeepIndigo,
+                    containerColor = AppAccentPrimary,
                     contentColor = SurfaceWhite,
                     shape = RoundedCornerShape(16.dp)
                 ) {
@@ -1427,13 +1444,13 @@ private fun AdminContentTab(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     TextButton(onClick = { onUpdateContentLevel(ContentDrillLevel.Exams) }) {
-                        Text("← ${currentExam.name}", color = DeepIndigo, fontWeight = FontWeight.Bold)
+                        Text("← ${currentExam.name}", color = AppAccentPrimary, fontWeight = FontWeight.Bold)
                     }
                     Spacer(modifier = Modifier.weight(1f))
                     Text(
                         text = "${filteredSubjects.size} Subjects",
                         fontSize = 12.sp,
-                        color = TextSecondary
+                        color = AppTextSecondary
                     )
                 }
 
@@ -1455,8 +1472,8 @@ private fun AdminContentTab(
                                 }
                                 .tapAffordance(),
                             shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-                            border = BorderStroke(1.dp, CardBorder)
+                            colors = CardDefaults.cardColors(containerColor = AppSurface),
+                            border = BorderStroke(1.dp, AppBorder)
                         ) {
                             Column(modifier = Modifier.padding(14.dp)) {
                                 Row(
@@ -1473,7 +1490,7 @@ private fun AdminContentTab(
                                         Icon(
                                             imageVector = Icons.Default.Edit,
                                             contentDescription = "Edit Subject",
-                                            tint = DeepIndigo,
+                                            tint = AppAccentPrimary,
                                             modifier = Modifier.size(16.dp)
                                         )
                                     }
@@ -1485,7 +1502,7 @@ private fun AdminContentTab(
                                     text = subj.name,
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = DeepIndigo,
+                                    color = AppTextPrimary,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -1495,7 +1512,7 @@ private fun AdminContentTab(
                                 Text(
                                     text = "${subj.chaptersCount} Chapters",
                                     fontSize = 11.sp,
-                                    color = TextSecondary
+                                    color = AppTextSecondary
                                 )
 
                                 Spacer(modifier = Modifier.height(10.dp))
@@ -1507,7 +1524,7 @@ private fun AdminContentTab(
                                         .height(6.dp)
                                         .clip(RoundedCornerShape(3.dp)),
                                     color = SageGreen,
-                                    trackColor = BackgroundOffWhite,
+                                    trackColor = AppTrackColor,
                                 )
 
                                 Spacer(modifier = Modifier.height(6.dp))
@@ -1516,7 +1533,7 @@ private fun AdminContentTab(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    Text(text = subj.percentageText, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = DeepIndigo)
+                                    Text(text = subj.percentageText, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = AppTextPrimary)
                                     Text(text = subj.questionsDueText, fontSize = 11.sp, color = Terracotta, fontWeight = FontWeight.Medium)
                                 }
                             }
@@ -1532,8 +1549,8 @@ private fun AdminContentTab(
                                 .clickable { onAddSubjectClick() }
                                 .tapAffordance(),
                             shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(containerColor = BackgroundOffWhite),
-                            border = BorderStroke(1.5.dp, DeepIndigo.copy(alpha = 0.35f))
+                            colors = CardDefaults.cardColors(containerColor = AppSurface),
+                            border = BorderStroke(1.5.dp, AppAccentPrimary.copy(alpha = 0.35f))
                         ) {
                             Column(
                                 modifier = Modifier.fillMaxSize(),
@@ -1543,10 +1560,10 @@ private fun AdminContentTab(
                                 Box(
                                     modifier = Modifier
                                         .size(40.dp)
-                                        .background(DeepIndigo.copy(alpha = 0.10f), CircleShape),
+                                        .background(AppIconCircleBg, CircleShape),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Icon(Icons.Default.Add, contentDescription = null, tint = DeepIndigo)
+                                    Icon(Icons.Default.Add, contentDescription = null, tint = AppAccentPrimary)
                                 }
 
                                 Spacer(modifier = Modifier.height(8.dp))
@@ -1555,13 +1572,13 @@ private fun AdminContentTab(
                                     text = "+ Add Subject",
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = DeepIndigo
+                                    color = AppAccentPrimary
                                 )
 
                                 Text(
                                     text = "To ${currentExam.name}",
                                     fontSize = 11.sp,
-                                    color = TextSecondary
+                                    color = AppTextSecondary
                                 )
                             }
                         }
@@ -1591,13 +1608,13 @@ private fun AdminContentTab(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         TextButton(onClick = { onUpdateContentLevel(ContentDrillLevel.Subjects(currentExam)) }) {
-                            Text("← ${currentSubject.name}", color = DeepIndigo, fontWeight = FontWeight.Bold)
+                            Text("← ${currentSubject.name}", color = AppAccentPrimary, fontWeight = FontWeight.Bold)
                         }
                         Spacer(modifier = Modifier.weight(1f))
                         Text(
                             text = "${filteredChapters.size} Chapters",
                             fontSize = 12.sp,
-                            color = TextSecondary
+                            color = AppTextSecondary
                         )
                     }
                 }
@@ -1628,7 +1645,7 @@ private fun AdminContentTab(
                                 }
                                 .tapAffordance(),
                             shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(containerColor = SageGreen.copy(alpha = 0.12f)),
+                            colors = CardDefaults.cardColors(containerColor = AppSuccessBg),
                             border = BorderStroke(1.dp, SageGreen.copy(alpha = 0.4f))
                         ) {
                             Column(modifier = Modifier.padding(14.dp)) {
@@ -1638,12 +1655,12 @@ private fun AdminContentTab(
                                     text = "Upload Notes",
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = DeepIndigo
+                                    color = AppTextPrimary
                                 )
                                 Text(
                                     text = "Photos / CSV ($notesCount uploaded)",
                                     fontSize = 11.sp,
-                                    color = SageGreen,
+                                    color = AppSuccessText,
                                     fontWeight = FontWeight.SemiBold
                                 )
                             }
@@ -1665,22 +1682,22 @@ private fun AdminContentTab(
                                 }
                                 .tapAffordance(),
                             shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(containerColor = DeepIndigo.copy(alpha = 0.08f)),
-                            border = BorderStroke(1.dp, DeepIndigo.copy(alpha = 0.3f))
+                            colors = CardDefaults.cardColors(containerColor = AppIconCircleBg),
+                            border = BorderStroke(1.dp, AppAccentPrimary.copy(alpha = 0.3f))
                         ) {
                             Column(modifier = Modifier.padding(14.dp)) {
-                                Icon(Icons.Default.UploadFile, contentDescription = null, tint = DeepIndigo)
+                                Icon(Icons.Default.UploadFile, contentDescription = null, tint = AppAccentPrimary)
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text(
                                     text = "Upload Questions",
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = DeepIndigo
+                                    color = AppTextPrimary
                                 )
                                 Text(
                                     text = "CSV ($questionsCount uploaded)",
                                     fontSize = 11.sp,
-                                    color = DeepIndigo,
+                                    color = AppAccentPrimary,
                                     fontWeight = FontWeight.SemiBold
                                 )
                             }
@@ -1699,18 +1716,18 @@ private fun AdminContentTab(
                             text = "Chapters & Topics",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
-                            color = DeepIndigo
+                            color = AppTextPrimary
                         )
 
                         OutlinedButton(
                             onClick = onAddChapterClick,
                             shape = RoundedCornerShape(12.dp),
-                            border = BorderStroke(1.dp, DeepIndigo),
+                            border = BorderStroke(1.dp, AppAccentPrimary),
                             modifier = Modifier.tapAffordance()
                         ) {
-                            Icon(Icons.Default.Add, contentDescription = null, tint = DeepIndigo, modifier = Modifier.size(16.dp))
+                            Icon(Icons.Default.Add, contentDescription = null, tint = AppAccentPrimary, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("+ Add Chapter", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = DeepIndigo)
+                            Text("+ Add Chapter", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = AppAccentPrimary)
                         }
                     }
                 }
@@ -1731,8 +1748,8 @@ private fun AdminContentTab(
                             }
                             .tapAffordance(),
                         shape = RoundedCornerShape(14.dp),
-                        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-                        border = BorderStroke(1.dp, CardBorder)
+                        colors = CardDefaults.cardColors(containerColor = AppSurface),
+                        border = BorderStroke(1.dp, AppBorder)
                     ) {
                         Column(
                             modifier = Modifier
@@ -1747,14 +1764,14 @@ private fun AdminContentTab(
                                 Box(
                                     modifier = Modifier
                                         .size(36.dp)
-                                        .background(BackgroundOffWhite, CircleShape),
+                                        .background(AppIconCircleBg, CircleShape),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
                                         text = "#${chap.number}",
                                         fontSize = 13.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = DeepIndigo
+                                        color = AppAccentPrimary
                                     )
                                 }
 
@@ -1765,13 +1782,13 @@ private fun AdminContentTab(
                                         text = chap.name,
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.SemiBold,
-                                        color = DeepIndigo
+                                        color = AppTextPrimary
                                     )
                                     Spacer(modifier = Modifier.height(2.dp))
                                     Text(
                                         text = "${chap.notesCount} notes • ${chap.questionsCount} questions • ${chap.avgMasteryPercent}% avg mastery",
                                         fontSize = 11.sp,
-                                        color = TextSecondary
+                                        color = AppTextSecondary
                                     )
                                 }
 
@@ -1783,7 +1800,7 @@ private fun AdminContentTab(
                                     Icon(
                                         imageVector = Icons.Default.Edit,
                                         contentDescription = "Edit Chapter",
-                                        tint = DeepIndigo,
+                                        tint = AppAccentPrimary,
                                         modifier = Modifier.size(16.dp)
                                     )
                                 }
@@ -1826,8 +1843,8 @@ private fun AdminContentTab(
                                 OutlinedButton(
                                     onClick = { onOpenAddQuestionForChapter(currentExam, currentSubject, chap) },
                                     shape = RoundedCornerShape(8.dp),
-                                    border = BorderStroke(1.dp, DeepIndigo),
-                                    colors = ButtonDefaults.outlinedButtonColors(contentColor = DeepIndigo),
+                                    border = BorderStroke(1.dp, AppAccentPrimary),
+                                    colors = ButtonDefaults.outlinedButtonColors(contentColor = AppAccentPrimary),
                                     contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
                                     modifier = Modifier.height(30.dp)
                                 ) {
@@ -1856,13 +1873,13 @@ private fun AdminContentTab(
                                         text = "Manage Content",
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.SemiBold,
-                                        color = DeepIndigo
+                                        color = AppAccentPrimary
                                     )
                                     Spacer(modifier = Modifier.width(2.dp))
                                     Icon(
                                         imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                                         contentDescription = null,
-                                        tint = DeepIndigo,
+                                        tint = AppAccentPrimary,
                                         modifier = Modifier.size(13.dp)
                                     )
                                 }
@@ -2118,7 +2135,7 @@ private fun AdminChapterDetailScreen(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundOffWhite),
+            .background(AppBackground),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
@@ -2135,7 +2152,7 @@ private fun AdminChapterDetailScreen(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
-                        tint = DeepIndigo,
+                        tint = AppAccentPrimary,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
@@ -2143,7 +2160,7 @@ private fun AdminChapterDetailScreen(
                         text = subject.name,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = DeepIndigo
+                        color = AppAccentPrimary
                     )
                 }
 
@@ -2151,14 +2168,14 @@ private fun AdminChapterDetailScreen(
 
                 Box(
                     modifier = Modifier
-                        .background(DeepIndigo.copy(alpha = 0.08f), RoundedCornerShape(6.dp))
+                        .background(AppIconCircleBg, RoundedCornerShape(6.dp))
                         .padding(horizontal = 8.dp, vertical = 3.dp)
                 ) {
                     Text(
                         text = "${exam.name} • Ch #${chapter.number}",
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
-                        color = DeepIndigo
+                        color = AppAccentPrimary
                     )
                 }
             }
@@ -2171,13 +2188,13 @@ private fun AdminChapterDetailScreen(
                     text = chapter.name,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = DeepIndigo
+                    color = AppTextPrimary
                 )
                 Spacer(modifier = Modifier.height(3.dp))
                 Text(
                     text = "Manage notes and practice questions dedicated exclusively to this chapter",
                     fontSize = 12.sp,
-                    color = TextSecondary
+                    color = AppTextSecondary
                 )
             }
         }
@@ -2195,7 +2212,7 @@ private fun AdminChapterDetailScreen(
                         .clickable { onAddNoteClick() }
                         .tapAffordance(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = SageGreen.copy(alpha = 0.12f)),
+                    colors = CardDefaults.cardColors(containerColor = AppSuccessBg),
                     border = BorderStroke(1.dp, SageGreen.copy(alpha = 0.4f))
                 ) {
                     Column(
@@ -2222,12 +2239,12 @@ private fun AdminChapterDetailScreen(
                             text = "+ Add Note",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
-                            color = DeepIndigo
+                            color = AppTextPrimary
                         )
                         Text(
                             text = "Single note",
                             fontSize = 10.sp,
-                            color = TextSecondary
+                            color = AppTextSecondary
                         )
                     }
                 }
@@ -2239,8 +2256,8 @@ private fun AdminChapterDetailScreen(
                         .clickable { onAddQuestionClick() }
                         .tapAffordance(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = DeepIndigo.copy(alpha = 0.08f)),
-                    border = BorderStroke(1.dp, DeepIndigo.copy(alpha = 0.3f))
+                    colors = CardDefaults.cardColors(containerColor = AppIconCircleBg),
+                    border = BorderStroke(1.dp, AppAccentPrimary.copy(alpha = 0.3f))
                 ) {
                     Column(
                         modifier = Modifier
@@ -2251,7 +2268,7 @@ private fun AdminChapterDetailScreen(
                         Box(
                             modifier = Modifier
                                 .size(32.dp)
-                                .background(DeepIndigo, CircleShape),
+                                .background(AppAccentPrimary, CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
@@ -2266,12 +2283,12 @@ private fun AdminChapterDetailScreen(
                             text = "+ Question",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
-                            color = DeepIndigo
+                            color = AppTextPrimary
                         )
                         Text(
                             text = "MCQ or T/F",
                             fontSize = 10.sp,
-                            color = TextSecondary
+                            color = AppTextSecondary
                         )
                     }
                 }
@@ -2283,7 +2300,7 @@ private fun AdminChapterDetailScreen(
                         .clickable { onUploadCsvClick(selectedTab == 1) }
                         .tapAffordance(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = Amber.copy(alpha = 0.12f)),
+                    colors = CardDefaults.cardColors(containerColor = AppWarningBg),
                     border = BorderStroke(1.dp, Amber.copy(alpha = 0.4f))
                 ) {
                     Column(
@@ -2310,12 +2327,12 @@ private fun AdminChapterDetailScreen(
                             text = "Upload CSV",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
-                            color = DeepIndigo
+                            color = AppTextPrimary
                         )
                         Text(
                             text = "Bulk import",
                             fontSize = 10.sp,
-                            color = TextSecondary
+                            color = AppTextSecondary
                         )
                     }
                 }
@@ -2326,8 +2343,8 @@ private fun AdminChapterDetailScreen(
         item {
             Card(
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = BackgroundOffWhite),
-                border = BorderStroke(1.dp, CardBorder),
+                colors = CardDefaults.cardColors(containerColor = AppSurface),
+                border = BorderStroke(1.dp, AppBorder),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
@@ -2338,8 +2355,8 @@ private fun AdminChapterDetailScreen(
                     Button(
                         onClick = { selectedTab = 0 },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (selectedTab == 0) DeepIndigo else Color.Transparent,
-                            contentColor = if (selectedTab == 0) SurfaceWhite else TextSecondary
+                            containerColor = if (selectedTab == 0) AppAccentPrimary else Color.Transparent,
+                            contentColor = if (selectedTab == 0) SurfaceWhite else AppTextSecondary
                         ),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.weight(1f),
@@ -2361,8 +2378,8 @@ private fun AdminChapterDetailScreen(
                     Button(
                         onClick = { selectedTab = 1 },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (selectedTab == 1) DeepIndigo else Color.Transparent,
-                            contentColor = if (selectedTab == 1) SurfaceWhite else TextSecondary
+                            containerColor = if (selectedTab == 1) AppAccentPrimary else Color.Transparent,
+                            contentColor = if (selectedTab == 1) SurfaceWhite else AppTextSecondary
                         ),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.weight(1f),
@@ -2393,14 +2410,15 @@ private fun AdminChapterDetailScreen(
                     Text(
                         if (selectedTab == 0) "Search notes in ${chapter.name}..."
                         else "Search questions in ${chapter.name}...",
-                        fontSize = 13.sp
+                        fontSize = 13.sp,
+                        color = AppTextSecondary
                     )
                 },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = null,
-                        tint = TextSecondary,
+                        tint = AppTextSecondary,
                         modifier = Modifier.size(18.dp)
                     )
                 },
@@ -2410,7 +2428,7 @@ private fun AdminChapterDetailScreen(
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = "Clear",
-                                tint = TextSecondary,
+                                tint = AppTextSecondary,
                                 modifier = Modifier.size(16.dp)
                             )
                         }
@@ -2419,10 +2437,12 @@ private fun AdminChapterDetailScreen(
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = SurfaceWhite,
-                    unfocusedContainerColor = SurfaceWhite,
-                    focusedBorderColor = DeepIndigo,
-                    unfocusedBorderColor = CardBorder
+                    focusedContainerColor = AppSurface,
+                    unfocusedContainerColor = AppSurface,
+                    focusedTextColor = AppTextPrimary,
+                    unfocusedTextColor = AppTextPrimary,
+                    focusedBorderColor = AppAccentPrimary,
+                    unfocusedBorderColor = AppBorder
                 ),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -2437,8 +2457,8 @@ private fun AdminChapterDetailScreen(
                             .fillMaxWidth()
                             .padding(vertical = 16.dp),
                         shape = RoundedCornerShape(14.dp),
-                        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-                        border = BorderStroke(1.dp, CardBorder)
+                        colors = CardDefaults.cardColors(containerColor = AppSurface),
+                        border = BorderStroke(1.dp, AppBorder)
                     ) {
                         Column(
                             modifier = Modifier
@@ -2449,7 +2469,7 @@ private fun AdminChapterDetailScreen(
                             Icon(
                                 imageVector = Icons.Default.MenuBook,
                                 contentDescription = null,
-                                tint = TextSecondary,
+                                tint = AppTextSecondary,
                                 modifier = Modifier.size(40.dp)
                             )
                             Spacer(modifier = Modifier.height(10.dp))
@@ -2457,13 +2477,13 @@ private fun AdminChapterDetailScreen(
                                 text = if (searchQuery.isNotEmpty()) "No notes match '$searchQuery'" else "No notes in this chapter yet",
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = DeepIndigo
+                                color = AppTextPrimary
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = "Add notes to build the study material for students",
                                 fontSize = 12.sp,
-                                color = TextSecondary,
+                                color = AppTextSecondary,
                                 textAlign = TextAlign.Center
                             )
                             Spacer(modifier = Modifier.height(14.dp))
@@ -2486,8 +2506,8 @@ private fun AdminChapterDetailScreen(
                             .fillMaxWidth()
                             .tapAffordance(),
                         shape = RoundedCornerShape(14.dp),
-                        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-                        border = BorderStroke(1.dp, CardBorder)
+                        colors = CardDefaults.cardColors(containerColor = AppSurface),
+                        border = BorderStroke(1.dp, AppBorder)
                     ) {
                         Column(
                             modifier = Modifier
@@ -2500,14 +2520,14 @@ private fun AdminChapterDetailScreen(
                             ) {
                                 Box(
                                     modifier = Modifier
-                                        .background(SageGreen.copy(alpha = 0.15f), RoundedCornerShape(6.dp))
+                                        .background(AppSuccessBg, RoundedCornerShape(6.dp))
                                         .padding(horizontal = 8.dp, vertical = 3.dp)
                                 ) {
                                     Text(
                                         text = "Note #${note.id}",
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = SageGreen
+                                        color = AppSuccessText
                                     )
                                 }
 
@@ -2535,7 +2555,7 @@ private fun AdminChapterDetailScreen(
                                 text = note.title,
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = DeepIndigo
+                                color = AppTextPrimary
                             )
 
                             if (!note.imageUri.isNullOrBlank()) {
@@ -2545,7 +2565,7 @@ private fun AdminChapterDetailScreen(
                                         .fillMaxWidth()
                                         .heightIn(min = 120.dp, max = 220.dp)
                                         .clip(RoundedCornerShape(8.dp))
-                                        .background(DeepIndigo.copy(alpha = 0.05f))
+                                        .background(AppIconCircleBg)
                                 ) {
                                     AsyncImage(
                                         model = note.imageUri,
@@ -2561,7 +2581,7 @@ private fun AdminChapterDetailScreen(
                             Text(
                                 text = note.summaryText,
                                 fontSize = 13.sp,
-                                color = TextPrimary,
+                                color = AppTextPrimary,
                                 lineHeight = 18.sp
                             )
                         }
@@ -2579,8 +2599,8 @@ private fun AdminChapterDetailScreen(
                             .fillMaxWidth()
                             .padding(vertical = 16.dp),
                         shape = RoundedCornerShape(14.dp),
-                        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-                        border = BorderStroke(1.dp, CardBorder)
+                        colors = CardDefaults.cardColors(containerColor = AppSurface),
+                        border = BorderStroke(1.dp, AppBorder)
                     ) {
                         Column(
                             modifier = Modifier
@@ -2591,7 +2611,7 @@ private fun AdminChapterDetailScreen(
                             Icon(
                                 imageVector = Icons.Default.Quiz,
                                 contentDescription = null,
-                                tint = TextSecondary,
+                                tint = AppTextSecondary,
                                 modifier = Modifier.size(40.dp)
                             )
                             Spacer(modifier = Modifier.height(10.dp))
@@ -2599,19 +2619,19 @@ private fun AdminChapterDetailScreen(
                                 text = if (searchQuery.isNotEmpty()) "No questions match '$searchQuery'" else "No questions in this chapter yet",
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = DeepIndigo
+                                color = AppTextPrimary
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = "Create multiple choice or true/false questions for this chapter",
                                 fontSize = 12.sp,
-                                color = TextSecondary,
+                                color = AppTextSecondary,
                                 textAlign = TextAlign.Center
                             )
                             Spacer(modifier = Modifier.height(14.dp))
                             Button(
                                 onClick = onAddQuestionClick,
-                                colors = ButtonDefaults.buttonColors(containerColor = DeepIndigo),
+                                colors = ButtonDefaults.buttonColors(containerColor = AppAccentPrimary),
                                 shape = RoundedCornerShape(10.dp)
                             ) {
                                 Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
@@ -2628,8 +2648,8 @@ private fun AdminChapterDetailScreen(
                             .fillMaxWidth()
                             .tapAffordance(),
                         shape = RoundedCornerShape(14.dp),
-                        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-                        border = BorderStroke(1.dp, CardBorder)
+                        colors = CardDefaults.cardColors(containerColor = AppSurface),
+                        border = BorderStroke(1.dp, AppBorder)
                     ) {
                         Column(
                             modifier = Modifier
@@ -2642,14 +2662,14 @@ private fun AdminChapterDetailScreen(
                             ) {
                                 Box(
                                     modifier = Modifier
-                                        .background(DeepIndigo.copy(alpha = 0.1f), RoundedCornerShape(6.dp))
+                                        .background(AppIconCircleBg, RoundedCornerShape(6.dp))
                                         .padding(horizontal = 8.dp, vertical = 3.dp)
                                 ) {
                                     Text(
                                         text = q.questionType,
                                         fontSize = 10.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = DeepIndigo
+                                        color = AppAccentPrimary
                                     )
                                 }
 
@@ -2658,7 +2678,7 @@ private fun AdminChapterDetailScreen(
                                 Text(
                                     text = "ID #${q.id}",
                                     fontSize = 11.sp,
-                                    color = TextSecondary
+                                    color = AppTextSecondary
                                 )
 
                                 Spacer(modifier = Modifier.weight(1f))
@@ -2685,7 +2705,7 @@ private fun AdminChapterDetailScreen(
                                 text = q.questionText,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = DeepIndigo,
+                                color = AppTextPrimary,
                                 lineHeight = 20.sp
                             )
 
@@ -2706,7 +2726,7 @@ private fun AdminChapterDetailScreen(
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .background(
-                                                if (isCorrect) SageGreen.copy(alpha = 0.15f) else BackgroundOffWhite,
+                                                if (isCorrect) AppSuccessBg else AppOptionCardBg,
                                                 RoundedCornerShape(8.dp)
                                             )
                                             .border(
@@ -2723,14 +2743,14 @@ private fun AdminChapterDetailScreen(
                                             text = "($label)",
                                             fontSize = 12.sp,
                                             fontWeight = if (isCorrect) FontWeight.Bold else FontWeight.Normal,
-                                            color = if (isCorrect) SageGreen else TextSecondary
+                                            color = if (isCorrect) SageGreen else AppTextSecondary
                                         )
                                         Spacer(modifier = Modifier.width(8.dp))
                                         Text(
                                             text = optText,
                                             fontSize = 12.sp,
                                             fontWeight = if (isCorrect) FontWeight.Bold else FontWeight.Normal,
-                                            color = if (isCorrect) DeepIndigo else TextPrimary,
+                                            color = if (isCorrect) AppTextPrimary else AppTextPrimary,
                                             modifier = Modifier.weight(1f)
                                         )
                                         if (isCorrect) {
@@ -2956,7 +2976,7 @@ ${subject.name},$chName,2,Directive Principles (DPSP),"Articles 36 to 51 in Part
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextButton(onClick = onBack) {
-                Text("← Back to ${subject.name}", color = DeepIndigo, fontWeight = FontWeight.Bold)
+                Text("← Back to ${subject.name}", color = AppAccentPrimary, fontWeight = FontWeight.Bold)
             }
         }
 
@@ -2966,8 +2986,8 @@ ${subject.name},$chName,2,Directive Principles (DPSP),"Articles 36 to 51 in Part
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-            border = BorderStroke(1.dp, CardBorder)
+            colors = CardDefaults.cardColors(containerColor = AppSurface),
+            border = BorderStroke(1.dp, AppBorder)
         ) {
             Row(
                 modifier = Modifier.padding(12.dp),
@@ -2976,7 +2996,7 @@ ${subject.name},$chName,2,Directive Principles (DPSP),"Articles 36 to 51 in Part
                 Box(
                     modifier = Modifier
                         .size(32.dp)
-                        .background(if (isQuestions) SageGreen.copy(alpha = 0.15f) else Amber.copy(alpha = 0.15f), CircleShape),
+                        .background(if (isQuestions) AppSuccessBg else AppWarningBg, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -2991,13 +3011,13 @@ ${subject.name},$chName,2,Directive Principles (DPSP),"Articles 36 to 51 in Part
                     Text(
                         text = if (isQuestions) "Target Question Bank (Shared Library)" else "Target Study Notes Library (Shared Cloud)",
                         fontSize = 11.sp,
-                        color = TextSecondary
+                        color = AppTextSecondary
                     )
                     Text(
                         text = "${exam.name} > ${subject.name} > ${initialChapter?.name ?: "All Chapters"}",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
-                        color = DeepIndigo
+                        color = AppTextPrimary
                     )
                 }
             }
@@ -3011,8 +3031,8 @@ ${subject.name},$chName,2,Directive Principles (DPSP),"Articles 36 to 51 in Part
                 .fillMaxWidth()
                 .tapAffordance(),
             shape = RoundedCornerShape(18.dp),
-            colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-            border = BorderStroke(1.5.dp, DeepIndigo.copy(alpha = 0.25f))
+            colors = CardDefaults.cardColors(containerColor = AppSurface),
+            border = BorderStroke(1.5.dp, AppAccentPrimary.copy(alpha = 0.25f))
         ) {
             Column(
                 modifier = Modifier
@@ -3023,13 +3043,13 @@ ${subject.name},$chName,2,Directive Principles (DPSP),"Articles 36 to 51 in Part
                 Box(
                     modifier = Modifier
                         .size(48.dp)
-                        .background(DeepIndigo.copy(alpha = 0.08f), CircleShape),
+                        .background(AppIconCircleBg, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.UploadFile,
                         contentDescription = null,
-                        tint = DeepIndigo,
+                        tint = AppAccentPrimary,
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -3040,7 +3060,7 @@ ${subject.name},$chName,2,Directive Principles (DPSP),"Articles 36 to 51 in Part
                     text = if (isQuestions) "Questions CSV Bulk Import" else "Study Notes CSV Bulk Import",
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
-                    color = DeepIndigo
+                    color = AppTextPrimary
                 )
 
                 Text(
@@ -3050,7 +3070,7 @@ ${subject.name},$chName,2,Directive Principles (DPSP),"Articles 36 to 51 in Part
                         "Supports text paragraphs and image file paths/URLs (image_uri)"
                     },
                     fontSize = 12.sp,
-                    color = TextSecondary,
+                    color = AppTextSecondary,
                     textAlign = TextAlign.Center
                 )
 
@@ -3110,11 +3130,19 @@ ${subject.name},$chName,2,Directive Principles (DPSP),"Articles 36 to 51 in Part
                                 "subject,chapter,chapter_number,title,content,image_uri\n${subject.name},Chapter Name,1,Key Title,Paragraphs of notes...,https://.../photo.jpg"
                             },
                             fontSize = 11.sp,
-                            color = TextMuted,
+                            color = AppTextSecondary,
                             fontFamily = FontFamily.Monospace
                         )
                     },
                     shape = RoundedCornerShape(10.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = AppSurface,
+                        unfocusedContainerColor = AppSurface,
+                        focusedTextColor = AppTextPrimary,
+                        unfocusedTextColor = AppTextPrimary,
+                        focusedBorderColor = AppAccentPrimary,
+                        unfocusedBorderColor = AppBorder
+                    ),
                     textStyle = androidx.compose.ui.text.TextStyle(fontSize = 11.sp, fontFamily = FontFamily.Monospace)
                 )
             }
@@ -3127,7 +3155,7 @@ ${subject.name},$chName,2,Directive Principles (DPSP),"Articles 36 to 51 in Part
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = SageGreen.copy(alpha = 0.15f)),
+                colors = CardDefaults.cardColors(containerColor = AppSuccessBg),
                 border = BorderStroke(1.dp, SageGreen)
             ) {
                 Row(
@@ -3140,7 +3168,7 @@ ${subject.name},$chName,2,Directive Principles (DPSP),"Articles 36 to 51 in Part
                         text = msg,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = DeepIndigo
+                        color = AppTextPrimary
                     )
                 }
             }
@@ -3178,8 +3206,8 @@ ${subject.name},$chName,2,Directive Principles (DPSP),"Articles 36 to 51 in Part
                     .fillMaxWidth()
                     .tapAffordance(),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-                border = BorderStroke(1.dp, CardBorder)
+                colors = CardDefaults.cardColors(containerColor = AppSurface),
+                border = BorderStroke(1.dp, AppBorder)
             ) {
                 Column(modifier = Modifier.padding(14.dp)) {
                     Row(
@@ -3195,16 +3223,16 @@ ${subject.name},$chName,2,Directive Principles (DPSP),"Articles 36 to 51 in Part
                             },
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
-                            color = DeepIndigo
+                            color = AppTextPrimary
                         )
 
                         Row {
                             Box(
                                 modifier = Modifier
-                                    .background(SageGreen.copy(alpha = 0.15f), RoundedCornerShape(6.dp))
+                                    .background(AppSuccessBg, RoundedCornerShape(6.dp))
                                     .padding(horizontal = 6.dp, vertical = 2.dp)
                             ) {
-                                Text("$validCount Valid", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = SageGreen)
+                                Text("$validCount Valid", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = AppSuccessText)
                             }
                             if (skippedCount > 0) {
                                 Spacer(modifier = Modifier.width(6.dp))
@@ -3224,7 +3252,7 @@ ${subject.name},$chName,2,Directive Principles (DPSP),"Articles 36 to 51 in Part
                     Text(
                         text = "First 10 rows previewed below:",
                         fontSize = 11.sp,
-                        color = TextSecondary
+                        color = AppTextSecondary
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -3239,15 +3267,15 @@ ${subject.name},$chName,2,Directive Principles (DPSP),"Articles 36 to 51 in Part
                             // Table Header for Questions
                             Row(
                                 modifier = Modifier
-                                    .background(BackgroundOffWhite, RoundedCornerShape(6.dp))
+                                    .background(AppBackground, RoundedCornerShape(6.dp))
                                     .padding(8.dp)
                             ) {
-                                Text("#", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = DeepIndigo, modifier = Modifier.width(30.dp))
-                                Text("Type", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = DeepIndigo, modifier = Modifier.width(90.dp))
-                                Text("Question Text", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = DeepIndigo, modifier = Modifier.width(220.dp))
-                                Text("Options (A, B, C, D)", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = DeepIndigo, modifier = Modifier.width(180.dp))
-                                Text("Correct", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = DeepIndigo, modifier = Modifier.width(100.dp))
-                                Text("Status", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = DeepIndigo, modifier = Modifier.width(80.dp))
+                                Text("#", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = AppTextPrimary, modifier = Modifier.width(30.dp))
+                                Text("Type", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = AppTextPrimary, modifier = Modifier.width(90.dp))
+                                Text("Question Text", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = AppTextPrimary, modifier = Modifier.width(220.dp))
+                                Text("Options (A, B, C, D)", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = AppTextPrimary, modifier = Modifier.width(180.dp))
+                                Text("Correct", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = AppTextPrimary, modifier = Modifier.width(100.dp))
+                                Text("Status", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = AppTextPrimary, modifier = Modifier.width(80.dp))
                             }
 
                             // Preview Rows (up to 10)
@@ -3258,16 +3286,16 @@ ${subject.name},$chName,2,Directive Principles (DPSP),"Articles 36 to 51 in Part
                                         .padding(horizontal = 8.dp, vertical = 6.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text("${row.rowNumber}", fontSize = 11.sp, color = TextPrimary, modifier = Modifier.width(30.dp))
-                                    Text(row.type, fontSize = 11.sp, color = TextSecondary, modifier = Modifier.width(90.dp))
-                                    Text(row.questionText, fontSize = 11.sp, color = TextPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.width(220.dp))
-                                    Text("${row.optA} | ${row.optB}", fontSize = 11.sp, color = TextSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.width(180.dp))
-                                    Text(row.correctAnswer, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = DeepIndigo, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.width(100.dp))
+                                    Text("${row.rowNumber}", fontSize = 11.sp, color = AppTextPrimary, modifier = Modifier.width(30.dp))
+                                    Text(row.type, fontSize = 11.sp, color = AppTextSecondary, modifier = Modifier.width(90.dp))
+                                    Text(row.questionText, fontSize = 11.sp, color = AppTextPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.width(220.dp))
+                                    Text("${row.optA} | ${row.optB}", fontSize = 11.sp, color = AppTextSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.width(180.dp))
+                                    Text(row.correctAnswer, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = AppTextPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.width(100.dp))
                                     Box(
                                         modifier = Modifier
                                             .width(80.dp)
                                             .background(
-                                                if (row.isValid) SageGreen.copy(alpha = 0.15f) else Terracotta.copy(alpha = 0.15f),
+                                                if (row.isValid) AppSuccessBg else Terracotta.copy(alpha = 0.15f),
                                                 RoundedCornerShape(4.dp)
                                             )
                                             .padding(horizontal = 4.dp, vertical = 2.dp),
@@ -3277,7 +3305,7 @@ ${subject.name},$chName,2,Directive Principles (DPSP),"Articles 36 to 51 in Part
                                             text = if (row.isValid) "Valid" else "Skipped",
                                             fontSize = 10.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = if (row.isValid) SageGreen else Terracotta
+                                            color = if (row.isValid) AppSuccessText else Terracotta
                                         )
                                     }
                                 }
@@ -3286,15 +3314,15 @@ ${subject.name},$chName,2,Directive Principles (DPSP),"Articles 36 to 51 in Part
                             // Table Header for Notes
                             Row(
                                 modifier = Modifier
-                                    .background(BackgroundOffWhite, RoundedCornerShape(6.dp))
+                                    .background(AppBackground, RoundedCornerShape(6.dp))
                                     .padding(8.dp)
                             ) {
-                                Text("#", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = DeepIndigo, modifier = Modifier.width(30.dp))
-                                Text("Chapter", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = DeepIndigo, modifier = Modifier.width(110.dp))
-                                Text("Title", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = DeepIndigo, modifier = Modifier.width(160.dp))
-                                Text("Text Content (Paragraphs)", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = DeepIndigo, modifier = Modifier.width(220.dp))
-                                Text("Image Path / URI", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = DeepIndigo, modifier = Modifier.width(160.dp))
-                                Text("Status", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = DeepIndigo, modifier = Modifier.width(90.dp))
+                                Text("#", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = AppTextPrimary, modifier = Modifier.width(30.dp))
+                                Text("Chapter", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = AppTextPrimary, modifier = Modifier.width(110.dp))
+                                Text("Title", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = AppTextPrimary, modifier = Modifier.width(160.dp))
+                                Text("Text Content (Paragraphs)", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = AppTextPrimary, modifier = Modifier.width(220.dp))
+                                Text("Image Path / URI", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = AppTextPrimary, modifier = Modifier.width(160.dp))
+                                Text("Status", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = AppTextPrimary, modifier = Modifier.width(90.dp))
                             }
 
                             // Preview Rows (up to 10)
@@ -3305,14 +3333,14 @@ ${subject.name},$chName,2,Directive Principles (DPSP),"Articles 36 to 51 in Part
                                         .padding(horizontal = 8.dp, vertical = 6.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text("${row.rowNumber}", fontSize = 11.sp, color = TextPrimary, modifier = Modifier.width(30.dp))
-                                    Text(row.chapter, fontSize = 11.sp, color = TextSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.width(110.dp))
-                                    Text(row.title, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = DeepIndigo, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.width(160.dp))
-                                    Text(row.content, fontSize = 11.sp, color = TextPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.width(220.dp))
+                                    Text("${row.rowNumber}", fontSize = 11.sp, color = AppTextPrimary, modifier = Modifier.width(30.dp))
+                                    Text(row.chapter, fontSize = 11.sp, color = AppTextSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.width(110.dp))
+                                    Text(row.title, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = AppTextPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.width(160.dp))
+                                    Text(row.content, fontSize = 11.sp, color = AppTextPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.width(220.dp))
                                     Text(
                                         text = row.imageUri ?: "—",
                                         fontSize = 11.sp,
-                                        color = if (row.imageUri != null) SageGreen else TextMuted,
+                                        color = if (row.imageUri != null) SageGreen else AppTextSecondary,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis,
                                         modifier = Modifier.width(160.dp)
@@ -3321,7 +3349,7 @@ ${subject.name},$chName,2,Directive Principles (DPSP),"Articles 36 to 51 in Part
                                         modifier = Modifier
                                             .width(90.dp)
                                             .background(
-                                                if (row.isValid) SageGreen.copy(alpha = 0.15f) else Terracotta.copy(alpha = 0.15f),
+                                                if (row.isValid) AppSuccessBg else Terracotta.copy(alpha = 0.15f),
                                                 RoundedCornerShape(4.dp)
                                             )
                                             .padding(horizontal = 4.dp, vertical = 2.dp),
@@ -3331,7 +3359,7 @@ ${subject.name},$chName,2,Directive Principles (DPSP),"Articles 36 to 51 in Part
                                             text = if (row.isValid) (if (row.imageUri != null) "Valid+Img" else "Valid") else "Skipped",
                                             fontSize = 10.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = if (row.isValid) SageGreen else Terracotta
+                                            color = if (row.isValid) AppSuccessText else Terracotta
                                         )
                                     }
                                 }
@@ -3390,7 +3418,7 @@ ${subject.name},$chName,2,Directive Principles (DPSP),"Articles 36 to 51 in Part
                     .fillMaxWidth()
                     .height(52.dp)
                     .tapAffordance(),
-                colors = ButtonDefaults.buttonColors(containerColor = DeepIndigo),
+                colors = ButtonDefaults.buttonColors(containerColor = AppAccentPrimary),
                 shape = RoundedCornerShape(14.dp)
             ) {
                 if (isUploading) {
@@ -3492,23 +3520,25 @@ private fun AdminStudentsTab(
             modifier = Modifier
                 .fillMaxWidth()
                 .tapAffordance(),
-            placeholder = { Text("Search student by name or email...", fontSize = 14.sp) },
+            placeholder = { Text("Search student by name or email...", fontSize = 14.sp, color = AppTextSecondary) },
             leadingIcon = {
-                Icon(Icons.Default.Search, contentDescription = "Search", tint = DeepIndigo)
+                Icon(Icons.Default.Search, contentDescription = "Search", tint = AppAccentPrimary)
             },
             trailingIcon = {
                 if (searchQuery.isNotEmpty()) {
                     IconButton(onClick = { onSearchQueryChange("") }) {
-                        Icon(Icons.Default.Close, contentDescription = "Clear", tint = TextMuted)
+                        Icon(Icons.Default.Close, contentDescription = "Clear", tint = AppTextSecondary)
                     }
                 }
             },
             shape = RoundedCornerShape(14.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = SurfaceWhite,
-                unfocusedContainerColor = SurfaceWhite,
-                focusedBorderColor = DeepIndigo,
-                unfocusedBorderColor = CardBorder
+                focusedContainerColor = AppSurface,
+                unfocusedContainerColor = AppSurface,
+                focusedTextColor = AppTextPrimary,
+                unfocusedTextColor = AppTextPrimary,
+                focusedBorderColor = AppAccentPrimary,
+                unfocusedBorderColor = AppBorder
             ),
             singleLine = true
         )
@@ -3520,7 +3550,7 @@ private fun AdminStudentsTab(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Amber.copy(alpha = 0.12f)),
+                colors = CardDefaults.cardColors(containerColor = AppWarningBg),
                 border = BorderStroke(1.dp, Amber.copy(alpha = 0.4f))
             ) {
                 Row(
@@ -3532,7 +3562,7 @@ private fun AdminStudentsTab(
                     Text(
                         text = "Client Firestore Security Rules Active: Displaying authorized registered student profiles. Admin reads pull directly from student subcollections.",
                         fontSize = 11.sp,
-                        color = DeepIndigo,
+                        color = AppTextPrimary,
                         lineHeight = 16.sp
                     )
                 }
@@ -3550,11 +3580,11 @@ private fun AdminStudentsTab(
                 text = "Registered Aspirants (${filteredStudents.size})",
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
-                color = DeepIndigo
+                color = AppTextPrimary
             )
 
             IconButton(onClick = onRefreshRoster, modifier = Modifier.size(32.dp)) {
-                Icon(Icons.Default.Refresh, contentDescription = "Refresh", tint = DeepIndigo, modifier = Modifier.size(18.dp))
+                Icon(Icons.Default.Refresh, contentDescription = "Refresh", tint = AppAccentPrimary, modifier = Modifier.size(18.dp))
             }
         }
 
@@ -3562,7 +3592,7 @@ private fun AdminStudentsTab(
 
         if (isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = DeepIndigo)
+                CircularProgressIndicator(color = AppAccentPrimary)
             }
         } else if (filteredStudents.isEmpty()) {
             Box(
@@ -3571,7 +3601,7 @@ private fun AdminStudentsTab(
                     .height(200.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text("No students found matching '$searchQuery'", color = TextSecondary)
+                Text("No students found matching '$searchQuery'", color = AppTextSecondary)
             }
         } else {
             LazyColumn(
@@ -3585,8 +3615,8 @@ private fun AdminStudentsTab(
                             .clickable { onSelectStudent(student) }
                             .tapAffordance(),
                         shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-                        border = BorderStroke(1.dp, CardBorder)
+                        colors = CardDefaults.cardColors(containerColor = AppSurface),
+                        border = BorderStroke(1.dp, AppBorder)
                     ) {
                         Row(
                             modifier = Modifier
@@ -3598,7 +3628,7 @@ private fun AdminStudentsTab(
                             Box(
                                 modifier = Modifier
                                     .size(44.dp)
-                                    .background(DeepIndigo, CircleShape),
+                                    .background(AppAccentPrimary, CircleShape),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
@@ -3616,13 +3646,13 @@ private fun AdminStudentsTab(
                                     text = student.name,
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = DeepIndigo
+                                    color = AppTextPrimary
                                 )
                                 Spacer(modifier = Modifier.height(2.dp))
                                 Text(
                                     text = student.email,
                                     fontSize = 12.sp,
-                                    color = TextSecondary,
+                                    color = AppTextSecondary,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -3650,7 +3680,7 @@ private fun AdminStudentsTab(
                                 // Streak / Last active indicator
                                 Box(
                                     modifier = Modifier
-                                        .background(Amber.copy(alpha = 0.15f), RoundedCornerShape(6.dp))
+                                        .background(AppWarningBg, RoundedCornerShape(6.dp))
                                         .padding(horizontal = 6.dp, vertical = 2.dp)
                                 ) {
                                     Text(
@@ -3666,14 +3696,14 @@ private fun AdminStudentsTab(
                                 // Overall Accuracy % badge
                                 Box(
                                     modifier = Modifier
-                                        .background(SageGreen.copy(alpha = 0.15f), RoundedCornerShape(6.dp))
+                                        .background(AppSuccessBg, RoundedCornerShape(6.dp))
                                         .padding(horizontal = 6.dp, vertical = 2.dp)
                                 ) {
                                     Text(
                                         text = "${student.accuracyPercent}% Accuracy",
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = SageGreen
+                                        color = AppSuccessText
                                     )
                                 }
                             }
@@ -3701,6 +3731,7 @@ private fun AdminIndividualStudentDetailScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
+            .background(AppBackground)
             .verticalScroll(scrollState)
             .padding(16.dp)
     ) {
@@ -3710,19 +3741,19 @@ private fun AdminIndividualStudentDetailScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextButton(onClick = onBack) {
-                Text("← All Students", color = DeepIndigo, fontWeight = FontWeight.Bold)
+                Text("← All Students", color = AppAccentPrimary, fontWeight = FontWeight.Bold)
             }
             Spacer(modifier = Modifier.weight(1f))
             Box(
                 modifier = Modifier
-                    .background(SageGreen.copy(alpha = 0.15f), RoundedCornerShape(6.dp))
+                    .background(AppSuccessBg, RoundedCornerShape(6.dp))
                     .padding(horizontal = 8.dp, vertical = 4.dp)
             ) {
                 Text(
                     text = "Read-Only Oversight",
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
-                    color = SageGreen
+                    color = AppSuccessText
                 )
             }
         }
@@ -3735,8 +3766,8 @@ private fun AdminIndividualStudentDetailScreen(
                 .fillMaxWidth()
                 .tapAffordance(),
             shape = RoundedCornerShape(18.dp),
-            colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-            border = BorderStroke(1.dp, CardBorder)
+            colors = CardDefaults.cardColors(containerColor = AppSurface),
+            border = BorderStroke(1.dp, AppBorder)
         ) {
             Row(
                 modifier = Modifier
@@ -3747,7 +3778,7 @@ private fun AdminIndividualStudentDetailScreen(
                 Box(
                     modifier = Modifier
                         .size(52.dp)
-                        .background(DeepIndigo, CircleShape),
+                        .background(AppAccentPrimary, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -3765,12 +3796,12 @@ private fun AdminIndividualStudentDetailScreen(
                         text = "${student.name} — Student Oversight",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
-                        color = DeepIndigo
+                        color = AppTextPrimary
                     )
                     Text(
                         text = "${student.email} • ${student.examPreparingFor}",
                         fontSize = 12.sp,
-                        color = TextSecondary
+                        color = AppTextSecondary
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
@@ -3791,8 +3822,8 @@ private fun AdminIndividualStudentDetailScreen(
                 .fillMaxWidth()
                 .tapAffordance(),
             shape = RoundedCornerShape(18.dp),
-            colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-            border = BorderStroke(1.dp, CardBorder)
+            colors = CardDefaults.cardColors(containerColor = AppSurface),
+            border = BorderStroke(1.dp, AppBorder)
         ) {
             Row(
                 modifier = Modifier
@@ -3805,7 +3836,7 @@ private fun AdminIndividualStudentDetailScreen(
                     Text(
                         text = "Active Study Streak",
                         fontSize = 12.sp,
-                        color = TextSecondary,
+                        color = AppTextSecondary,
                         fontWeight = FontWeight.Medium
                     )
                     Spacer(modifier = Modifier.height(4.dp))
@@ -3813,7 +3844,7 @@ private fun AdminIndividualStudentDetailScreen(
                         text = "🔥 ${student.streakDays} Days Consistent",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = DeepIndigo
+                        color = AppTextPrimary
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
@@ -3833,7 +3864,7 @@ private fun AdminIndividualStudentDetailScreen(
                     Text(
                         text = "Overall Accuracy",
                         fontSize = 11.sp,
-                        color = TextSecondary
+                        color = AppTextSecondary
                     )
                 }
             }
@@ -3846,7 +3877,7 @@ private fun AdminIndividualStudentDetailScreen(
             text = "Questions Attempted (Last 7 Days)",
             fontSize = 15.sp,
             fontWeight = FontWeight.Bold,
-            color = DeepIndigo
+            color = AppTextPrimary
         )
         Spacer(modifier = Modifier.height(8.dp))
         WeeklyQuestionsBarChart(
@@ -3868,7 +3899,7 @@ private fun AdminIndividualStudentDetailScreen(
             text = "Accuracy by Core Topics",
             fontSize = 15.sp,
             fontWeight = FontWeight.Bold,
-            color = DeepIndigo
+            color = AppTextPrimary
         )
         Spacer(modifier = Modifier.height(8.dp))
         AccuracyDonutChart(
@@ -3887,7 +3918,7 @@ private fun AdminIndividualStudentDetailScreen(
             text = "Study Time Distribution",
             fontSize = 15.sp,
             fontWeight = FontWeight.Bold,
-            color = DeepIndigo
+            color = AppTextPrimary
         )
         Spacer(modifier = Modifier.height(8.dp))
         TimeSpentBySubjectChart(
@@ -3906,7 +3937,7 @@ private fun AdminIndividualStudentDetailScreen(
             text = "Study Consistency Heatmap (30 Days)",
             fontSize = 15.sp,
             fontWeight = FontWeight.Bold,
-            color = DeepIndigo
+            color = AppTextPrimary
         )
         Spacer(modifier = Modifier.height(8.dp))
         StudyConsistencyHeatmap()
@@ -3923,7 +3954,7 @@ private fun AdminIndividualStudentDetailScreen(
                 text = "Current Struggles & Mistakes",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                color = DeepIndigo
+                color = AppTextPrimary
             )
 
             Box(
@@ -3956,8 +3987,8 @@ private fun AdminIndividualStudentDetailScreen(
                     .padding(vertical = 4.dp)
                     .tapAffordance(),
                 shape = RoundedCornerShape(14.dp),
-                colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-                border = BorderStroke(1.dp, CardBorder)
+                colors = CardDefaults.cardColors(containerColor = AppSurface),
+                border = BorderStroke(1.dp, AppBorder)
             ) {
                 Row(
                     modifier = Modifier
@@ -3986,13 +4017,13 @@ private fun AdminIndividualStudentDetailScreen(
                             text = concept,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
-                            color = DeepIndigo
+                            color = AppTextPrimary
                         )
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
                             text = breadcrumb,
                             fontSize = 12.sp,
-                            color = TextSecondary
+                            color = AppTextSecondary
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
@@ -4028,11 +4059,12 @@ private fun AddEditExamDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = AppSurface,
         title = {
             Text(
                 text = if (existingExam == null) "Add New Exam" else "Edit Exam",
                 fontWeight = FontWeight.Bold,
-                color = DeepIndigo
+                color = AppTextPrimary
             )
         },
         text = {
@@ -4042,34 +4074,69 @@ private fun AddEditExamDialog(
                     onValueChange = { name = it },
                     label = { Text("Exam Name") },
                     placeholder = { Text("e.g. UPSI — Sub Inspector") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = AppAccentPrimary,
+                        unfocusedBorderColor = AppBorder,
+                        focusedTextColor = AppTextPrimary,
+                        unfocusedTextColor = AppTextPrimary,
+                        focusedLabelColor = AppAccentPrimary
+                    )
                 )
                 OutlinedTextField(
                     value = subtitle,
                     onValueChange = { subtitle = it },
                     label = { Text("Subtitle") },
                     placeholder = { Text("e.g. 6 Subjects, 120 Topics") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = AppAccentPrimary,
+                        unfocusedBorderColor = AppBorder,
+                        focusedTextColor = AppTextPrimary,
+                        unfocusedTextColor = AppTextPrimary,
+                        focusedLabelColor = AppAccentPrimary
+                    )
                 )
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedTextField(
                         value = iconEmoji,
                         onValueChange = { iconEmoji = it },
                         label = { Text("Emoji") },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = AppAccentPrimary,
+                            unfocusedBorderColor = AppBorder,
+                            focusedTextColor = AppTextPrimary,
+                            unfocusedTextColor = AppTextPrimary,
+                            focusedLabelColor = AppAccentPrimary
+                        )
                     )
                     OutlinedTextField(
                         value = badgeText,
                         onValueChange = { badgeText = it },
                         label = { Text("Status") },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = AppAccentPrimary,
+                            unfocusedBorderColor = AppBorder,
+                            focusedTextColor = AppTextPrimary,
+                            unfocusedTextColor = AppTextPrimary,
+                            focusedLabelColor = AppAccentPrimary
+                        )
                     )
                 }
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
                     label = { Text("Description") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = AppAccentPrimary,
+                        unfocusedBorderColor = AppBorder,
+                        focusedTextColor = AppTextPrimary,
+                        unfocusedTextColor = AppTextPrimary,
+                        focusedLabelColor = AppAccentPrimary
+                    )
                 )
             }
         },
@@ -4091,14 +4158,14 @@ private fun AddEditExamDialog(
                         )
                     }
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = DeepIndigo)
+                colors = ButtonDefaults.buttonColors(containerColor = AppAccentPrimary)
             ) {
                 Text("Save Exam")
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel", color = TextSecondary)
+                Text("Cancel", color = AppTextSecondary)
             }
         }
     )
@@ -4118,11 +4185,12 @@ private fun AddEditSubjectDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = AppSurface,
         title = {
             Text(
                 text = if (existingSubject == null) "Add Subject" else "Edit Subject",
                 fontWeight = FontWeight.Bold,
-                color = DeepIndigo
+                color = AppTextPrimary
             )
         },
         text = {
@@ -4132,20 +4200,41 @@ private fun AddEditSubjectDialog(
                     onValueChange = { name = it },
                     label = { Text("Subject Name") },
                     placeholder = { Text("e.g. Indian Polity") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = AppAccentPrimary,
+                        unfocusedBorderColor = AppBorder,
+                        focusedTextColor = AppTextPrimary,
+                        unfocusedTextColor = AppTextPrimary,
+                        focusedLabelColor = AppAccentPrimary
+                    )
                 )
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedTextField(
                         value = iconEmoji,
                         onValueChange = { iconEmoji = it },
                         label = { Text("Emoji") },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = AppAccentPrimary,
+                            unfocusedBorderColor = AppBorder,
+                            focusedTextColor = AppTextPrimary,
+                            unfocusedTextColor = AppTextPrimary,
+                            focusedLabelColor = AppAccentPrimary
+                        )
                     )
                     OutlinedTextField(
                         value = chaptersCount,
                         onValueChange = { chaptersCount = it },
                         label = { Text("Chapters") },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = AppAccentPrimary,
+                            unfocusedBorderColor = AppBorder,
+                            focusedTextColor = AppTextPrimary,
+                            unfocusedTextColor = AppTextPrimary,
+                            focusedLabelColor = AppAccentPrimary
+                        )
                     )
                 }
             }
@@ -4166,7 +4255,7 @@ private fun AddEditSubjectDialog(
                         )
                     }
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = DeepIndigo)
+                colors = ButtonDefaults.buttonColors(containerColor = AppAccentPrimary)
             ) {
                 Text("Save Subject")
             }
@@ -4179,7 +4268,7 @@ private fun AddEditSubjectDialog(
                     }
                 }
                 TextButton(onClick = onDismiss) {
-                    Text("Cancel", color = TextSecondary)
+                    Text("Cancel", color = AppTextSecondary)
                 }
             }
         }
@@ -4198,11 +4287,12 @@ private fun AddEditChapterDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = AppSurface,
         title = {
             Text(
                 text = if (existingChapter == null) "Add Chapter" else "Edit Chapter",
                 fontWeight = FontWeight.Bold,
-                color = DeepIndigo
+                color = AppTextPrimary
             )
         },
         text = {
@@ -4211,14 +4301,28 @@ private fun AddEditChapterDialog(
                     value = numberStr,
                     onValueChange = { numberStr = it },
                     label = { Text("Chapter Number") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = AppAccentPrimary,
+                        unfocusedBorderColor = AppBorder,
+                        focusedTextColor = AppTextPrimary,
+                        unfocusedTextColor = AppTextPrimary,
+                        focusedLabelColor = AppAccentPrimary
+                    )
                 )
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
                     label = { Text("Chapter Name") },
                     placeholder = { Text("e.g. Fundamental Rights") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = AppAccentPrimary,
+                        unfocusedBorderColor = AppBorder,
+                        focusedTextColor = AppTextPrimary,
+                        unfocusedTextColor = AppTextPrimary,
+                        focusedLabelColor = AppAccentPrimary
+                    )
                 )
             }
         },
@@ -4238,14 +4342,14 @@ private fun AddEditChapterDialog(
                         )
                     }
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = DeepIndigo)
+                colors = ButtonDefaults.buttonColors(containerColor = AppAccentPrimary)
             ) {
                 Text("Save Chapter")
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel", color = TextSecondary)
+                Text("Cancel", color = AppTextSecondary)
             }
         }
     )
@@ -4262,15 +4366,16 @@ private fun ConfigureAdminUidDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = AppSurface,
         title = {
-            Text("Admin UID Authorization", fontWeight = FontWeight.Bold, color = DeepIndigo)
+            Text("Admin UID Authorization", fontWeight = FontWeight.Bold, color = AppTextPrimary)
         },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(
                     text = "Active Signed-in UID:\n$currentUserId",
                     fontSize = 12.sp,
-                    color = TextSecondary
+                    color = AppTextSecondary
                 )
                 Text(
                     text = "Configured Primary Admin UID:\n${AdminConfig.PRIMARY_ADMIN_UID}",
@@ -4284,28 +4389,35 @@ private fun ConfigureAdminUidDialog(
                     label = { Text("Custom Admin UID Override") },
                     placeholder = { Text("Paste Firebase Auth UID here") },
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = AppAccentPrimary,
+                        unfocusedBorderColor = AppBorder,
+                        focusedTextColor = AppTextPrimary,
+                        unfocusedTextColor = AppTextPrimary,
+                        focusedLabelColor = AppAccentPrimary
+                    )
                 )
                 Button(
                     onClick = { inputUid = currentUserId },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = BackgroundOffWhite)
+                    colors = ButtonDefaults.buttonColors(containerColor = AppBackground)
                 ) {
-                    Text("Use My Active Account UID", color = DeepIndigo, fontSize = 12.sp)
+                    Text("Use My Active Account UID", color = AppTextPrimary, fontSize = 12.sp)
                 }
             }
         },
         confirmButton = {
             Button(
                 onClick = { onSave(inputUid.trim()) },
-                colors = ButtonDefaults.buttonColors(containerColor = DeepIndigo)
+                colors = ButtonDefaults.buttonColors(containerColor = AppAccentPrimary)
             ) {
                 Text("Save UID")
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel", color = TextSecondary)
+                Text("Cancel", color = AppTextSecondary)
             }
         }
     )
@@ -4327,19 +4439,20 @@ private fun AddChapterNoteDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = AppSurface,
         title = {
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
                             .size(28.dp)
-                            .background(SageGreen.copy(alpha = 0.15f), CircleShape),
+                            .background(AppSuccessBg, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.MenuBook,
                             contentDescription = null,
-                            tint = SageGreen,
+                            tint = AppSuccessText,
                             modifier = Modifier.size(16.dp)
                         )
                     }
@@ -4348,14 +4461,14 @@ private fun AddChapterNoteDialog(
                         text = "Add Chapter Note",
                         fontSize = 17.sp,
                         fontWeight = FontWeight.Bold,
-                        color = DeepIndigo
+                        color = AppTextPrimary
                     )
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "$subjectName • Ch #$chapterNumber: $chapterName",
                     fontSize = 11.sp,
-                    color = TextSecondary,
+                    color = AppTextSecondary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -4375,8 +4488,11 @@ private fun AddChapterNoteDialog(
                     singleLine = true,
                     shape = RoundedCornerShape(10.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = DeepIndigo,
-                        focusedLabelColor = DeepIndigo
+                        focusedBorderColor = AppAccentPrimary,
+                        unfocusedBorderColor = AppBorder,
+                        focusedTextColor = AppTextPrimary,
+                        unfocusedTextColor = AppTextPrimary,
+                        focusedLabelColor = AppAccentPrimary
                     )
                 )
 
@@ -4391,8 +4507,11 @@ private fun AddChapterNoteDialog(
                     maxLines = 8,
                     shape = RoundedCornerShape(10.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = DeepIndigo,
-                        focusedLabelColor = DeepIndigo
+                        focusedBorderColor = AppAccentPrimary,
+                        unfocusedBorderColor = AppBorder,
+                        focusedTextColor = AppTextPrimary,
+                        unfocusedTextColor = AppTextPrimary,
+                        focusedLabelColor = AppAccentPrimary
                     )
                 )
             }
@@ -4406,8 +4525,8 @@ private fun AddChapterNoteDialog(
                 },
                 enabled = title.isNotBlank() && content.isNotBlank(),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = DeepIndigo,
-                    disabledContainerColor = DeepIndigo.copy(alpha = 0.3f)
+                    containerColor = AppAccentPrimary,
+                    disabledContainerColor = AppAccentPrimary.copy(alpha = 0.3f)
                 ),
                 shape = RoundedCornerShape(10.dp)
             ) {
@@ -4416,7 +4535,7 @@ private fun AddChapterNoteDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel", color = TextSecondary)
+                Text("Cancel", color = AppTextSecondary)
             }
         }
     )
@@ -4450,19 +4569,20 @@ private fun AddChapterQuestionDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = AppSurface,
         title = {
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
                             .size(28.dp)
-                            .background(DeepIndigo.copy(alpha = 0.1f), CircleShape),
+                            .background(AppAccentPrimary.copy(alpha = 0.15f), CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.Quiz,
                             contentDescription = null,
-                            tint = DeepIndigo,
+                            tint = AppAccentPrimary,
                             modifier = Modifier.size(16.dp)
                         )
                     }
@@ -4471,14 +4591,14 @@ private fun AddChapterQuestionDialog(
                         text = "Add Chapter Question",
                         fontSize = 17.sp,
                         fontWeight = FontWeight.Bold,
-                        color = DeepIndigo
+                        color = AppTextPrimary
                     )
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "$subjectName • $chapterName",
                     fontSize = 11.sp,
-                    color = TextSecondary,
+                    color = AppTextSecondary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -4503,8 +4623,8 @@ private fun AddChapterQuestionDialog(
                             if (optB.isBlank()) optB = ""
                         },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (questionType == "MCQ") DeepIndigo else BackgroundOffWhite,
-                            contentColor = if (questionType == "MCQ") SurfaceWhite else DeepIndigo
+                            containerColor = if (questionType == "MCQ") AppAccentPrimary else AppBackground,
+                            contentColor = if (questionType == "MCQ") SurfaceWhite else AppTextPrimary
                         ),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.weight(1f),
@@ -4523,8 +4643,8 @@ private fun AddChapterQuestionDialog(
                             if (correctIdx > 1) correctIdx = 0
                         },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (questionType == "TRUE_FALSE") DeepIndigo else BackgroundOffWhite,
-                            contentColor = if (questionType == "TRUE_FALSE") SurfaceWhite else DeepIndigo
+                            containerColor = if (questionType == "TRUE_FALSE") AppAccentPrimary else AppBackground,
+                            contentColor = if (questionType == "TRUE_FALSE") SurfaceWhite else AppTextPrimary
                         ),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.weight(1f),
@@ -4545,8 +4665,11 @@ private fun AddChapterQuestionDialog(
                         .height(90.dp),
                     shape = RoundedCornerShape(10.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = DeepIndigo,
-                        focusedLabelColor = DeepIndigo
+                        focusedBorderColor = AppAccentPrimary,
+                        unfocusedBorderColor = AppBorder,
+                        focusedTextColor = AppTextPrimary,
+                        unfocusedTextColor = AppTextPrimary,
+                        focusedLabelColor = AppAccentPrimary
                     )
                 )
 
@@ -4554,7 +4677,7 @@ private fun AddChapterQuestionDialog(
                     text = "Options (Select the correct answer)",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = DeepIndigo
+                    color = AppTextPrimary
                 )
 
                 if (questionType == "MCQ") {
@@ -4571,7 +4694,14 @@ private fun AddChapterQuestionDialog(
                             label = { Text("Option A") },
                             modifier = Modifier.weight(1f),
                             singleLine = true,
-                            shape = RoundedCornerShape(8.dp)
+                            shape = RoundedCornerShape(8.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = AppAccentPrimary,
+                                unfocusedBorderColor = AppBorder,
+                                focusedTextColor = AppTextPrimary,
+                                unfocusedTextColor = AppTextPrimary,
+                                focusedLabelColor = AppAccentPrimary
+                            )
                         )
                     }
 
@@ -4588,7 +4718,14 @@ private fun AddChapterQuestionDialog(
                             label = { Text("Option B") },
                             modifier = Modifier.weight(1f),
                             singleLine = true,
-                            shape = RoundedCornerShape(8.dp)
+                            shape = RoundedCornerShape(8.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = AppAccentPrimary,
+                                unfocusedBorderColor = AppBorder,
+                                focusedTextColor = AppTextPrimary,
+                                unfocusedTextColor = AppTextPrimary,
+                                focusedLabelColor = AppAccentPrimary
+                            )
                         )
                     }
 
@@ -4605,7 +4742,14 @@ private fun AddChapterQuestionDialog(
                             label = { Text("Option C") },
                             modifier = Modifier.weight(1f),
                             singleLine = true,
-                            shape = RoundedCornerShape(8.dp)
+                            shape = RoundedCornerShape(8.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = AppAccentPrimary,
+                                unfocusedBorderColor = AppBorder,
+                                focusedTextColor = AppTextPrimary,
+                                unfocusedTextColor = AppTextPrimary,
+                                focusedLabelColor = AppAccentPrimary
+                            )
                         )
                     }
 
@@ -4622,7 +4766,14 @@ private fun AddChapterQuestionDialog(
                             label = { Text("Option D") },
                             modifier = Modifier.weight(1f),
                             singleLine = true,
-                            shape = RoundedCornerShape(8.dp)
+                            shape = RoundedCornerShape(8.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = AppAccentPrimary,
+                                unfocusedBorderColor = AppBorder,
+                                focusedTextColor = AppTextPrimary,
+                                unfocusedTextColor = AppTextPrimary,
+                                focusedLabelColor = AppAccentPrimary
+                            )
                         )
                     }
                 } else {
@@ -4632,7 +4783,7 @@ private fun AddChapterQuestionDialog(
                             .fillMaxWidth()
                             .clickable { correctIdx = 0 }
                             .background(
-                                if (correctIdx == 0) SageGreen.copy(alpha = 0.15f) else BackgroundOffWhite,
+                                if (correctIdx == 0) AppSuccessBg else AppBackground,
                                 RoundedCornerShape(8.dp)
                             )
                             .padding(8.dp),
@@ -4644,10 +4795,10 @@ private fun AddChapterQuestionDialog(
                             colors = RadioButtonDefaults.colors(selectedColor = SageGreen)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("True", fontWeight = FontWeight.Bold, color = DeepIndigo)
+                        Text("True", fontWeight = FontWeight.Bold, color = AppTextPrimary)
                         Spacer(modifier = Modifier.weight(1f))
                         if (correctIdx == 0) {
-                            Text("Correct Answer", fontSize = 11.sp, color = SageGreen, fontWeight = FontWeight.Bold)
+                            Text("Correct Answer", fontSize = 11.sp, color = AppSuccessText, fontWeight = FontWeight.Bold)
                         }
                     }
 
@@ -4656,7 +4807,7 @@ private fun AddChapterQuestionDialog(
                             .fillMaxWidth()
                             .clickable { correctIdx = 1 }
                             .background(
-                                if (correctIdx == 1) SageGreen.copy(alpha = 0.15f) else BackgroundOffWhite,
+                                if (correctIdx == 1) AppSuccessBg else AppBackground,
                                 RoundedCornerShape(8.dp)
                             )
                             .padding(8.dp),
@@ -4668,10 +4819,10 @@ private fun AddChapterQuestionDialog(
                             colors = RadioButtonDefaults.colors(selectedColor = SageGreen)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("False", fontWeight = FontWeight.Bold, color = DeepIndigo)
+                        Text("False", fontWeight = FontWeight.Bold, color = AppTextPrimary)
                         Spacer(modifier = Modifier.weight(1f))
                         if (correctIdx == 1) {
-                            Text("Correct Answer", fontSize = 11.sp, color = SageGreen, fontWeight = FontWeight.Bold)
+                            Text("Correct Answer", fontSize = 11.sp, color = AppSuccessText, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -4699,8 +4850,8 @@ private fun AddChapterQuestionDialog(
                 },
                 enabled = isFormValid,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = DeepIndigo,
-                    disabledContainerColor = DeepIndigo.copy(alpha = 0.3f)
+                    containerColor = AppAccentPrimary,
+                    disabledContainerColor = AppAccentPrimary.copy(alpha = 0.3f)
                 ),
                 shape = RoundedCornerShape(10.dp)
             ) {
@@ -4709,7 +4860,7 @@ private fun AddChapterQuestionDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel", color = TextSecondary)
+                Text("Cancel", color = AppTextSecondary)
             }
         }
     )

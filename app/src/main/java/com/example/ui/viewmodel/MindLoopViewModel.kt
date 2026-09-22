@@ -301,7 +301,18 @@ class MindLoopViewModel(
                     result.add(def)
                 }
             }
-            result
+            // Strict deduplication by subject name and exam
+            val deduplicated = mutableListOf<CurriculumSubject>()
+            for (subj in result) {
+                val exists = deduplicated.any {
+                    it.name.equals(subj.name, ignoreCase = true) &&
+                    (it.examName?.equals(subj.examName, ignoreCase = true) ?: (subj.examName == null))
+                }
+                if (!exists) {
+                    deduplicated.add(subj)
+                }
+            }
+            deduplicated
         } catch (e: Exception) {
             defaultSubjects
         }
@@ -342,13 +353,26 @@ class MindLoopViewModel(
                     )
                 )
             }
+            // Ensure default chapters are present
             val result = list.toMutableList()
             for (def in defaultChapters) {
                 if (!result.any { it.name.equals(def.name, ignoreCase = true) && it.subjectName.equals(def.subjectName, ignoreCase = true) }) {
                     result.add(def)
                 }
             }
-            result
+            // Strict deduplication by chapter name, subject name, and exam
+            val deduplicated = mutableListOf<CurriculumChapter>()
+            for (ch in result) {
+                val exists = deduplicated.any {
+                    it.subjectName.equals(ch.subjectName, ignoreCase = true) &&
+                    it.name.equals(ch.name, ignoreCase = true) &&
+                    (it.examName?.equals(ch.examName, ignoreCase = true) ?: (ch.examName == null))
+                }
+                if (!exists) {
+                    deduplicated.add(ch)
+                }
+            }
+            deduplicated
         } catch (e: Exception) {
             defaultChapters
         }
@@ -452,6 +476,22 @@ class MindLoopViewModel(
         val cleanSub = subtitle.replace(Regex("[\\r\\n]+"), " ").trim()
         val cleanExam = examName?.replace(Regex("[\\r\\n]+"), " ")?.trim()?.ifBlank { null }
         if (cleanName.isBlank()) return
+
+        // Strict Deduplication: Check if subject already exists
+        val existingSubj = _allSubjects.value.find {
+            it.name.equals(cleanName, ignoreCase = true) &&
+            ((cleanExam == null && (it.examName == null || it.isStandalone)) ||
+             (cleanExam != null && it.examName.equals(cleanExam, ignoreCase = true)))
+        }
+
+        if (existingSubj != null) {
+            // Already exists - reuse existing subject, do not add duplicate!
+            if (!initialChapter.isNullOrBlank()) {
+                addChapter(subjectName = existingSubj.name, chapterName = initialChapter, examName = existingSubj.examName)
+            }
+            return
+        }
+
         val currentUid = _currentUser.value?.id ?: "user"
         val isStandalone = cleanExam.isNullOrBlank()
         val newSubj = CurriculumSubject(
@@ -527,6 +567,17 @@ class MindLoopViewModel(
         // Ensure subject exists if not present
         if (!_allSubjects.value.any { it.name.equals(cleanSubj, ignoreCase = true) }) {
             addSubject(name = cleanSubj, examName = cleanExam)
+        }
+
+        // Strict Deduplication: Check if chapter already exists under this subject
+        val existingChap = _allChapters.value.find {
+            it.subjectName.equals(cleanSubj, ignoreCase = true) &&
+            it.name.equals(cleanChap, ignoreCase = true) &&
+            (cleanExam == null || it.examName.isNullOrBlank() || it.examName.equals(cleanExam, ignoreCase = true))
+        }
+        if (existingChap != null) {
+            // Already exists - do not add duplicate!
+            return
         }
 
         val newChap = CurriculumChapter(

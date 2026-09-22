@@ -66,12 +66,17 @@ import androidx.compose.ui.unit.sp
 import com.example.data.entity.QuestionEntity
 import com.example.ui.components.MindLoopPrimaryButton
 import com.example.ui.components.tapAffordance
-import com.example.ui.theme.BackgroundOffWhite
+import com.example.ui.theme.AppBackground
+import com.example.ui.theme.AppBorder
+import com.example.ui.theme.AppSurface
+import com.example.ui.theme.AppSurfaceElevated
+import com.example.ui.theme.AppTextPrimary
+import com.example.ui.theme.AppTextSecondary
 import com.example.ui.theme.CardBorder
 import com.example.ui.theme.DeepIndigo
+import com.example.ui.theme.LocalIsDarkTheme
 import com.example.ui.theme.SageGreen
 import com.example.ui.theme.SageGreenLight
-import com.example.ui.theme.SurfaceWhite
 import com.example.ui.theme.Terracotta
 import com.example.ui.theme.TerracottaLight
 import com.example.ui.theme.TextPrimary
@@ -127,6 +132,7 @@ fun AddQuestionBottomSheet(
     onImportCsv: ((String) -> Unit)? = null,
     sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 ) {
+    val isDark = LocalIsDarkTheme.current
     val context = LocalContext.current
     var selectedTab by remember { mutableIntStateOf(initialTab) }
 
@@ -186,7 +192,7 @@ fun AddQuestionBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = SurfaceWhite,
+        containerColor = AppBackground,
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
         Column(
@@ -204,7 +210,7 @@ fun AddQuestionBottomSheet(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
-                        .background(if (sourceType == "reel") TerracottaLight else SageGreenLight)
+                        .background(if (sourceType == "reel") (if (isDark) Color(0xFF3B151E) else TerracottaLight) else (if (isDark) Color(0xFF133322) else SageGreenLight))
                         .padding(horizontal = 12.dp, vertical = 5.dp)
                 ) {
                     Text(
@@ -212,12 +218,12 @@ fun AddQuestionBottomSheet(
                                else "Linked to: Note #${linkedNoteId ?: 1}",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
-                        color = if (sourceType == "reel") Terracotta else SageGreen
+                        color = if (sourceType == "reel") (if (isDark) Color(0xFFF87171) else Terracotta) else (if (isDark) Color(0xFF34D399) else SageGreen)
                     )
                 }
 
                 IconButton(onClick = onDismiss, modifier = Modifier.testTag("button_dismiss_sheet")) {
-                    Icon(Icons.Default.Close, contentDescription = "Close", tint = DeepIndigo)
+                    Icon(Icons.Default.Close, contentDescription = "Close", tint = AppTextSecondary)
                 }
             }
 
@@ -227,12 +233,12 @@ fun AddQuestionBottomSheet(
                 text = if (sourceType == "reel") "Add Questions to Reel" else "Add Practice Questions",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = DeepIndigo
+                color = AppTextPrimary
             )
             Text(
                 text = "$subjectName • $chapterName",
                 fontSize = 13.sp,
-                color = TextSecondary
+                color = AppTextSecondary
             )
 
             Spacer(modifier = Modifier.height(14.dp))
@@ -243,7 +249,7 @@ fun AddQuestionBottomSheet(
                     .fillMaxWidth()
                     .height(46.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFFEAEDF3))
+                    .background(if (isDark) Color(0xFF1E293B) else Color(0xFFEAEDF3))
                     .padding(3.dp)
             ) {
                 Row(modifier = Modifier.fillMaxSize()) {
@@ -252,7 +258,7 @@ fun AddQuestionBottomSheet(
                         modifier = Modifier
                             .weight(1f)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(if (selectedTab == 0) DeepIndigo else Color.Transparent)
+                            .background(if (selectedTab == 0) (if (isDark) Color(0xFF4F46E5) else DeepIndigo) else Color.Transparent)
                             .clickable { selectedTab = 0 }
                             .testTag("tab_single_question"),
                         contentAlignment = Alignment.Center
@@ -261,7 +267,7 @@ fun AddQuestionBottomSheet(
                             text = "Single (1)",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (selectedTab == 0) Color.White else DeepIndigo
+                            color = if (selectedTab == 0) Color.White else AppTextSecondary
                         )
                     }
 
@@ -270,7 +276,7 @@ fun AddQuestionBottomSheet(
                         modifier = Modifier
                             .weight(1.2f)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(if (selectedTab == 1) DeepIndigo else Color.Transparent)
+                            .background(if (selectedTab == 1) (if (isDark) Color(0xFF4F46E5) else DeepIndigo) else Color.Transparent)
                             .clickable { selectedTab = 1 }
                             .testTag("tab_bulk_questions"),
                         contentAlignment = Alignment.Center
@@ -279,7 +285,7 @@ fun AddQuestionBottomSheet(
                             text = "Bulk (3–5+)",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (selectedTab == 1) Color.White else DeepIndigo
+                            color = if (selectedTab == 1) Color.White else AppTextSecondary
                         )
                     }
 
@@ -288,7 +294,7 @@ fun AddQuestionBottomSheet(
                         modifier = Modifier
                             .weight(1.3f)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(if (selectedTab == 2) DeepIndigo else Color.Transparent)
+                            .background(if (selectedTab == 2) (if (isDark) Color(0xFF4F46E5) else DeepIndigo) else Color.Transparent)
                             .clickable { selectedTab = 2 }
                             .testTag("tab_csv_import"),
                         contentAlignment = Alignment.Center
@@ -297,7 +303,7 @@ fun AddQuestionBottomSheet(
                             Icon(
                                 imageVector = Icons.Default.UploadFile,
                                 contentDescription = null,
-                                tint = if (selectedTab == 2) Color.White else DeepIndigo,
+                                tint = if (selectedTab == 2) Color.White else AppTextSecondary,
                                 modifier = Modifier.size(15.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
@@ -305,7 +311,7 @@ fun AddQuestionBottomSheet(
                                 text = "Import CSV",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = if (selectedTab == 2) Color.White else DeepIndigo
+                                color = if (selectedTab == 2) Color.White else AppTextSecondary
                             )
                         }
                     }
@@ -324,7 +330,7 @@ fun AddQuestionBottomSheet(
                         .fillMaxWidth()
                         .height(40.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(Color(0xFFF1F3F8))
+                        .background(if (isDark) Color(0xFF1E293B) else Color(0xFFF1F3F8))
                         .padding(2.dp)
                 ) {
                     Row(modifier = Modifier.fillMaxSize()) {
@@ -332,7 +338,7 @@ fun AddQuestionBottomSheet(
                             modifier = Modifier
                                 .weight(1f)
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(if (!singleIsTrueFalse) Terracotta else Color.Transparent)
+                                .background(if (!singleIsTrueFalse) (if (isDark) Color(0xFFEF4444) else Terracotta) else Color.Transparent)
                                 .clickable { singleIsTrueFalse = false }
                                 .testTag("toggle_mcq"),
                             contentAlignment = Alignment.Center
@@ -341,14 +347,14 @@ fun AddQuestionBottomSheet(
                                 text = "Multiple Choice (MCQ)",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = if (!singleIsTrueFalse) Color.White else DeepIndigo
+                                color = if (!singleIsTrueFalse) Color.White else AppTextSecondary
                             )
                         }
                         Box(
                             modifier = Modifier
                                 .weight(1f)
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(if (singleIsTrueFalse) Terracotta else Color.Transparent)
+                                .background(if (singleIsTrueFalse) (if (isDark) Color(0xFFEF4444) else Terracotta) else Color.Transparent)
                                 .clickable { singleIsTrueFalse = true }
                                 .testTag("toggle_tf"),
                             contentAlignment = Alignment.Center
@@ -357,7 +363,7 @@ fun AddQuestionBottomSheet(
                                 text = "True / False",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = if (singleIsTrueFalse) Color.White else DeepIndigo
+                                color = if (singleIsTrueFalse) Color.White else AppTextSecondary
                             )
                         }
                     }
@@ -374,8 +380,12 @@ fun AddQuestionBottomSheet(
                         .testTag("input_question_text"),
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = DeepIndigo,
-                        unfocusedBorderColor = CardBorder
+                        focusedBorderColor = if (isDark) Color(0xFF818CF8) else DeepIndigo,
+                        unfocusedBorderColor = AppBorder,
+                        focusedTextColor = AppTextPrimary,
+                        unfocusedTextColor = AppTextPrimary,
+                        focusedContainerColor = AppSurface,
+                        unfocusedContainerColor = AppSurface
                     )
                 )
 
@@ -386,7 +396,7 @@ fun AddQuestionBottomSheet(
                         text = "Select Correct Answer:",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = DeepIndigo
+                        color = AppTextPrimary
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Row(
@@ -397,7 +407,7 @@ fun AddQuestionBottomSheet(
                             modifier = Modifier
                                 .weight(1f)
                                 .clip(RoundedCornerShape(10.dp))
-                                .background(if (singleCorrectTfIndex == 0) SageGreenLight else BackgroundOffWhite)
+                                .background(if (singleCorrectTfIndex == 0) (if (isDark) Color(0xFF133322) else SageGreenLight) else AppSurface)
                                 .clickable { singleCorrectTfIndex = 0 }
                                 .padding(10.dp),
                             verticalAlignment = Alignment.CenterVertically
@@ -405,16 +415,16 @@ fun AddQuestionBottomSheet(
                             RadioButton(
                                 selected = singleCorrectTfIndex == 0,
                                 onClick = { singleCorrectTfIndex = 0 },
-                                colors = RadioButtonDefaults.colors(selectedColor = SageGreen)
+                                colors = RadioButtonDefaults.colors(selectedColor = if (isDark) Color(0xFF34D399) else SageGreen)
                             )
-                            Text("True", fontWeight = FontWeight.Bold, color = DeepIndigo)
+                            Text("True", fontWeight = FontWeight.Bold, color = AppTextPrimary)
                         }
 
                         Row(
                             modifier = Modifier
                                 .weight(1f)
                                 .clip(RoundedCornerShape(10.dp))
-                                .background(if (singleCorrectTfIndex == 1) SageGreenLight else BackgroundOffWhite)
+                                .background(if (singleCorrectTfIndex == 1) (if (isDark) Color(0xFF133322) else SageGreenLight) else AppSurface)
                                 .clickable { singleCorrectTfIndex = 1 }
                                 .padding(10.dp),
                             verticalAlignment = Alignment.CenterVertically
@@ -422,9 +432,9 @@ fun AddQuestionBottomSheet(
                             RadioButton(
                                 selected = singleCorrectTfIndex == 1,
                                 onClick = { singleCorrectTfIndex = 1 },
-                                colors = RadioButtonDefaults.colors(selectedColor = SageGreen)
+                                colors = RadioButtonDefaults.colors(selectedColor = if (isDark) Color(0xFF34D399) else SageGreen)
                             )
-                            Text("False", fontWeight = FontWeight.Bold, color = DeepIndigo)
+                            Text("False", fontWeight = FontWeight.Bold, color = AppTextPrimary)
                         }
                     }
                 } else {
@@ -432,7 +442,7 @@ fun AddQuestionBottomSheet(
                         text = "Options & Select Correct Answer:",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = DeepIndigo
+                        color = AppTextPrimary
                     )
                     Spacer(modifier = Modifier.height(8.dp))
 
@@ -453,7 +463,7 @@ fun AddQuestionBottomSheet(
                             RadioButton(
                                 selected = singleCorrectOptionIndex == index,
                                 onClick = { singleCorrectOptionIndex = index },
-                                colors = RadioButtonDefaults.colors(selectedColor = Terracotta),
+                                colors = RadioButtonDefaults.colors(selectedColor = if (isDark) Color(0xFFF87171) else Terracotta),
                                 modifier = Modifier.testTag("radio_option_$index")
                             )
                             OutlinedTextField(
@@ -472,8 +482,12 @@ fun AddQuestionBottomSheet(
                                     .testTag("input_option_$index"),
                                 shape = RoundedCornerShape(10.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = if (singleCorrectOptionIndex == index) Terracotta else DeepIndigo,
-                                    unfocusedBorderColor = CardBorder
+                                    focusedBorderColor = if (singleCorrectOptionIndex == index) (if (isDark) Color(0xFFF87171) else Terracotta) else (if (isDark) Color(0xFF818CF8) else DeepIndigo),
+                                    unfocusedBorderColor = AppBorder,
+                                    focusedTextColor = AppTextPrimary,
+                                    unfocusedTextColor = AppTextPrimary,
+                                    focusedContainerColor = AppSurface,
+                                    unfocusedContainerColor = AppSurface
                                 )
                             )
                         }
@@ -529,7 +543,7 @@ fun AddQuestionBottomSheet(
                         .height(50.dp)
                         .testTag("save_question_button"),
                     shape = RoundedCornerShape(14.dp),
-                    containerColor = DeepIndigo
+                    containerColor = if (isDark) Color(0xFF6366F1) else DeepIndigo
                 ) {
                     Text(
                         text = "Save Question",
@@ -547,20 +561,20 @@ fun AddQuestionBottomSheet(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = BackgroundOffWhite),
-                    border = BorderStroke(1.dp, CardBorder)
+                    colors = CardDefaults.cardColors(containerColor = AppSurface),
+                    border = BorderStroke(1.dp, AppBorder)
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text(
                             text = "⚡ Add 3 to 5+ Questions in One Step",
                             fontWeight = FontWeight.Bold,
                             fontSize = 13.sp,
-                            color = DeepIndigo
+                            color = AppTextPrimary
                         )
                         Text(
                             text = "Prepare a quick active-recall test for this reel. Edit each question card below and add more as needed.",
                             fontSize = 12.sp,
-                            color = TextSecondary,
+                            color = AppTextSecondary,
                             lineHeight = 16.sp
                         )
                     }
@@ -575,8 +589,8 @@ fun AddQuestionBottomSheet(
                             .fillMaxWidth()
                             .padding(vertical = 6.dp),
                         shape = RoundedCornerShape(14.dp),
-                        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-                        border = BorderStroke(1.5.dp, if (index == 0) Terracotta else CardBorder)
+                        colors = CardDefaults.cardColors(containerColor = AppSurface),
+                        border = BorderStroke(1.5.dp, if (index == 0) (if (isDark) Color(0xFFF87171) else Terracotta) else AppBorder)
                     ) {
                         Column(modifier = Modifier.padding(14.dp)) {
                             // Card Header: Question Number, Type Toggle, and Delete
@@ -590,7 +604,7 @@ fun AddQuestionBottomSheet(
                                         modifier = Modifier
                                             .size(24.dp)
                                             .clip(CircleShape)
-                                            .background(DeepIndigo),
+                                            .background(if (isDark) Color(0xFF6366F1) else DeepIndigo),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Text(
@@ -605,7 +619,7 @@ fun AddQuestionBottomSheet(
                                         text = "Question #${index + 1}",
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 14.sp,
-                                        color = DeepIndigo
+                                        color = AppTextPrimary
                                     )
                                 }
 
@@ -614,7 +628,7 @@ fun AddQuestionBottomSheet(
                                     Box(
                                         modifier = Modifier
                                             .clip(RoundedCornerShape(8.dp))
-                                            .background(if (draft.isTrueFalse) SageGreenLight else BackgroundOffWhite)
+                                            .background(if (draft.isTrueFalse) (if (isDark) Color(0xFF133322) else SageGreenLight) else (if (isDark) Color(0xFF0F172A) else Color(0xFFEAEDF3)))
                                             .clickable {
                                                 bulkDrafts[index] = draft.copy(isTrueFalse = !draft.isTrueFalse)
                                             }
@@ -624,7 +638,7 @@ fun AddQuestionBottomSheet(
                                             text = if (draft.isTrueFalse) "T/F" else "MCQ",
                                             fontSize = 11.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = if (draft.isTrueFalse) SageGreen else DeepIndigo
+                                            color = if (draft.isTrueFalse) (if (isDark) Color(0xFF34D399) else SageGreen) else AppTextPrimary
                                         )
                                     }
 
@@ -637,7 +651,7 @@ fun AddQuestionBottomSheet(
                                             Icon(
                                                 imageVector = Icons.Default.Delete,
                                                 contentDescription = "Remove Question",
-                                                tint = Color.Gray,
+                                                tint = AppTextSecondary,
                                                 modifier = Modifier.size(18.dp)
                                             )
                                         }
@@ -658,8 +672,12 @@ fun AddQuestionBottomSheet(
                                     .testTag("bulk_question_${index}_text"),
                                 shape = RoundedCornerShape(10.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = DeepIndigo,
-                                    unfocusedBorderColor = CardBorder
+                                    focusedBorderColor = if (isDark) Color(0xFF818CF8) else DeepIndigo,
+                                    unfocusedBorderColor = AppBorder,
+                                    focusedTextColor = AppTextPrimary,
+                                    unfocusedTextColor = AppTextPrimary,
+                                    focusedContainerColor = AppSurfaceElevated,
+                                    unfocusedContainerColor = AppSurfaceElevated
                                 )
                             )
 
@@ -674,7 +692,7 @@ fun AddQuestionBottomSheet(
                                         modifier = Modifier
                                             .weight(1f)
                                             .clip(RoundedCornerShape(8.dp))
-                                            .background(if (draft.correctOptionIndex == 0) SageGreenLight else BackgroundOffWhite)
+                                            .background(if (draft.correctOptionIndex == 0) (if (isDark) Color(0xFF133322) else SageGreenLight) else (if (isDark) Color(0xFF0F172A) else Color(0xFFF1F3F8)))
                                             .clickable { bulkDrafts[index] = draft.copy(correctOptionIndex = 0) }
                                             .padding(8.dp),
                                         verticalAlignment = Alignment.CenterVertically
@@ -682,16 +700,16 @@ fun AddQuestionBottomSheet(
                                         RadioButton(
                                             selected = draft.correctOptionIndex == 0,
                                             onClick = { bulkDrafts[index] = draft.copy(correctOptionIndex = 0) },
-                                            colors = RadioButtonDefaults.colors(selectedColor = SageGreen)
+                                            colors = RadioButtonDefaults.colors(selectedColor = if (isDark) Color(0xFF34D399) else SageGreen)
                                         )
-                                        Text("True", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                        Text("True", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = AppTextPrimary)
                                     }
 
                                     Row(
                                         modifier = Modifier
                                             .weight(1f)
                                             .clip(RoundedCornerShape(8.dp))
-                                            .background(if (draft.correctOptionIndex == 1) SageGreenLight else BackgroundOffWhite)
+                                            .background(if (draft.correctOptionIndex == 1) (if (isDark) Color(0xFF133322) else SageGreenLight) else (if (isDark) Color(0xFF0F172A) else Color(0xFFF1F3F8)))
                                             .clickable { bulkDrafts[index] = draft.copy(correctOptionIndex = 1) }
                                             .padding(8.dp),
                                         verticalAlignment = Alignment.CenterVertically
@@ -699,9 +717,9 @@ fun AddQuestionBottomSheet(
                                         RadioButton(
                                             selected = draft.correctOptionIndex == 1,
                                             onClick = { bulkDrafts[index] = draft.copy(correctOptionIndex = 1) },
-                                            colors = RadioButtonDefaults.colors(selectedColor = SageGreen)
+                                            colors = RadioButtonDefaults.colors(selectedColor = if (isDark) Color(0xFF34D399) else SageGreen)
                                         )
-                                        Text("False", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                        Text("False", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = AppTextPrimary)
                                     }
                                 }
                             } else {
@@ -723,7 +741,7 @@ fun AddQuestionBottomSheet(
                                         RadioButton(
                                             selected = draft.correctOptionIndex == optIdx,
                                             onClick = { bulkDrafts[index] = draft.copy(correctOptionIndex = optIdx) },
-                                            colors = RadioButtonDefaults.colors(selectedColor = Terracotta),
+                                            colors = RadioButtonDefaults.colors(selectedColor = if (isDark) Color(0xFFF87171) else Terracotta),
                                             modifier = Modifier.size(32.dp)
                                         )
                                         OutlinedTextField(
@@ -742,8 +760,12 @@ fun AddQuestionBottomSheet(
                                                 .height(52.dp),
                                             shape = RoundedCornerShape(8.dp),
                                             colors = OutlinedTextFieldDefaults.colors(
-                                                focusedBorderColor = if (draft.correctOptionIndex == optIdx) Terracotta else DeepIndigo,
-                                                unfocusedBorderColor = CardBorder
+                                                focusedBorderColor = if (draft.correctOptionIndex == optIdx) (if (isDark) Color(0xFFF87171) else Terracotta) else (if (isDark) Color(0xFF818CF8) else DeepIndigo),
+                                                unfocusedBorderColor = AppBorder,
+                                                focusedTextColor = AppTextPrimary,
+                                                unfocusedTextColor = AppTextPrimary,
+                                                focusedContainerColor = AppSurfaceElevated,
+                                                unfocusedContainerColor = AppSurfaceElevated
                                             )
                                         )
                                     }
@@ -766,11 +788,11 @@ fun AddQuestionBottomSheet(
                         },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(10.dp),
-                        border = BorderStroke(1.dp, DeepIndigo)
+                        border = BorderStroke(1.dp, if (isDark) Color(0xFF818CF8) else DeepIndigo)
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp), tint = DeepIndigo)
+                        Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp), tint = if (isDark) Color(0xFF818CF8) else DeepIndigo)
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("+ 1 Question", fontSize = 12.sp, color = DeepIndigo)
+                        Text("+ 1 Question", fontSize = 12.sp, color = if (isDark) Color(0xFF818CF8) else DeepIndigo)
                     }
 
                     OutlinedButton(
@@ -778,9 +800,9 @@ fun AddQuestionBottomSheet(
                             repeat(3) { bulkDrafts.add(BulkQuestionDraft()) }
                         },
                         shape = RoundedCornerShape(10.dp),
-                        border = BorderStroke(1.dp, Terracotta)
+                        border = BorderStroke(1.dp, if (isDark) Color(0xFFF87171) else Terracotta)
                     ) {
-                        Text("+ 3 Qs", fontSize = 12.sp, color = Terracotta, fontWeight = FontWeight.Bold)
+                        Text("+ 3 Qs", fontSize = 12.sp, color = if (isDark) Color(0xFFF87171) else Terracotta, fontWeight = FontWeight.Bold)
                     }
 
                     OutlinedButton(
@@ -788,9 +810,9 @@ fun AddQuestionBottomSheet(
                             repeat(5) { bulkDrafts.add(BulkQuestionDraft()) }
                         },
                         shape = RoundedCornerShape(10.dp),
-                        border = BorderStroke(1.dp, Terracotta)
+                        border = BorderStroke(1.dp, if (isDark) Color(0xFFF87171) else Terracotta)
                     ) {
-                        Text("+ 5 Qs", fontSize = 12.sp, color = Terracotta, fontWeight = FontWeight.Bold)
+                        Text("+ 5 Qs", fontSize = 12.sp, color = if (isDark) Color(0xFFF87171) else Terracotta, fontWeight = FontWeight.Bold)
                     }
                 }
 
@@ -848,7 +870,7 @@ fun AddQuestionBottomSheet(
                         .height(52.dp)
                         .testTag("save_bulk_questions_button"),
                     shape = RoundedCornerShape(14.dp),
-                    containerColor = Terracotta
+                    containerColor = if (isDark) Color(0xFFEF4444) else Terracotta
                 ) {
                     Text(
                         text = "Save All ${bulkDrafts.size} Questions to Reel",
@@ -866,21 +888,21 @@ fun AddQuestionBottomSheet(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = BackgroundOffWhite),
-                    border = BorderStroke(1.dp, CardBorder)
+                    colors = CardDefaults.cardColors(containerColor = AppSurface),
+                    border = BorderStroke(1.dp, AppBorder)
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text(
                             text = "📂 Import Questions via CSV or File",
                             fontWeight = FontWeight.Bold,
                             fontSize = 13.sp,
-                            color = DeepIndigo
+                            color = AppTextPrimary
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "Upload a .csv file from your device or paste CSV questions below. Format: Question, Option A, Option B, Option C, Option D, Correct Answer",
                             fontSize = 12.sp,
-                            color = TextSecondary,
+                            color = AppTextSecondary,
                             lineHeight = 16.sp
                         )
                     }
@@ -902,7 +924,7 @@ fun AddQuestionBottomSheet(
                             }
                         },
                         modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = DeepIndigo),
+                        colors = ButtonDefaults.buttonColors(containerColor = if (isDark) Color(0xFF6366F1) else DeepIndigo),
                         shape = RoundedCornerShape(10.dp)
                     ) {
                         Icon(Icons.Default.UploadFile, contentDescription = null, modifier = Modifier.size(16.dp))
@@ -923,11 +945,11 @@ Who is considered the ultimate protector and guarantor of Fundamental Rights?,Su
                             Toast.makeText(context, "Loaded 5-question sample template!", Toast.LENGTH_SHORT).show()
                         },
                         shape = RoundedCornerShape(10.dp),
-                        border = BorderStroke(1.dp, Terracotta)
+                        border = BorderStroke(1.dp, if (isDark) Color(0xFFF87171) else Terracotta)
                     ) {
-                        Icon(Icons.Default.Description, contentDescription = null, tint = Terracotta, modifier = Modifier.size(16.dp))
+                        Icon(Icons.Default.Description, contentDescription = null, tint = if (isDark) Color(0xFFF87171) else Terracotta, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("Load 5 Qs Sample", fontSize = 12.sp, color = Terracotta, fontWeight = FontWeight.Bold)
+                        Text("Load 5 Qs Sample", fontSize = 12.sp, color = if (isDark) Color(0xFFF87171) else Terracotta, fontWeight = FontWeight.Bold)
                     }
                 }
 
@@ -954,8 +976,12 @@ Who is considered the ultimate protector and guarantor of Fundamental Rights?,Su
                         fontSize = 11.sp
                     ),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = DeepIndigo,
-                        unfocusedBorderColor = CardBorder
+                        focusedBorderColor = if (isDark) Color(0xFF818CF8) else DeepIndigo,
+                        unfocusedBorderColor = AppBorder,
+                        focusedTextColor = AppTextPrimary,
+                        unfocusedTextColor = AppTextPrimary,
+                        focusedContainerColor = AppSurface,
+                        unfocusedContainerColor = AppSurface
                     )
                 )
 
@@ -967,17 +993,17 @@ Who is considered the ultimate protector and guarantor of Fundamental Rights?,Su
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(8.dp))
-                            .background(SageGreenLight)
+                            .background(if (isDark) Color(0xFF133322) else SageGreenLight)
                             .padding(horizontal = 12.dp, vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = SageGreen, modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = if (isDark) Color(0xFF34D399) else SageGreen, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = "✅ Detected ${parsedCsvQuestions.size} valid questions ready to import!",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = SageGreen
+                            color = if (isDark) Color(0xFF34D399) else SageGreen
                         )
                     }
 
@@ -996,7 +1022,7 @@ Who is considered the ultimate protector and guarantor of Fundamental Rights?,Su
                                     .fillMaxWidth()
                                     .padding(vertical = 3.dp)
                                     .clip(RoundedCornerShape(6.dp))
-                                    .background(BackgroundOffWhite)
+                                    .background(if (isDark) Color(0xFF0F172A) else Color(0xFFF1F3F8))
                                     .padding(8.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -1004,14 +1030,14 @@ Who is considered the ultimate protector and guarantor of Fundamental Rights?,Su
                                     text = "Q${idx + 1}: ${q.questionText}",
                                     fontSize = 11.sp,
                                     maxLines = 1,
-                                    color = DeepIndigo,
+                                    color = AppTextPrimary,
                                     modifier = Modifier.weight(1f)
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Box(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(4.dp))
-                                        .background(SageGreen)
+                                        .background(if (isDark) Color(0xFF059669) else SageGreen)
                                         .padding(horizontal = 6.dp, vertical = 2.dp)
                                 ) {
                                     Text(
@@ -1033,7 +1059,7 @@ Who is considered the ultimate protector and guarantor of Fundamental Rights?,Su
                     Text(
                         text = "⚠️ No valid questions detected yet. Please check the CSV format.",
                         fontSize = 11.sp,
-                        color = Terracotta
+                        color = if (isDark) Color(0xFFF87171) else Terracotta
                     )
                 }
 
@@ -1069,7 +1095,7 @@ Who is considered the ultimate protector and guarantor of Fundamental Rights?,Su
                         .testTag("import_csv_questions_button"),
                     enabled = parsedCsvQuestions.isNotEmpty(),
                     shape = RoundedCornerShape(14.dp),
-                    containerColor = SageGreen
+                    containerColor = if (isDark) Color(0xFF059669) else SageGreen
                 ) {
                     Text(
                         text = if (parsedCsvQuestions.isNotEmpty()) "Import ${parsedCsvQuestions.size} Questions to Reel" else "Import CSV Questions",

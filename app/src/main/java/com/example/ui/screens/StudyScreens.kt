@@ -119,13 +119,18 @@ import com.example.ui.components.StaticCardBorder
 import com.example.ui.components.tapAffordance
 import com.example.ui.theme.Amber
 import com.example.ui.theme.AmberLight
-import com.example.ui.theme.BackgroundOffWhite
+import com.example.ui.theme.AppBackground
+import com.example.ui.theme.AppBorder
+import com.example.ui.theme.AppSurface
+import com.example.ui.theme.AppSurfaceElevated
+import com.example.ui.theme.AppTextPrimary
+import com.example.ui.theme.AppTextSecondary
 import com.example.ui.theme.CardBorder
 import com.example.ui.theme.DeepIndigo
 import com.example.ui.theme.DeepIndigoLight
+import com.example.ui.theme.LocalIsDarkTheme
 import com.example.ui.theme.SageGreen
 import com.example.ui.theme.SageGreenLight
-import com.example.ui.theme.SurfaceWhite
 import com.example.ui.theme.Terracotta
 import com.example.ui.theme.TerracottaLight
 import com.example.ui.theme.TextMuted
@@ -201,10 +206,10 @@ fun AddSubjectDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel", color = TextSecondary)
+                Text("Cancel", color = AppTextSecondary)
             }
         },
-        containerColor = SurfaceWhite,
+        containerColor = AppSurface,
         shape = RoundedCornerShape(18.dp)
     )
 }
@@ -223,7 +228,7 @@ fun AddChapterDialog(
             Text(
                 text = "Add Chapter to $subjectName",
                 fontWeight = FontWeight.Bold,
-                color = DeepIndigo,
+                color = AppTextPrimary,
                 fontSize = 18.sp
             )
         },
@@ -232,7 +237,7 @@ fun AddChapterDialog(
                 Text(
                     text = "Enter the chapter title for $subjectName:",
                     fontSize = 13.sp,
-                    color = TextSecondary
+                    color = AppTextSecondary
                 )
                 OutlinedTextField(
                     value = chapterName,
@@ -263,10 +268,10 @@ fun AddChapterDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel", color = TextSecondary)
+                Text("Cancel", color = AppTextSecondary)
             }
         },
-        containerColor = SurfaceWhite,
+        containerColor = AppSurface,
         shape = RoundedCornerShape(18.dp)
     )
 }
@@ -283,11 +288,11 @@ fun SubjectDetailedStatsDialog(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Icon(Icons.Default.BarChart, contentDescription = null, tint = DeepIndigo)
+                Icon(Icons.Default.BarChart, contentDescription = null, tint = AppTextPrimary)
                 Text(
                     text = "${stats.subjectName} Analytics",
                     fontWeight = FontWeight.Bold,
-                    color = DeepIndigo,
+                    color = AppTextPrimary,
                     fontSize = 18.sp
                 )
             }
@@ -352,7 +357,7 @@ fun SubjectDetailedStatsDialog(
                 Text("Close")
             }
         },
-        containerColor = SurfaceWhite,
+        containerColor = AppSurface,
         shape = RoundedCornerShape(20.dp)
     )
 }
@@ -383,6 +388,7 @@ fun CustomSubjectCardItem(
     testTag: String = "custom_subject_card_${subjectName.lowercase().replace(" ", "_")}",
     onClick: () -> Unit
 ) {
+    val isDark = LocalIsDarkTheme.current
     InteractiveCard(
         onClick = onClick,
         modifier = Modifier
@@ -397,17 +403,20 @@ fun CustomSubjectCardItem(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val iconBg = if (isDark) Color(0xFF243044) else DeepIndigo.copy(alpha = 0.08f)
+            val iconTint = if (isDark) Color(0xFF818CF8) else DeepIndigo
+
             Box(
                 modifier = Modifier
                     .size(46.dp)
                     .clip(CircleShape)
-                    .background(DeepIndigo.copy(alpha = 0.08f)),
+                    .background(iconBg),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Psychology,
                     contentDescription = null,
-                    tint = DeepIndigo,
+                    tint = iconTint,
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -419,26 +428,30 @@ fun CustomSubjectCardItem(
                     text = subjectName,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = DeepIndigo
+                    color = AppTextPrimary
                 )
                 Spacer(modifier = Modifier.height(3.dp))
                 Text(
                     text = subtitle,
                     fontSize = 13.sp,
-                    color = TextSecondary
+                    color = AppTextSecondary
                 )
                 Spacer(modifier = Modifier.height(6.dp))
+
+                val badgeBg = if (isDark) Color(0xFF133322) else SageGreenLight
+                val badgeTextColor = if (isDark) Color(0xFF34D399) else badgeColor
+
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
-                        .background(SageGreenLight)
+                        .background(badgeBg)
                         .padding(horizontal = 10.dp, vertical = 2.dp)
                 ) {
                     Text(
                         text = badgeText,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = badgeColor
+                        color = badgeTextColor
                     )
                 }
             }
@@ -446,7 +459,7 @@ fun CustomSubjectCardItem(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
-                tint = DeepIndigo
+                tint = if (isDark) Color(0xFF94A3B8) else DeepIndigo
             )
         }
     }
@@ -484,7 +497,7 @@ fun StudyExamListScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundOffWhite)
+            .background(AppBackground)
             .statusBarsPadding()
     ) {
         Column(
@@ -668,6 +681,7 @@ fun ExamCardItem(
     testTag: String,
     onClick: () -> Unit
 ) {
+    val isDark = LocalIsDarkTheme.current
     val cardModifier = if (isActive) {
         Modifier
             .fillMaxWidth()
@@ -680,11 +694,17 @@ fun ExamCardItem(
             .testTag(testTag)
     }
 
+    val cardBorderColor = when {
+        isDark -> Color(0xFF334155)
+        isActive -> InteractiveCardBorder
+        else -> StaticCardBorder
+    }
+
     Card(
         modifier = cardModifier,
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-        border = BorderStroke(1.dp, if (isActive) InteractiveCardBorder else StaticCardBorder),
+        colors = CardDefaults.cardColors(containerColor = AppSurface),
+        border = BorderStroke(1.dp, cardBorderColor),
         elevation = CardDefaults.cardElevation(
             defaultElevation = if (isActive) 5.dp else 1.dp,
             pressedElevation = 1.5.dp
@@ -697,17 +717,28 @@ fun ExamCardItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Exam Icon Badge
+            val iconBg = when {
+                !isActive -> if (isDark) Color(0xFF1E293B) else Color(0xFFF1F4F9)
+                isDark -> Color(0xFF243044)
+                else -> DeepIndigo.copy(alpha = 0.08f)
+            }
+            val iconTint = when {
+                !isActive -> if (isDark) Color(0xFF64748B) else Color(0xFF9AA7BA)
+                isDark -> Color(0xFF818CF8)
+                else -> DeepIndigo
+            }
+
             Box(
                 modifier = Modifier
                     .size(46.dp)
                     .clip(CircleShape)
-                    .background(if (isActive) DeepIndigo.copy(alpha = 0.08f) else Color(0xFFF1F4F9)),
+                    .background(iconBg),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Shield,
                     contentDescription = null,
-                    tint = if (isActive) DeepIndigo else Color(0xFF9AA7BA),
+                    tint = iconTint,
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -719,29 +750,40 @@ fun ExamCardItem(
                     text = examName,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = if (isActive) DeepIndigo else Color(0xFF7A8699)
+                    color = if (isActive) AppTextPrimary else (if (isDark) Color(0xFF64748B) else Color(0xFF7A8699))
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = subtitle,
                     fontSize = 13.sp,
-                    color = if (isActive) TextSecondary else Color(0xFFA0ACBE)
+                    color = if (isActive) AppTextSecondary else (if (isDark) Color(0xFF475569) else Color(0xFFA0ACBE))
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Badge
+                // Badge (Clean or Active State)
+                val badgeBg = when {
+                    !isActive -> if (isDark) Color(0xFF1E293B) else Color(0xFFE2EBE5)
+                    isDark -> Color(0xFF133322)
+                    else -> SageGreenLight
+                }
+                val badgeTextColor = when {
+                    !isActive -> if (isDark) Color(0xFF64748B) else Color(0xFF5E866D)
+                    isDark -> Color(0xFF34D399)
+                    else -> SageGreen
+                }
+
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
-                        .background(if (isActive) SageGreenLight else Color(0xFFE2EBE5))
+                        .background(badgeBg)
                         .padding(horizontal = 10.dp, vertical = 2.dp)
                 ) {
                     Text(
                         text = badgeText,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (isActive) SageGreen else Color(0xFF5E866D)
+                        color = badgeTextColor
                     )
                 }
             }
@@ -749,7 +791,7 @@ fun ExamCardItem(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
-                tint = if (isActive) DeepIndigo else Color(0xFFB5BFCE)
+                tint = if (isActive) (if (isDark) Color(0xFF94A3B8) else DeepIndigo) else (if (isDark) Color(0xFF475569) else Color(0xFFB5BFCE))
             )
         }
     }
@@ -804,7 +846,7 @@ fun StudySubjectsGridScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundOffWhite)
+            .background(AppBackground)
             .statusBarsPadding()
             .padding(horizontal = 20.dp)
     ) {
@@ -1109,7 +1151,7 @@ fun StudySubjectDetailScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundOffWhite)
+            .background(AppBackground)
             .statusBarsPadding()
             .padding(horizontal = 20.dp)
     ) {
@@ -1224,7 +1266,7 @@ fun StudySubjectDetailScreen(
                     .fillMaxWidth()
                     .padding(vertical = 12.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+                colors = CardDefaults.cardColors(containerColor = AppSurface),
                 border = BorderStroke(1.dp, CardBorder)
             ) {
                 Column(
@@ -1531,7 +1573,7 @@ fun StudyNotesFeedScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundOffWhite)
+            .background(AppBackground)
             .statusBarsPadding()
             .navigationBarsPadding()
             .padding(horizontal = 8.dp)
@@ -1867,7 +1909,7 @@ fun AddNotePhotoDialog(
     Dialog(onDismissRequest = onDismiss) {
         Card(
             shape = RoundedCornerShape(18.dp),
-            colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+            colors = CardDefaults.cardColors(containerColor = AppSurface),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
             modifier = Modifier
                 .fillMaxWidth()
@@ -2311,7 +2353,7 @@ fun AddNotesScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundOffWhite)
+            .background(AppBackground)
             .statusBarsPadding()
             .padding(horizontal = 20.dp)
     ) {
@@ -2437,7 +2479,7 @@ fun AddNotesScreen(
                         .fillMaxWidth()
                         .clickable { subjectExpanded = true },
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = SurfaceWhite)
+                    colors = CardDefaults.cardColors(containerColor = AppSurfaceElevated)
                 ) {
                     Row(
                         modifier = Modifier
@@ -2447,10 +2489,10 @@ fun AddNotesScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column {
-                            Text("Select Subject", fontSize = 12.sp, color = TextSecondary)
-                            Text(selectedSubject, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = DeepIndigo)
+                            Text("Select Subject", fontSize = 12.sp, color = AppTextSecondary)
+                            Text(selectedSubject, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = AppTextPrimary)
                         }
-                        Icon(Icons.Default.KeyboardArrowDown, contentDescription = null, tint = DeepIndigo)
+                        Icon(Icons.Default.KeyboardArrowDown, contentDescription = null, tint = AppTextPrimary)
                     }
                 }
                 DropdownMenu(expanded = subjectExpanded, onDismissRequest = { subjectExpanded = false }) {
@@ -2498,7 +2540,7 @@ fun AddNotesScreen(
                         .fillMaxWidth()
                         .clickable { chapterExpanded = true },
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = SurfaceWhite)
+                    colors = CardDefaults.cardColors(containerColor = AppSurfaceElevated)
                 ) {
                     Row(
                         modifier = Modifier
@@ -2508,10 +2550,10 @@ fun AddNotesScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column {
-                            Text("Select Chapter", fontSize = 12.sp, color = TextSecondary)
-                            Text(selectedChapter, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = DeepIndigo)
+                            Text("Select Chapter", fontSize = 12.sp, color = AppTextSecondary)
+                            Text(selectedChapter, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = AppTextPrimary)
                         }
-                        Icon(Icons.Default.KeyboardArrowDown, contentDescription = null, tint = DeepIndigo)
+                        Icon(Icons.Default.KeyboardArrowDown, contentDescription = null, tint = AppTextPrimary)
                     }
                 }
                 DropdownMenu(expanded = chapterExpanded, onDismissRequest = { chapterExpanded = false }) {

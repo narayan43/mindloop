@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.theme.DeepIndigo
+import com.example.ui.theme.LocalIsDarkTheme
 import com.example.ui.theme.SurfaceWhite
 
 // High-opacity, clearly visible drop shadow colors that make interactive
@@ -157,9 +158,9 @@ fun MindLoopSecondaryButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    containerColor: Color = SurfaceWhite,
-    contentColor: Color = DeepIndigo,
-    borderColor: Color = DeepIndigo,
+    containerColor: Color = if (LocalIsDarkTheme.current) Color(0xFF1E293B) else SurfaceWhite,
+    contentColor: Color = if (LocalIsDarkTheme.current) Color(0xFFF1F5F9) else DeepIndigo,
+    borderColor: Color = if (LocalIsDarkTheme.current) Color(0xFF475569) else DeepIndigo,
     shape: Shape = RoundedCornerShape(14.dp),
     elevation: Dp = 3.5.dp,
     content: @Composable RowScope.() -> Unit
@@ -217,8 +218,8 @@ fun InteractiveCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(16.dp),
-    containerColor: Color = SurfaceWhite,
-    border: BorderStroke? = BorderStroke(1.dp, InteractiveCardBorder),
+    containerColor: Color = if (LocalIsDarkTheme.current) Color(0xFF1E293B) else SurfaceWhite,
+    border: BorderStroke? = BorderStroke(1.dp, if (LocalIsDarkTheme.current) Color(0xFF334155) else InteractiveCardBorder),
     elevation: Dp = 5.dp,
     content: @Composable ColumnScope.() -> Unit
 ) {
@@ -268,8 +269,8 @@ fun InteractiveCard(
 fun InformationalCard(
     modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(16.dp),
-    containerColor: Color = SurfaceWhite,
-    border: BorderStroke? = BorderStroke(1.dp, StaticCardBorder),
+    containerColor: Color = if (LocalIsDarkTheme.current) Color(0xFF1E293B) else SurfaceWhite,
+    border: BorderStroke? = BorderStroke(1.dp, if (LocalIsDarkTheme.current) Color(0xFF334155) else StaticCardBorder),
     content: @Composable ColumnScope.() -> Unit
 ) {
     Card(

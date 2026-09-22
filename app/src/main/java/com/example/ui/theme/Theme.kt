@@ -71,6 +71,74 @@ val MindLoopShapes = Shapes(
     extraLarge = RoundedCornerShape(24.dp)
 )
 
+val AppBackground: Color
+    @Composable
+    get() = if (LocalIsDarkTheme.current) Color(0xFF0F172A) else BackgroundOffWhite
+
+val AppSurface: Color
+    @Composable
+    get() = if (LocalIsDarkTheme.current) Color(0xFF1E293B) else SurfaceWhite
+
+val AppSurfaceElevated: Color
+    @Composable
+    get() = if (LocalIsDarkTheme.current) Color(0xFF273549) else Color(0xFFF8FAFC)
+
+val AppTextPrimary: Color
+    @Composable
+    get() = if (LocalIsDarkTheme.current) Color(0xFFF8FAFC) else DeepIndigo
+
+val AppTextSecondary: Color
+    @Composable
+    get() = if (LocalIsDarkTheme.current) Color(0xFF94A3B8) else TextSecondary
+
+val AppBorder: Color
+    @Composable
+    get() = if (LocalIsDarkTheme.current) Color(0xFF334155) else CardBorder
+
+val AppTrackColor: Color
+    @Composable
+    get() = if (LocalIsDarkTheme.current) Color(0xFF334155) else Color(0xFFEFF2F6)
+
+val AppOptionCardBg: Color
+    @Composable
+    get() = if (LocalIsDarkTheme.current) Color(0xFF243044) else BackgroundOffWhite
+
+val AppTextMuted: Color
+    @Composable
+    get() = if (LocalIsDarkTheme.current) Color(0xFF64748B) else TextMuted
+
+val AppSuccessText: Color
+    @Composable
+    get() = if (LocalIsDarkTheme.current) Color(0xFF34D399) else SageGreen
+
+val AppSuccessBg: Color
+    @Composable
+    get() = if (LocalIsDarkTheme.current) Color(0xFF133322) else SageGreenLight
+
+val AppErrorText: Color
+    @Composable
+    get() = if (LocalIsDarkTheme.current) Color(0xFFF87171) else Terracotta
+
+val AppErrorBg: Color
+    @Composable
+    get() = if (LocalIsDarkTheme.current) Color(0xFF3E1B1B) else TerracottaLight
+
+val AppWarningText: Color
+    @Composable
+    get() = if (LocalIsDarkTheme.current) Color(0xFFFBBF24) else Amber
+
+val AppWarningBg: Color
+    @Composable
+    get() = if (LocalIsDarkTheme.current) Color(0xFF3B2D14) else AmberLight
+
+val AppAccentPrimary: Color
+    @Composable
+    get() = if (LocalIsDarkTheme.current) Color(0xFF818CF8) else DeepIndigo
+
+val AppIconCircleBg: Color
+    @Composable
+    get() = if (LocalIsDarkTheme.current) Color(0xFF243044) else DeepIndigo.copy(alpha = 0.08f)
+
 @Composable
 fun MindLoopTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),

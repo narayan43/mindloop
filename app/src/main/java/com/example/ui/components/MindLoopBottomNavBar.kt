@@ -39,8 +39,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.navigation.BottomNavTab
+import com.example.ui.theme.AppBorder
+import com.example.ui.theme.AppSurface
 import com.example.ui.theme.CardBorder
 import com.example.ui.theme.DeepIndigo
+import com.example.ui.theme.LocalIsDarkTheme
 import com.example.ui.theme.SurfaceWhite
 
 @Composable
@@ -52,11 +55,11 @@ fun MindLoopBottomNavBar(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(SurfaceWhite)
+            .background(AppSurface)
             .navigationBarsPadding()
     ) {
         HorizontalDivider(
-            color = Color(0xFFF1F5F9),
+            color = AppBorder,
             thickness = 1.dp
         )
 
@@ -111,8 +114,9 @@ private fun NavBarItem(
     testTag: String,
     onClick: () -> Unit
 ) {
-    val activeColor = DeepIndigo
-    val inactiveColor = Color(0xFF94A3B8)
+    val isDark = LocalIsDarkTheme.current
+    val activeColor = if (isDark) Color(0xFF818CF8) else DeepIndigo
+    val inactiveColor = if (isDark) Color(0xFF64748B) else Color(0xFF94A3B8)
     val interactionSource = remember { MutableInteractionSource() }
 
     Column(

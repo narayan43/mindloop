@@ -82,9 +82,16 @@ import com.example.ui.components.MindLoopSecondaryButton
 import com.example.ui.components.tapAffordance
 import com.example.ui.theme.Amber
 import com.example.ui.theme.AmberLight
+import com.example.ui.theme.AppBackground
+import com.example.ui.theme.AppBorder
+import com.example.ui.theme.AppSurface
+import com.example.ui.theme.AppSurfaceElevated
+import com.example.ui.theme.AppTextPrimary
+import com.example.ui.theme.AppTextSecondary
 import com.example.ui.theme.BackgroundOffWhite
 import com.example.ui.theme.CardBorder
 import com.example.ui.theme.DeepIndigo
+import com.example.ui.theme.LocalIsDarkTheme
 import com.example.ui.theme.SageGreen
 import com.example.ui.theme.SageGreenLight
 import com.example.ui.theme.SurfaceWhite
@@ -120,10 +127,12 @@ fun TestExamListScreen(
         )
     }
 
+    val isDark = LocalIsDarkTheme.current
+
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundOffWhite)
+            .background(AppBackground)
             .statusBarsPadding()
             .padding(horizontal = 20.dp)
     ) {
@@ -136,17 +145,20 @@ fun TestExamListScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
+                val iconBg = if (isDark) Color(0xFF133322) else SageGreenLight
+                val iconTint = if (isDark) Color(0xFF34D399) else SageGreen
+
                 Box(
                     modifier = Modifier
                         .size(36.dp)
                         .clip(CircleShape)
-                        .background(SageGreenLight),
+                        .background(iconBg),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.TrackChanges,
                         contentDescription = null,
-                        tint = SageGreen,
+                        tint = iconTint,
                         modifier = Modifier.size(22.dp)
                     )
                 }
@@ -155,14 +167,14 @@ fun TestExamListScreen(
                     text = "Test Yourself",
                     fontSize = 26.sp,
                     fontWeight = FontWeight.Bold,
-                    color = DeepIndigo
+                    color = AppTextPrimary
                 )
             }
             IconButton(
                 onClick = { showAddSubjectDialog = true },
                 modifier = Modifier.testTag("test_add_subject_button")
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Subject", tint = SageGreen)
+                Icon(Icons.Default.Add, contentDescription = "Add Subject", tint = if (isDark) Color(0xFF34D399) else SageGreen)
             }
         }
 
@@ -211,15 +223,15 @@ fun TestExamListScreen(
                         text = "Self-Study & Independent Subjects",
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
-                        color = TextSecondary
+                        color = AppTextSecondary
                     )
                     TextButton(
                         onClick = { showAddSubjectDialog = true },
                         modifier = Modifier.testTag("test_add_custom_subject_text_btn")
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = null, tint = SageGreen, modifier = Modifier.size(16.dp))
+                        Icon(Icons.Default.Add, contentDescription = null, tint = if (isDark) Color(0xFF34D399) else SageGreen, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(2.dp))
-                        Text("+ Add Subject", color = SageGreen, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        Text("+ Add Subject", color = if (isDark) Color(0xFF34D399) else SageGreen, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                     }
                 }
             }
@@ -232,8 +244,8 @@ fun TestExamListScreen(
                             .clickable { showAddSubjectDialog = true }
                             .testTag("test_add_subject_promo_card"),
                         shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-                        border = BorderStroke(1.dp, CardBorder)
+                        colors = CardDefaults.cardColors(containerColor = AppSurface),
+                        border = BorderStroke(1.dp, AppBorder)
                     ) {
                         Row(
                             modifier = Modifier
@@ -241,21 +253,24 @@ fun TestExamListScreen(
                                 .padding(16.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
+                            val promoIconBg = if (isDark) Color(0xFF133322) else SageGreenLight
+                            val promoIconTint = if (isDark) Color(0xFF34D399) else SageGreen
+
                             Box(
                                 modifier = Modifier
                                     .size(42.dp)
                                     .clip(CircleShape)
-                                    .background(SageGreenLight),
+                                    .background(promoIconBg),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Icon(Icons.Outlined.Psychology, contentDescription = null, tint = SageGreen, modifier = Modifier.size(22.dp))
+                                Icon(Icons.Outlined.Psychology, contentDescription = null, tint = promoIconTint, modifier = Modifier.size(22.dp))
                             }
                             Spacer(modifier = Modifier.width(12.dp))
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Add Any Custom Subject", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = DeepIndigo)
-                                Text("Test yourself on Psychology, Law, Coding, etc.", fontSize = 12.sp, color = TextSecondary)
+                                Text("Add Any Custom Subject", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = AppTextPrimary)
+                                Text("Test yourself on Psychology, Law, Coding, etc.", fontSize = 12.sp, color = AppTextSecondary)
                             }
-                            Icon(Icons.Default.Add, contentDescription = null, tint = SageGreen)
+                            Icon(Icons.Default.Add, contentDescription = null, tint = promoIconTint)
                         }
                     }
                 }
@@ -276,7 +291,7 @@ fun TestExamListScreen(
                     text = "Upcoming Exam Curriculums",
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
-                    color = TextSecondary,
+                    color = AppTextSecondary,
                     modifier = Modifier.padding(top = 10.dp)
                 )
             }
@@ -359,10 +374,12 @@ fun TestSubjectsGridScreen(
         defaultSubjects + customModels
     }
 
+    val isDark = LocalIsDarkTheme.current
+
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundOffWhite)
+            .background(AppBackground)
             .statusBarsPadding()
             .padding(horizontal = 20.dp)
     ) {
@@ -376,7 +393,7 @@ fun TestSubjectsGridScreen(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
-                    tint = DeepIndigo
+                    tint = if (isDark) Color(0xFFF8FAFC) else DeepIndigo
                 )
             }
             Spacer(modifier = Modifier.width(6.dp))
@@ -384,14 +401,14 @@ fun TestSubjectsGridScreen(
                 text = "Test: $examName",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = DeepIndigo,
+                color = AppTextPrimary,
                 modifier = Modifier.weight(1f)
             )
             IconButton(
                 onClick = onAddSubject,
                 modifier = Modifier.testTag("test_grid_add_subject_button")
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Subject", tint = SageGreen)
+                Icon(Icons.Default.Add, contentDescription = "Add Subject", tint = if (isDark) Color(0xFF34D399) else SageGreen)
             }
         }
 
@@ -411,6 +428,11 @@ fun TestSubjectsGridScreen(
             }
 
             item {
+                val addBg = if (isDark) Color(0xFF1E293B) else Color(0xFFF3F5F9)
+                val addBorder = if (isDark) Color(0xFF334155) else DeepIndigo.copy(alpha = 0.2f)
+                val iconBg = if (isDark) Color(0xFF133322) else SageGreenLight
+                val iconTint = if (isDark) Color(0xFF34D399) else SageGreen
+
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -418,8 +440,8 @@ fun TestSubjectsGridScreen(
                         .clickable { onAddSubject() }
                         .testTag("test_add_subject_grid_card"),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF3F5F9)),
-                    border = BorderStroke(1.5.dp, DeepIndigo.copy(alpha = 0.2f))
+                    colors = CardDefaults.cardColors(containerColor = addBg),
+                    border = BorderStroke(1.5.dp, addBorder)
                 ) {
                     Column(
                         modifier = Modifier
@@ -432,13 +454,13 @@ fun TestSubjectsGridScreen(
                             modifier = Modifier
                                 .size(38.dp)
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(SageGreenLight),
+                                .background(iconBg),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Add,
                                 contentDescription = null,
-                                tint = SageGreen,
+                                tint = iconTint,
                                 modifier = Modifier.size(22.dp)
                             )
                         }
@@ -447,14 +469,14 @@ fun TestSubjectsGridScreen(
                             text = "+ Add Subject",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
-                            color = DeepIndigo,
+                            color = AppTextPrimary,
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
                             text = "Any topic to test",
                             fontSize = 11.sp,
-                            color = TextSecondary,
+                            color = AppTextSecondary,
                             textAlign = TextAlign.Center
                         )
                     }
@@ -469,6 +491,7 @@ fun TestSubjectCard(
     subject: SubjectUiModel,
     onClick: () -> Unit
 ) {
+    val isDark = LocalIsDarkTheme.current
     InteractiveCard(
         onClick = onClick,
         modifier = Modifier
@@ -485,17 +508,20 @@ fun TestSubjectCard(
                 .padding(14.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
+            val iconBg = if (isDark) Color(0xFF133322) else SageGreenLight
+            val iconTint = if (isDark) Color(0xFF34D399) else SageGreen
+
             Box(
                 modifier = Modifier
                     .size(38.dp)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(SageGreenLight),
+                    .background(iconBg),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Outlined.TrackChanges,
                     contentDescription = null,
-                    tint = SageGreen,
+                    tint = iconTint,
                     modifier = Modifier.size(22.dp)
                 )
             }
@@ -504,22 +530,25 @@ fun TestSubjectCard(
                 text = subject.name,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                color = DeepIndigo,
+                color = AppTextPrimary,
                 maxLines = 2
             )
+
+            val badgeBg = if (isDark) Color(0xFF133322) else SageGreenLight
+            val badgeTextColor = if (isDark) Color(0xFF34D399) else SageGreen
 
             // Questions Due Badge in Sage Green
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(12.dp))
-                    .background(SageGreenLight)
+                    .background(badgeBg)
                     .padding(horizontal = 10.dp, vertical = 3.dp)
             ) {
                 Text(
                     text = subject.questionsDueText,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = SageGreen
+                    color = badgeTextColor
                 )
             }
         }
@@ -621,10 +650,12 @@ fun TestSubjectDetailScreen(
         }
     }
 
+    val isDark = LocalIsDarkTheme.current
+
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundOffWhite)
+            .background(AppBackground)
             .statusBarsPadding()
             .padding(horizontal = 20.dp)
     ) {
@@ -638,7 +669,7 @@ fun TestSubjectDetailScreen(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
-                    tint = DeepIndigo
+                    tint = if (isDark) Color(0xFFF8FAFC) else DeepIndigo
                 )
             }
             Spacer(modifier = Modifier.width(6.dp))
@@ -646,7 +677,7 @@ fun TestSubjectDetailScreen(
                 text = subjectName,
                 fontSize = if (subjectName.length > 20) 18.sp else 21.sp,
                 fontWeight = FontWeight.Bold,
-                color = DeepIndigo,
+                color = AppTextPrimary,
                 modifier = Modifier.weight(1f),
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
@@ -661,7 +692,7 @@ fun TestSubjectDetailScreen(
                     },
                     modifier = Modifier.testTag("test_subject_stats_button")
                 ) {
-                    Icon(Icons.Default.BarChart, contentDescription = "Subject Stats", tint = DeepIndigo)
+                    Icon(Icons.Default.BarChart, contentDescription = "Subject Stats", tint = if (isDark) Color(0xFF818CF8) else DeepIndigo)
                 }
             }
             // Add chapter button
@@ -669,7 +700,7 @@ fun TestSubjectDetailScreen(
                 onClick = { showAddChapterDialog = true },
                 modifier = Modifier.testTag("test_add_chapter_top_btn")
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Chapter", tint = SageGreen)
+                Icon(Icons.Default.Add, contentDescription = "Add Chapter", tint = if (isDark) Color(0xFF34D399) else SageGreen)
             }
         }
 
@@ -682,7 +713,7 @@ fun TestSubjectDetailScreen(
                 .fillMaxWidth()
                 .height(52.dp)
                 .testTag("test_full_subject_button"),
-            containerColor = SageGreen,
+            containerColor = if (isDark) Color(0xFF059669) else SageGreen,
             shape = RoundedCornerShape(14.dp)
         ) {
             Icon(
@@ -710,15 +741,15 @@ fun TestSubjectDetailScreen(
                 text = "Chapters to Test",
                 fontSize = 17.sp,
                 fontWeight = FontWeight.Bold,
-                color = TextSecondary
+                color = AppTextSecondary
             )
             TextButton(
                 onClick = { showAddChapterDialog = true },
                 modifier = Modifier.testTag("test_add_chapter_text_btn")
             ) {
-                Icon(Icons.Default.Add, contentDescription = null, tint = SageGreen, modifier = Modifier.size(16.dp))
+                Icon(Icons.Default.Add, contentDescription = null, tint = if (isDark) Color(0xFF34D399) else SageGreen, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(2.dp))
-                Text("+ Add Chapter", color = SageGreen, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                Text("+ Add Chapter", color = if (isDark) Color(0xFF34D399) else SageGreen, fontWeight = FontWeight.Bold, fontSize = 13.sp)
             }
         }
 
@@ -730,8 +761,8 @@ fun TestSubjectDetailScreen(
                     .fillMaxWidth()
                     .padding(vertical = 12.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-                border = BorderStroke(1.dp, CardBorder)
+                colors = CardDefaults.cardColors(containerColor = AppSurface),
+                border = BorderStroke(1.dp, AppBorder)
             ) {
                 Column(
                     modifier = Modifier
@@ -740,17 +771,20 @@ fun TestSubjectDetailScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
+                    val emptyIconBg = if (isDark) Color(0xFF133322) else SageGreenLight
+                    val emptyIconTint = if (isDark) Color(0xFF34D399) else SageGreen
+
                     Box(
                         modifier = Modifier
                             .size(54.dp)
                             .clip(CircleShape)
-                            .background(SageGreenLight),
+                            .background(emptyIconBg),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.TrackChanges,
                             contentDescription = null,
-                            tint = SageGreen,
+                            tint = emptyIconTint,
                             modifier = Modifier.size(30.dp)
                         )
                     }
@@ -758,23 +792,23 @@ fun TestSubjectDetailScreen(
                         text = "Ready to Test $subjectName",
                         fontSize = 17.sp,
                         fontWeight = FontWeight.Bold,
-                        color = DeepIndigo,
+                        color = AppTextPrimary,
                         textAlign = TextAlign.Center
                     )
                     Text(
                         text = "No questions have been logged for this subject yet. You can add a chapter or start testing the full subject directly.",
                         fontSize = 13.sp,
-                        color = TextSecondary,
+                        color = AppTextSecondary,
                         textAlign = TextAlign.Center
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Button(
                         onClick = onTestFullSubject,
-                        colors = ButtonDefaults.buttonColors(containerColor = SageGreen),
+                        colors = ButtonDefaults.buttonColors(containerColor = if (isDark) Color(0xFF059669) else SageGreen),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Start Test Anyway")
+                        Text("Start Test Anyway", color = Color.White)
                     }
                 }
             }
@@ -797,11 +831,11 @@ fun TestSubjectDetailScreen(
                             .padding(vertical = 8.dp)
                             .testTag("test_add_another_chapter_btn"),
                         shape = RoundedCornerShape(12.dp),
-                        border = BorderStroke(1.dp, SageGreen.copy(alpha = 0.5f))
+                        border = BorderStroke(1.dp, (if (isDark) Color(0xFF34D399) else SageGreen).copy(alpha = 0.5f))
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = null, tint = SageGreen, modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.Add, contentDescription = null, tint = if (isDark) Color(0xFF34D399) else SageGreen, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("+ Add Another Chapter", color = SageGreen, fontWeight = FontWeight.SemiBold)
+                        Text("+ Add Another Chapter", color = if (isDark) Color(0xFF34D399) else SageGreen, fontWeight = FontWeight.SemiBold)
                     }
                 }
                 item { Spacer(modifier = Modifier.height(40.dp)) }
@@ -815,6 +849,7 @@ fun TestChapterRowItem(
     chapter: ChapterUiModel,
     onClick: () -> Unit
 ) {
+    val isDark = LocalIsDarkTheme.current
     InteractiveCard(
         onClick = onClick,
         modifier = Modifier
@@ -829,17 +864,20 @@ fun TestChapterRowItem(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val iconBg = if (isDark) Color(0xFF133322) else SageGreenLight
+            val iconTint = if (isDark) Color(0xFF34D399) else SageGreen
+
             Box(
                 modifier = Modifier
                     .size(32.dp)
                     .clip(CircleShape)
-                    .background(SageGreenLight),
+                    .background(iconBg),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Outlined.TrackChanges,
                     contentDescription = null,
-                    tint = SageGreen,
+                    tint = iconTint,
                     modifier = Modifier.size(18.dp)
                 )
             }
@@ -851,27 +889,30 @@ fun TestChapterRowItem(
                     text = "${chapter.number}. ${chapter.name}",
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
-                    color = DeepIndigo
+                    color = AppTextPrimary
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "${chapter.questionsCount} Total • 5 Due Today",
                     fontSize = 12.5.sp,
-                    color = TextSecondary
+                    color = AppTextSecondary
                 )
             }
+
+            val badgeBg = if (isDark) Color(0xFF133322) else SageGreenLight
+            val badgeTextColor = if (isDark) Color(0xFF34D399) else SageGreen
 
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(12.dp))
-                    .background(SageGreenLight)
+                    .background(badgeBg)
                     .padding(horizontal = 8.dp, vertical = 4.dp)
             ) {
                 Text(
                     text = "${chapter.masteryPercent}% Acc.",
                     fontSize = 11.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = SageGreen
+                    color = badgeTextColor
                 )
             }
         }
@@ -973,11 +1014,12 @@ fun QuestionReviewScreen(
     }
 
     val timerFormatted = String.format("%02d:%02d", elapsedSeconds / 60, elapsedSeconds % 60)
+    val isDark = LocalIsDarkTheme.current
 
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundOffWhite)
+            .background(AppBackground)
             .statusBarsPadding()
             .navigationBarsPadding()
             .padding(horizontal = 20.dp)
@@ -992,7 +1034,7 @@ fun QuestionReviewScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = DeepIndigo)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = if (isDark) Color(0xFFF8FAFC) else DeepIndigo)
             }
 
             Column(
@@ -1005,28 +1047,30 @@ fun QuestionReviewScreen(
                     text = "Reviewing: $chapterName",
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
-                    color = DeepIndigo,
+                    color = AppTextPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = "${currentIndex + 1}/${questions.size.coerceAtLeast(1)} due today",
                     fontSize = 12.sp,
-                    color = TextSecondary
+                    color = AppTextSecondary
                 )
             }
 
             // Stopwatch pill
+            val timerPillBg = if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0)
+            val timerPillTint = if (isDark) Color(0xFFF8FAFC) else DeepIndigo
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFFE2E8F0))
+                    .background(timerPillBg)
                     .padding(horizontal = 8.dp, vertical = 4.dp)
             ) {
-                Icon(Icons.Default.Timer, contentDescription = null, tint = DeepIndigo, modifier = Modifier.size(14.dp))
+                Icon(Icons.Default.Timer, contentDescription = null, tint = timerPillTint, modifier = Modifier.size(14.dp))
                 Spacer(modifier = Modifier.width(4.dp))
-                Text(timerFormatted, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = DeepIndigo)
+                Text(timerFormatted, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = timerPillTint)
             }
         }
 
@@ -1034,7 +1078,7 @@ fun QuestionReviewScreen(
 
         if (currentQuestion == null) {
             Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
-                Text("All caught up! No more due questions.", fontWeight = FontWeight.Bold, color = SageGreen)
+                Text("All caught up! No more due questions.", fontWeight = FontWeight.Bold, color = if (isDark) Color(0xFF34D399) else SageGreen)
             }
             return
         }
@@ -1045,7 +1089,8 @@ fun QuestionReviewScreen(
                 .fillMaxWidth()
                 .testTag("question_card"),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+            colors = CardDefaults.cardColors(containerColor = AppSurface),
+            border = BorderStroke(1.dp, AppBorder),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
             Column(modifier = Modifier.padding(18.dp)) {
@@ -1055,17 +1100,28 @@ fun QuestionReviewScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    val qTypeBg = if (currentQuestion.questionType == "TRUE_FALSE") {
+                        if (isDark) Color(0xFF133322) else SageGreenLight
+                    } else {
+                        if (isDark) Color(0xFF1E1B4B).copy(alpha = 0.5f) else DeepIndigo.copy(alpha = 0.08f)
+                    }
+                    val qTypeColor = if (currentQuestion.questionType == "TRUE_FALSE") {
+                        if (isDark) Color(0xFF34D399) else SageGreen
+                    } else {
+                        if (isDark) Color(0xFF818CF8) else DeepIndigo
+                    }
+
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
-                            .background(if (currentQuestion.questionType == "TRUE_FALSE") SageGreenLight else DeepIndigo.copy(alpha = 0.08f))
+                            .background(qTypeBg)
                             .padding(horizontal = 8.dp, vertical = 3.dp)
                     ) {
                         Text(
                             text = if (currentQuestion.questionType == "TRUE_FALSE") "True / False" else "Multiple Choice",
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = if (currentQuestion.questionType == "TRUE_FALSE") SageGreen else DeepIndigo
+                            color = qTypeColor
                         )
                     }
 
@@ -1073,11 +1129,31 @@ fun QuestionReviewScreen(
                     val isCritical = currentQuestion.timesWrong >= 2 || (currentQuestion.timesWrong >= 1 && currentQuestion.lastRating == "HARD")
                     val isHard = currentQuestion.timesWrong == 1 || currentQuestion.lastRating == "HARD"
                     val (srsBadge, srsBg, srsColor) = when {
-                        isCritical -> Triple("SRS: Critical Repeat", Terracotta.copy(alpha = 0.15f), Terracotta)
-                        isHard -> Triple("SRS: High Difficulty", Amber.copy(alpha = 0.18f), Amber)
-                        currentQuestion.isDue -> Triple("SRS: Due for Review", DeepIndigo.copy(alpha = 0.10f), DeepIndigo)
-                        currentQuestion.totalAttempts == 0 -> Triple("SRS: New Concept", Color(0xFF64748B).copy(alpha = 0.12f), Color(0xFF475569))
-                        else -> Triple("SRS: Mastered", SageGreenLight, SageGreen)
+                        isCritical -> Triple(
+                            "SRS: Critical Repeat",
+                            if (isDark) Color(0xFF3B151E) else Terracotta.copy(alpha = 0.15f),
+                            if (isDark) Color(0xFFF87171) else Terracotta
+                        )
+                        isHard -> Triple(
+                            "SRS: High Difficulty",
+                            if (isDark) Color(0xFF3B2D13) else Amber.copy(alpha = 0.18f),
+                            if (isDark) Color(0xFFFBBF24) else Amber
+                        )
+                        currentQuestion.isDue -> Triple(
+                            "SRS: Due for Review",
+                            if (isDark) Color(0xFF1E293B) else DeepIndigo.copy(alpha = 0.10f),
+                            if (isDark) Color(0xFF94A3B8) else DeepIndigo
+                        )
+                        currentQuestion.totalAttempts == 0 -> Triple(
+                            "SRS: New Concept",
+                            if (isDark) Color(0xFF1E293B) else Color(0xFF64748B).copy(alpha = 0.12f),
+                            if (isDark) Color(0xFFCBD5E1) else Color(0xFF475569)
+                        )
+                        else -> Triple(
+                            "SRS: Mastered",
+                            if (isDark) Color(0xFF133322) else SageGreenLight,
+                            if (isDark) Color(0xFF34D399) else SageGreen
+                        )
                     }
 
                     Box(
@@ -1097,6 +1173,11 @@ fun QuestionReviewScreen(
 
                 if (currentQuestion.timesWrong > 0 || currentQuestion.lastRating == "HARD") {
                     Spacer(modifier = Modifier.height(8.dp))
+                    val warnColor = if (currentQuestion.timesWrong >= 2) {
+                        if (isDark) Color(0xFFF87171) else Terracotta
+                    } else {
+                        if (isDark) Color(0xFFFBBF24) else Amber
+                    }
                     Text(
                         text = if (currentQuestion.timesWrong > 0)
                             "Prioritized by Spaced Repetition: ${currentQuestion.timesWrong} mistake${if (currentQuestion.timesWrong > 1) "s" else ""} on record"
@@ -1104,7 +1185,7 @@ fun QuestionReviewScreen(
                             "Prioritized by Spaced Repetition: Previously rated Hard",
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Medium,
-                        color = if (currentQuestion.timesWrong >= 2) Terracotta else Amber
+                        color = warnColor
                     )
                 }
 
@@ -1115,7 +1196,7 @@ fun QuestionReviewScreen(
                     fontSize = 17.sp,
                     lineHeight = 24.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = DeepIndigo
+                    color = AppTextPrimary
                 )
             }
         }
@@ -1135,16 +1216,16 @@ fun QuestionReviewScreen(
                     val isWrongSelected = isSubmitted && isSelected && idx != currentQuestion.correctAnswerIndex
 
                     val bg = when {
-                        isCorrect -> SageGreenLight
-                        isWrongSelected -> TerracottaLight
-                        isSelected -> Color(0xFFE2E8F0)
-                        else -> SurfaceWhite
+                        isCorrect -> if (isDark) Color(0xFF133322) else SageGreenLight
+                        isWrongSelected -> if (isDark) Color(0xFF3B151E) else TerracottaLight
+                        isSelected -> if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0)
+                        else -> AppSurface
                     }
                     val borderC = when {
-                        isCorrect -> SageGreen
-                        isWrongSelected -> Terracotta
-                        isSelected -> DeepIndigo
-                        else -> CardBorder
+                        isCorrect -> if (isDark) Color(0xFF34D399) else SageGreen
+                        isWrongSelected -> if (isDark) Color(0xFFF87171) else Terracotta
+                        isSelected -> if (isDark) Color(0xFF818CF8) else DeepIndigo
+                        else -> AppBorder
                     }
 
                     Card(
@@ -1160,7 +1241,7 @@ fun QuestionReviewScreen(
                         border = BorderStroke(1.5.dp, borderC)
                     ) {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text(label, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = DeepIndigo)
+                            Text(label, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = AppTextPrimary)
                         }
                     }
                 }
@@ -1181,16 +1262,16 @@ fun QuestionReviewScreen(
                     val isWrongSelected = isSubmitted && isSelected && idx != currentQuestion.correctAnswerIndex
 
                     val bg = when {
-                        isCorrect -> SageGreenLight
-                        isWrongSelected -> TerracottaLight
-                        isSelected -> Color(0xFFE2E8F0)
-                        else -> SurfaceWhite
+                        isCorrect -> if (isDark) Color(0xFF133322) else SageGreenLight
+                        isWrongSelected -> if (isDark) Color(0xFF3B151E) else TerracottaLight
+                        isSelected -> if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0)
+                        else -> AppSurface
                     }
                     val borderC = when {
-                        isCorrect -> SageGreen
-                        isWrongSelected -> Terracotta
-                        isSelected -> DeepIndigo
-                        else -> CardBorder
+                        isCorrect -> if (isDark) Color(0xFF34D399) else SageGreen
+                        isWrongSelected -> if (isDark) Color(0xFFF87171) else Terracotta
+                        isSelected -> if (isDark) Color(0xFF818CF8) else DeepIndigo
+                        else -> AppBorder
                     }
 
                     Card(
@@ -1210,25 +1291,36 @@ fun QuestionReviewScreen(
                                 .padding(14.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
+                            val badgeBg = if (isSelected || isCorrect) {
+                                if (isDark) Color(0xFF6366F1) else DeepIndigo
+                            } else {
+                                if (isDark) Color(0xFF334155) else Color(0xFFEEF2F6)
+                            }
+                            val badgeTextColor = if (isSelected || isCorrect) {
+                                Color.White
+                            } else {
+                                if (isDark) Color(0xFFF8FAFC) else DeepIndigo
+                            }
+
                             Box(
                                 modifier = Modifier
                                     .size(26.dp)
                                     .clip(CircleShape)
-                                    .background(if (isSelected || isCorrect) DeepIndigo else Color(0xFFEEF2F6)),
+                                    .background(badgeBg),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
                                     text = ('A' + idx).toString(),
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = if (isSelected || isCorrect) Color.White else DeepIndigo
+                                    color = badgeTextColor
                                 )
                             }
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
                                 text = optText,
                                 fontSize = 14.5.sp,
-                                color = TextPrimary,
+                                color = AppTextPrimary,
                                 modifier = Modifier.weight(1f)
                             )
                         }
@@ -1240,6 +1332,7 @@ fun QuestionReviewScreen(
         Spacer(modifier = Modifier.height(18.dp))
 
         // "🔗 View Source Reel" or "🔗 View Source Note" secondary button
+        val sourceBtnTint = if (isDark) Color(0xFF818CF8) else DeepIndigo
         if (isReelTest || currentQuestion.sourceType.equals("reel", ignoreCase = true) ||
             (currentQuestion.sourceId.isNotBlank() && currentQuestion.linkedNoteId == null)
         ) {
@@ -1252,9 +1345,9 @@ fun QuestionReviewScreen(
                     .testTag("view_source_reel_button"),
                 shape = RoundedCornerShape(14.dp)
             ) {
-                Icon(Icons.Default.PlayCircle, contentDescription = null, tint = DeepIndigo, modifier = Modifier.size(18.dp))
+                Icon(Icons.Default.PlayCircle, contentDescription = null, tint = sourceBtnTint, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("View Source Reel", color = DeepIndigo, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                Text("View Source Reel", color = sourceBtnTint, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
             }
         } else {
             MindLoopSecondaryButton(
@@ -1265,9 +1358,9 @@ fun QuestionReviewScreen(
                     .testTag("view_source_note_button"),
                 shape = RoundedCornerShape(14.dp)
             ) {
-                Icon(Icons.AutoMirrored.Outlined.MenuBook, contentDescription = null, tint = DeepIndigo, modifier = Modifier.size(18.dp))
+                Icon(Icons.AutoMirrored.Outlined.MenuBook, contentDescription = null, tint = sourceBtnTint, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("View Source Note", color = DeepIndigo, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                Text("View Source Note", color = sourceBtnTint, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
             }
         }
 
@@ -1288,7 +1381,7 @@ fun QuestionReviewScreen(
             text = "Select recall difficulty to schedule next review:",
             fontSize = 13.sp,
             fontWeight = FontWeight.SemiBold,
-            color = TextPrimary,
+            color = AppTextPrimary,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
@@ -1313,7 +1406,7 @@ fun QuestionReviewScreen(
                 },
                 modifier = Modifier.weight(1f).height(58.dp).testTag("rating_easy"),
                 shape = RoundedCornerShape(12.dp),
-                containerColor = SageGreen,
+                containerColor = if (isDark) Color(0xFF059669) else SageGreen,
                 elevation = 4.dp
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -1335,7 +1428,7 @@ fun QuestionReviewScreen(
                 },
                 modifier = Modifier.weight(1f).height(58.dp).testTag("rating_medium"),
                 shape = RoundedCornerShape(12.dp),
-                containerColor = Amber,
+                containerColor = if (isDark) Color(0xFFD97706) else Amber,
                 elevation = 4.dp
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -1357,7 +1450,7 @@ fun QuestionReviewScreen(
                 },
                 modifier = Modifier.weight(1f).height(58.dp).testTag("rating_hard"),
                 shape = RoundedCornerShape(12.dp),
-                containerColor = Terracotta,
+                containerColor = if (isDark) Color(0xFFDC2626) else Terracotta,
                 elevation = 4.dp
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -1370,11 +1463,13 @@ fun QuestionReviewScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Next Review Schedule (SRS) Details Card placed below buttons
+        val srsSurfaceBg = if (isDark) Color(0xFF1E293B) else DeepIndigo.copy(alpha = 0.04f)
+        val srsSurfaceBorder = if (isDark) Color(0xFF334155) else DeepIndigo.copy(alpha = 0.12f)
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(14.dp),
-            color = DeepIndigo.copy(alpha = 0.04f),
-            border = BorderStroke(1.dp, DeepIndigo.copy(alpha = 0.12f))
+            color = srsSurfaceBg,
+            border = BorderStroke(1.dp, srsSurfaceBorder)
         ) {
             Column(modifier = Modifier.padding(12.dp)) {
                 Row(
@@ -1386,7 +1481,7 @@ fun QuestionReviewScreen(
                         Icon(
                             imageVector = Icons.Default.Timer,
                             contentDescription = null,
-                            tint = DeepIndigo,
+                            tint = if (isDark) Color(0xFF818CF8) else DeepIndigo,
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
@@ -1394,21 +1489,32 @@ fun QuestionReviewScreen(
                             text = "Next Review Schedule (SRS)",
                             fontSize = 12.5.sp,
                             fontWeight = FontWeight.Bold,
-                            color = DeepIndigo
+                            color = AppTextPrimary
                         )
+                    }
+
+                    val badgeBg = if (effectiveMistakes > 0) {
+                        if (isDark) Color(0xFF3B151E) else Terracotta.copy(alpha = 0.12f)
+                    } else {
+                        if (isDark) Color(0xFF133322) else SageGreenLight
+                    }
+                    val badgeColor = if (effectiveMistakes > 0) {
+                        if (isDark) Color(0xFFF87171) else Terracotta
+                    } else {
+                        if (isDark) Color(0xFF34D399) else SageGreen
                     }
 
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(6.dp))
-                            .background(if (effectiveMistakes > 0) Terracotta.copy(alpha = 0.12f) else SageGreenLight)
+                            .background(badgeBg)
                             .padding(horizontal = 7.dp, vertical = 2.dp)
                     ) {
                         Text(
                             text = if (effectiveMistakes > 0) "$effectiveMistakes Mistake${if (effectiveMistakes > 1) "s" else ""} on record" else "0 Mistakes",
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (effectiveMistakes > 0) Terracotta else SageGreen
+                            color = badgeColor
                         )
                     }
                 }
@@ -1422,7 +1528,7 @@ fun QuestionReviewScreen(
                         "Intervals expand progressively as recall confidence increases:"
                     },
                     fontSize = 11.5.sp,
-                    color = TextSecondary,
+                    color = AppTextSecondary,
                     lineHeight = 15.sp
                 )
 
@@ -1437,21 +1543,21 @@ fun QuestionReviewScreen(
                         label = "Easy",
                         badge = easyProj.intervalBadge,
                         dayText = easyProj.scheduledDayName,
-                        color = SageGreen,
+                        color = if (isDark) Color(0xFF34D399) else SageGreen,
                         modifier = Modifier.weight(1f)
                     )
                     SrsSchedulePill(
                         label = "Medium",
                         badge = medProj.intervalBadge,
                         dayText = medProj.scheduledDayName,
-                        color = Amber,
+                        color = if (isDark) Color(0xFFFBBF24) else Amber,
                         modifier = Modifier.weight(1f)
                     )
                     SrsSchedulePill(
                         label = "Hard",
                         badge = hardProj.intervalBadge,
                         dayText = hardProj.scheduledDayName,
-                        color = Terracotta,
+                        color = if (isDark) Color(0xFFF87171) else Terracotta,
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -1473,7 +1579,7 @@ private fun SrsSchedulePill(
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(10.dp),
-        color = color.copy(alpha = 0.10f),
+        color = color.copy(alpha = 0.12f),
         border = BorderStroke(1.dp, color.copy(alpha = 0.35f))
     ) {
         Column(
@@ -1500,12 +1606,12 @@ private fun SrsSchedulePill(
                 text = "+$badge",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = TextPrimary
+                color = AppTextPrimary
             )
             Text(
                 text = dayText,
                 fontSize = 9.5.sp,
-                color = TextSecondary,
+                color = AppTextSecondary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )

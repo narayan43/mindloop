@@ -115,6 +115,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
@@ -138,15 +139,20 @@ import com.example.ui.components.StaticCardBorder
 import com.example.ui.components.tapAffordance
 import com.example.ui.theme.Amber
 import com.example.ui.theme.AmberLight
-import com.example.ui.theme.BackgroundOffWhite
+import com.example.ui.theme.AppBackground
+import com.example.ui.theme.AppBorder
+import com.example.ui.theme.AppSurface
+import com.example.ui.theme.AppSurfaceElevated
+import com.example.ui.theme.AppTextPrimary
+import com.example.ui.theme.AppTextSecondary
 import com.example.ui.theme.CardBorder
 import com.example.ui.theme.DeepIndigo
 import com.example.ui.theme.DeepIndigoLight
 import com.example.ui.theme.DeepIndigoSubtle
+import com.example.ui.theme.LocalIsDarkTheme
 import com.example.ui.theme.SageGreen
 import com.example.ui.theme.SageGreenDark
 import com.example.ui.theme.SageGreenLight
-import com.example.ui.theme.SurfaceWhite
 import com.example.ui.theme.Terracotta
 import com.example.ui.theme.TerracottaLight
 import com.example.ui.theme.TextMuted
@@ -231,11 +237,11 @@ fun AddOrEditCurriculumItemDialog(
                                 .testTag("select_type_exam"),
                             shape = RoundedCornerShape(10.dp),
                             colors = CardDefaults.cardColors(
-                                containerColor = if (chosenType == "EXAM") DeepIndigo.copy(alpha = 0.1f) else SurfaceWhite
+                                containerColor = if (chosenType == "EXAM") DeepIndigo.copy(alpha = 0.1f) else AppSurface
                             ),
                             border = BorderStroke(
                                 1.5.dp,
-                                if (chosenType == "EXAM") DeepIndigo else StaticCardBorder
+                                if (chosenType == "EXAM") DeepIndigo else AppBorder
                             )
                         ) {
                             Column(
@@ -245,7 +251,7 @@ fun AddOrEditCurriculumItemDialog(
                                 Icon(
                                     Icons.Outlined.Shield,
                                     contentDescription = null,
-                                    tint = if (chosenType == "EXAM") DeepIndigo else TextSecondary,
+                                    tint = if (chosenType == "EXAM") DeepIndigo else AppTextSecondary,
                                     modifier = Modifier.size(22.dp)
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
@@ -253,7 +259,7 @@ fun AddOrEditCurriculumItemDialog(
                                     "Exam Course",
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = if (chosenType == "EXAM") DeepIndigo else TextSecondary
+                                    color = if (chosenType == "EXAM") DeepIndigo else AppTextSecondary
                                 )
                             }
                         }
@@ -266,11 +272,11 @@ fun AddOrEditCurriculumItemDialog(
                                 .testTag("select_type_subject"),
                             shape = RoundedCornerShape(10.dp),
                             colors = CardDefaults.cardColors(
-                                containerColor = if (chosenType == "STANDALONE_SUBJECT") Terracotta.copy(alpha = 0.1f) else SurfaceWhite
+                                containerColor = if (chosenType == "STANDALONE_SUBJECT") Terracotta.copy(alpha = 0.1f) else AppSurface
                             ),
                             border = BorderStroke(
                                 1.5.dp,
-                                if (chosenType == "STANDALONE_SUBJECT") Terracotta else StaticCardBorder
+                                if (chosenType == "STANDALONE_SUBJECT") Terracotta else AppBorder
                             )
                         ) {
                             Column(
@@ -349,10 +355,10 @@ fun AddOrEditCurriculumItemDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel", color = TextSecondary)
+                Text("Cancel", color = AppTextSecondary)
             }
         },
-        containerColor = SurfaceWhite,
+        containerColor = AppSurface,
         shape = RoundedCornerShape(18.dp)
     )
 }
@@ -375,7 +381,7 @@ fun ConfirmDeleteCurriculumDialog(
                 Text(
                     text = "Delete $itemType?",
                     fontWeight = FontWeight.Bold,
-                    color = DeepIndigo,
+                    color = AppTextPrimary,
                     fontSize = 18.sp
                 )
             }
@@ -384,7 +390,7 @@ fun ConfirmDeleteCurriculumDialog(
             Text(
                 text = "Are you sure you want to delete \"$itemName\"? This item will be removed from your curriculum.",
                 fontSize = 14.sp,
-                color = TextSecondary
+                color = AppTextSecondary
             )
         },
         confirmButton = {
@@ -399,10 +405,10 @@ fun ConfirmDeleteCurriculumDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel", color = TextSecondary)
+                Text("Cancel", color = AppTextSecondary)
             }
         },
-        containerColor = SurfaceWhite,
+        containerColor = AppSurface,
         shape = RoundedCornerShape(18.dp)
     )
 }
@@ -507,7 +513,7 @@ fun ReelExamListScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundOffWhite)
+            .background(AppBackground)
             .statusBarsPadding()
     ) {
         Column(
@@ -528,13 +534,13 @@ fun ReelExamListScreen(
                         text = "Study Reels",
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Bold,
-                        color = DeepIndigo
+                        color = AppTextPrimary
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = "Bite-sized micro-learning video feed",
                         fontSize = 13.sp,
-                        color = TextSecondary
+                        color = AppTextSecondary
                     )
                 }
 
@@ -544,9 +550,9 @@ fun ReelExamListScreen(
                         onClick = { showAddDialog = true },
                         modifier = Modifier.testTag("add_exam_or_subject_button")
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = null, tint = DeepIndigo, modifier = Modifier.size(16.dp))
+                        Icon(Icons.Default.Add, contentDescription = null, tint = AppTextPrimary, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("+ Add", fontWeight = FontWeight.Bold, color = DeepIndigo, fontSize = 13.sp)
+                        Text("+ Add", fontWeight = FontWeight.Bold, color = AppTextPrimary, fontSize = 13.sp)
                     }
 
                     IconButton(
@@ -912,7 +918,7 @@ fun ReelSubjectsGridScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundOffWhite)
+            .background(AppBackground)
             .statusBarsPadding()
     ) {
         // Top App Bar
@@ -929,7 +935,7 @@ fun ReelSubjectsGridScreen(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
-                    tint = DeepIndigo
+                    tint = AppTextPrimary
                 )
             }
             Spacer(modifier = Modifier.width(8.dp))
@@ -938,18 +944,18 @@ fun ReelSubjectsGridScreen(
                     text = "$examName - Video Reels",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = DeepIndigo
+                    color = AppTextPrimary
                 )
                 Text(
                     text = "Select a subject to explore reels",
                     fontSize = 12.sp,
-                    color = TextSecondary
+                    color = AppTextSecondary
                 )
             }
             // + Add Subject button
             Button(
                 onClick = { showAddDialog = true },
-                colors = ButtonDefaults.buttonColors(containerColor = DeepIndigo),
+                colors = ButtonDefaults.buttonColors(containerColor = if (LocalIsDarkTheme.current) Terracotta else DeepIndigo),
                 shape = RoundedCornerShape(10.dp),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
                 modifier = Modifier.testTag("add_subject_button")
@@ -963,8 +969,8 @@ fun ReelSubjectsGridScreen(
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             contentPadding = PaddingValues(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.fillMaxSize()
         ) {
             items(examSubjects) { subject ->
@@ -978,13 +984,13 @@ fun ReelSubjectsGridScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("reel_subject_card_${subject.name.lowercase().replace(" ", "_")}"),
-                    shape = RoundedCornerShape(16.dp),
-                    elevation = 4.5.dp
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = 3.dp
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp)
+                            .padding(12.dp)
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -993,16 +999,16 @@ fun ReelSubjectsGridScreen(
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(44.dp)
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .background(TerracottaLight),
+                                    .size(38.dp)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(if (LocalIsDarkTheme.current) Color(0xFF2E1C14) else TerracottaLight),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Movie,
                                     contentDescription = null,
                                     tint = Terracotta,
-                                    modifier = Modifier.size(24.dp)
+                                    modifier = Modifier.size(20.dp)
                                 )
                             }
 
@@ -1010,13 +1016,13 @@ fun ReelSubjectsGridScreen(
                                 Row {
                                     IconButton(
                                         onClick = { editingSubject = subject },
-                                        modifier = Modifier.size(28.dp).testTag("edit_subject_${subject.id}")
+                                        modifier = Modifier.size(26.dp).testTag("edit_subject_${subject.id}")
                                     ) {
-                                        Icon(Icons.Default.Edit, contentDescription = "Edit Subject", tint = DeepIndigo, modifier = Modifier.size(14.dp))
+                                        Icon(Icons.Default.Edit, contentDescription = "Edit Subject", tint = AppTextPrimary, modifier = Modifier.size(14.dp))
                                     }
                                     IconButton(
                                         onClick = { deletingSubject = subject },
-                                        modifier = Modifier.size(28.dp).testTag("delete_subject_${subject.id}")
+                                        modifier = Modifier.size(26.dp).testTag("delete_subject_${subject.id}")
                                     ) {
                                         Icon(Icons.Default.Delete, contentDescription = "Delete Subject", tint = Terracotta, modifier = Modifier.size(14.dp))
                                     }
@@ -1024,27 +1030,27 @@ fun ReelSubjectsGridScreen(
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(14.dp))
+                        Spacer(modifier = Modifier.height(10.dp))
 
                         Text(
                             text = subject.name,
-                            fontSize = 16.sp,
+                            fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
-                            color = DeepIndigo,
+                            color = AppTextPrimary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
 
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(3.dp))
 
                         Text(
                             text = "${subjectReels.size} Reels",
-                            fontSize = 13.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.Medium,
-                            color = TextSecondary
+                            color = AppTextSecondary
                         )
 
-                        Spacer(modifier = Modifier.height(6.dp))
+                        Spacer(modifier = Modifier.height(4.dp))
 
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -1054,12 +1060,12 @@ fun ReelSubjectsGridScreen(
                                 imageVector = Icons.Default.Timer,
                                 contentDescription = null,
                                 tint = Amber,
-                                modifier = Modifier.size(13.dp)
+                                modifier = Modifier.size(12.dp)
                             )
                             Text(
                                 text = if (durationMin > 0) "${durationMin}m total" else "${totalDurationSec}s total",
                                 fontSize = 11.sp,
-                                color = TextSecondary
+                                color = AppTextSecondary
                             )
                         }
                     }
@@ -1166,7 +1172,7 @@ fun ReelSubjectDetailScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundOffWhite)
+            .background(AppBackground)
             .statusBarsPadding()
     ) {
         // Top App Bar
@@ -1185,7 +1191,7 @@ fun ReelSubjectDetailScreen(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
-                        tint = DeepIndigo
+                        tint = AppTextPrimary
                     )
                 }
                 Spacer(modifier = Modifier.width(4.dp))
@@ -1194,12 +1200,12 @@ fun ReelSubjectDetailScreen(
                         text = subjectName,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = DeepIndigo
+                        color = AppTextPrimary
                     )
                     Text(
                         text = "$examName • ${subjectReels.size} Reels",
                         fontSize = 12.sp,
-                        color = TextSecondary
+                        color = AppTextSecondary
                     )
                 }
             }
@@ -1294,12 +1300,12 @@ fun ReelSubjectDetailScreen(
                             text = "Chapters",
                             fontSize = 17.sp,
                             fontWeight = FontWeight.Bold,
-                            color = DeepIndigo
+                            color = AppTextPrimary
                         )
                         Text(
                             text = "${displayChapters.size} Chapters",
                             fontSize = 12.sp,
-                            color = TextSecondary
+                            color = AppTextSecondary
                         )
                     }
 
@@ -1317,7 +1323,7 @@ fun ReelSubjectDetailScreen(
                 }
             }
 
-            // Chapter Cards with "Watch Chapter" button & Edit/Delete
+            // Chapter Cards with "Watch Chapter" button & Edit/Delete (Compact & Proportional)
             items(displayChapters) { displayCh ->
                 val chapterName = displayCh.name.replace(Regex("[\\r\\n]+"), " ").trim()
                 val reelsInChapter = subjectReels.filter {
@@ -1325,182 +1331,238 @@ fun ReelSubjectDetailScreen(
                 }
                 val totalSec = reelsInChapter.sumOf { it.durationSeconds }
 
-                InteractiveCard(
-                    onClick = { onWatchChapter(chapterName) },
+                CompactReelChapterCard(
+                    chapterName = chapterName,
+                    canUserModify = displayCh.canUserModify,
+                    chapterId = displayCh.id,
+                    reelsInChapter = reelsInChapter,
+                    totalSec = totalSec,
+                    onWatchChapter = onWatchChapter,
+                    onSelectReel = onSelectReel,
+                    onUploadReelClick = onUploadReelClick,
+                    onUploadChapterReel = onUploadChapterReel,
+                    onEditChapter = {
+                        val chObj = curriculumChaptersForSubject.find { it.id == displayCh.id }
+                        if (chObj != null) editingChapter = chObj
+                    },
+                    onDeleteChapter = {
+                        val chObj = curriculumChaptersForSubject.find { it.id == displayCh.id }
+                        if (chObj != null) deletingChapter = chObj
+                    }
+                )
+            }
+
+            item { Spacer(modifier = Modifier.height(40.dp)) }
+        }
+    }
+}
+
+@Composable
+private fun CompactReelChapterCard(
+    chapterName: String,
+    canUserModify: Boolean,
+    chapterId: String?,
+    reelsInChapter: List<ReelEntity>,
+    totalSec: Int,
+    onWatchChapter: (String) -> Unit,
+    onSelectReel: (Long) -> Unit,
+    onUploadReelClick: () -> Unit,
+    onUploadChapterReel: ((String) -> Unit)?,
+    onEditChapter: () -> Unit,
+    onDeleteChapter: () -> Unit
+) {
+    var isExpanded by remember { mutableStateOf(false) }
+
+    InteractiveCard(
+        onClick = { onWatchChapter(chapterName) },
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("chapter_card_${chapterName.lowercase().replace(" ", "_")}"),
+        shape = RoundedCornerShape(12.dp),
+        elevation = 3.dp
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 10.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Leading Icon Badge
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .testTag("chapter_card_${chapterName.lowercase().replace(" ", "_")}"),
-                    shape = RoundedCornerShape(16.dp),
-                    elevation = 4.dp
+                        .size(36.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(if (LocalIsDarkTheme.current) Color(0xFF2E1C14) else TerracottaLight),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 14.dp)
+                    Icon(
+                        imageVector = Icons.Default.Movie,
+                        contentDescription = null,
+                        tint = Terracotta,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+                // Title and details
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = chapterName,
+                        fontSize = 14.5.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = AppTextPrimary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        // 1. Chapter Title Row (Full width with 2 lines max & ellipsis)
                         Text(
-                            text = chapterName,
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = DeepIndigo,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                            lineHeight = 20.sp
+                            text = "${reelsInChapter.size} reels • ${totalSec}s",
+                            fontSize = 11.5.sp,
+                            color = AppTextSecondary
                         )
-
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        // 2. Metadata Stats and Action Controls
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            // Left: reels count and duration
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                modifier = Modifier.weight(1f, fill = false)
-                            ) {
-                                Text(
-                                    text = "${reelsInChapter.size} reels",
-                                    fontSize = 12.sp,
-                                    color = TextSecondary
-                                )
-                                Text("•", fontSize = 12.sp, color = TextSecondary)
-                                Text(
-                                    text = "${totalSec}s total",
-                                    fontSize = 12.sp,
-                                    color = TextSecondary
-                                )
-                                if (displayCh.canUserModify) {
-                                    Text("•", fontSize = 12.sp, color = TextSecondary)
-                                    Text(
-                                        text = "Your chapter",
-                                        fontSize = 11.sp,
-                                        fontWeight = FontWeight.Medium,
-                                        color = SageGreen
-                                    )
-                                }
-                            }
-
-                            // Right: Action buttons (Edit/Delete + Upload + Watch)
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                if (displayCh.canUserModify && displayCh.id != null) {
-                                    IconButton(
-                                        onClick = {
-                                            val chObj = curriculumChaptersForSubject.find { it.id == displayCh.id }
-                                            if (chObj != null) editingChapter = chObj
-                                        },
-                                        modifier = Modifier.size(30.dp).testTag("edit_chapter_${displayCh.id}")
-                                    ) {
-                                        Icon(Icons.Default.Edit, contentDescription = "Edit Chapter", tint = DeepIndigo, modifier = Modifier.size(15.dp))
-                                    }
-                                    IconButton(
-                                        onClick = {
-                                            val chObj = curriculumChaptersForSubject.find { it.id == displayCh.id }
-                                            if (chObj != null) deletingChapter = chObj
-                                        },
-                                        modifier = Modifier.size(30.dp).testTag("delete_chapter_${displayCh.id}")
-                                    ) {
-                                        Icon(Icons.Default.Delete, contentDescription = "Delete Chapter", tint = Terracotta, modifier = Modifier.size(15.dp))
-                                    }
-                                }
-
-                                IconButton(
-                                    onClick = {
-                                        if (onUploadChapterReel != null) {
-                                            onUploadChapterReel(chapterName)
-                                        } else {
-                                            onUploadReelClick()
-                                        }
-                                    },
-                                    modifier = Modifier
-                                        .size(30.dp)
-                                        .testTag("upload_chapter_${chapterName.lowercase().replace(" ", "_")}")
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.CloudUpload,
-                                        contentDescription = "Upload Reel for $chapterName",
-                                        tint = Terracotta,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                }
-
-                                Button(
-                                    onClick = { onWatchChapter(chapterName) },
-                                    colors = ButtonDefaults.buttonColors(containerColor = DeepIndigo),
-                                    shape = RoundedCornerShape(10.dp),
-                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-                                    modifier = Modifier
-                                        .height(34.dp)
-                                        .testTag("watch_chapter_${chapterName.lowercase().replace(" ", "_")}")
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.PlayArrow,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(15.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(3.dp))
-                                    Text("Watch", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-                                }
-                            }
+                        if (canUserModify) {
+                            Text("•", fontSize = 11.sp, color = AppTextSecondary)
+                            Text(
+                                text = "Your chapter",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = SageGreen
+                            )
                         }
+                    }
+                }
 
-                        // Preview of reels inside chapter
-                        if (reelsInChapter.isNotEmpty()) {
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                reelsInChapter.forEach { reel ->
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clip(RoundedCornerShape(10.dp))
-                                            .background(Color(0xFFF8FAFC))
-                                            .clickable { onSelectReel(reel.id) }
-                                            .padding(horizontal = 12.dp, vertical = 8.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Row(
-                                            modifier = Modifier.weight(1f),
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.PlayCircle,
-                                                contentDescription = null,
-                                                tint = Terracotta,
-                                                modifier = Modifier.size(18.dp)
-                                            )
-                                            Text(
-                                                text = reel.title,
-                                                fontSize = 13.sp,
-                                                fontWeight = FontWeight.Medium,
-                                                color = TextPrimary,
-                                                maxLines = 1,
-                                                overflow = TextOverflow.Ellipsis
-                                            )
-                                        }
-                                        Text(
-                                            text = "${reel.durationSeconds}s",
-                                            fontSize = 11.sp,
-                                            color = TextSecondary,
-                                            fontWeight = FontWeight.SemiBold
-                                        )
-                                    }
-                                }
+                Spacer(modifier = Modifier.width(6.dp))
+
+                // Action controls
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    if (canUserModify && chapterId != null) {
+                        IconButton(
+                            onClick = onEditChapter,
+                            modifier = Modifier.size(26.dp).testTag("edit_chapter_$chapterId")
+                        ) {
+                            Icon(Icons.Default.Edit, contentDescription = "Edit Chapter", tint = AppTextPrimary, modifier = Modifier.size(14.dp))
+                        }
+                        IconButton(
+                            onClick = onDeleteChapter,
+                            modifier = Modifier.size(26.dp).testTag("delete_chapter_$chapterId")
+                        ) {
+                            Icon(Icons.Default.Delete, contentDescription = "Delete Chapter", tint = Terracotta, modifier = Modifier.size(14.dp))
+                        }
+                    }
+
+                    IconButton(
+                        onClick = {
+                            if (onUploadChapterReel != null) {
+                                onUploadChapterReel(chapterName)
+                            } else {
+                                onUploadReelClick()
                             }
+                        },
+                        modifier = Modifier
+                            .size(28.dp)
+                            .testTag("upload_chapter_${chapterName.lowercase().replace(" ", "_")}")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.CloudUpload,
+                            contentDescription = "Upload Reel for $chapterName",
+                            tint = Terracotta,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+
+                    Button(
+                        onClick = { onWatchChapter(chapterName) },
+                        colors = ButtonDefaults.buttonColors(containerColor = if (LocalIsDarkTheme.current) Terracotta else DeepIndigo),
+                        shape = RoundedCornerShape(8.dp),
+                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                        modifier = Modifier
+                            .height(30.dp)
+                            .testTag("watch_chapter_${chapterName.lowercase().replace(" ", "_")}")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.PlayArrow,
+                            contentDescription = null,
+                            modifier = Modifier.size(13.dp)
+                        )
+                        Spacer(modifier = Modifier.width(2.dp))
+                        Text("Watch", fontSize = 11.5.sp, fontWeight = FontWeight.SemiBold)
+                    }
+
+                    if (reelsInChapter.isNotEmpty()) {
+                        IconButton(
+                            onClick = { isExpanded = !isExpanded },
+                            modifier = Modifier.size(26.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.ArrowDropDown,
+                                contentDescription = if (isExpanded) "Collapse" else "Expand",
+                                tint = AppTextSecondary,
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .rotate(if (isExpanded) 180f else 0f)
+                            )
                         }
                     }
                 }
             }
 
-            item { Spacer(modifier = Modifier.height(40.dp)) }
+            // Expanded preview of reels inside chapter
+            if (isExpanded && reelsInChapter.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    reelsInChapter.forEach { reel ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(AppSurfaceElevated)
+                                .clickable { onSelectReel(reel.id) }
+                                .padding(horizontal = 10.dp, vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(
+                                modifier = Modifier.weight(1f),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.PlayCircle,
+                                    contentDescription = null,
+                                    tint = Terracotta,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Text(
+                                    text = reel.title,
+                                    fontSize = 12.5.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = AppTextPrimary,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                            Text(
+                                text = "${reel.durationSeconds}s",
+                                fontSize = 11.sp,
+                                color = AppTextSecondary,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -1784,10 +1846,11 @@ fun ReelFeedScreen(
     if (showChaptersSheet && feedReels.isNotEmpty()) {
         ModalBottomSheet(
             onDismissRequest = { showChaptersSheet = false },
-            containerColor = SurfaceWhite,
+            containerColor = AppSurface,
             shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
         ) {
             val chapters = remember(feedReels) { feedReels.map { it.chapter }.distinct() }
+            val isDark = LocalIsDarkTheme.current
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -1797,7 +1860,7 @@ fun ReelFeedScreen(
                     text = "Jump to Chapter",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = DeepIndigo
+                    color = AppTextPrimary
                 )
                 Spacer(modifier = Modifier.height(14.dp))
                 LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1808,7 +1871,7 @@ fun ReelFeedScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(if (isCurrent) TerracottaLight else BackgroundOffWhite)
+                                .background(if (isCurrent) (if (isDark) Color(0xFF3B1E16) else TerracottaLight) else AppSurfaceElevated)
                                 .clickable {
                                     if (firstIndex >= 0) {
                                         coroutineScope.launch {
@@ -1825,7 +1888,7 @@ fun ReelFeedScreen(
                                 text = chapter,
                                 fontSize = 15.sp,
                                 fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Medium,
-                                color = if (isCurrent) Terracotta else DeepIndigo
+                                color = if (isCurrent) Terracotta else AppTextPrimary
                             )
                             if (isCurrent) {
                                 Icon(Icons.Default.PlayArrow, contentDescription = null, tint = Terracotta)
@@ -2928,8 +2991,8 @@ fun UploadReelDialog(
                 if (selectedVideos.isEmpty()) {
                     Surface(
                         shape = RoundedCornerShape(10.dp),
-                        color = BackgroundOffWhite,
-                        border = BorderStroke(1.dp, CardBorder),
+                        color = AppSurfaceElevated,
+                        border = BorderStroke(1.dp, AppBorder),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(
@@ -2942,7 +3005,7 @@ fun UploadReelDialog(
                                 text = "No videos selected yet",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Medium,
-                                color = TextSecondary
+                                color = AppTextSecondary
                             )
                             Text(
                                 text = "Select 1 or multiple videos above. File names will auto-fill as titles (extension stripped).",
@@ -3055,8 +3118,8 @@ fun UploadReelDialog(
                             selectedVideos.forEachIndexed { index, item ->
                                 Card(
                                     shape = RoundedCornerShape(10.dp),
-                                    colors = CardDefaults.cardColors(containerColor = BackgroundOffWhite),
-                                    border = BorderStroke(1.dp, CardBorder),
+                                    colors = CardDefaults.cardColors(containerColor = AppSurfaceElevated),
+                                    border = BorderStroke(1.dp, AppBorder),
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
                                     Column(
@@ -3072,12 +3135,12 @@ fun UploadReelDialog(
                                                 verticalAlignment = Alignment.CenterVertically,
                                                 horizontalArrangement = Arrangement.spacedBy(6.dp)
                                             ) {
-                                                Icon(Icons.Default.Movie, contentDescription = null, tint = DeepIndigo, modifier = Modifier.size(14.dp))
+                                                Icon(Icons.Default.Movie, contentDescription = null, tint = AppTextPrimary, modifier = Modifier.size(14.dp))
                                                 Text(
                                                     text = "Reel #${index + 1}",
                                                     fontSize = 11.sp,
                                                     fontWeight = FontWeight.Bold,
-                                                    color = DeepIndigo
+                                                    color = AppTextPrimary
                                                 )
                                             }
 
@@ -3138,10 +3201,10 @@ fun UploadReelDialog(
                             shape = RoundedCornerShape(10.dp),
                             border = BorderStroke(
                                 if (!isSelfStudyMode) 2.dp else 1.dp,
-                                if (!isSelfStudyMode) DeepIndigo else CardBorder
+                                if (!isSelfStudyMode) DeepIndigo else AppBorder
                             ),
                             colors = CardDefaults.outlinedCardColors(
-                                containerColor = if (!isSelfStudyMode) DeepIndigoSubtle else BackgroundOffWhite
+                                containerColor = if (!isSelfStudyMode) (if (LocalIsDarkTheme.current) Color(0xFF1E2640) else DeepIndigoSubtle) else AppSurface
                             )
                         ) {
                             Row(
@@ -3159,7 +3222,7 @@ fun UploadReelDialog(
                                     text = "Exam Course",
                                     fontSize = 12.sp,
                                     fontWeight = if (!isSelfStudyMode) FontWeight.Bold else FontWeight.Normal,
-                                    color = if (!isSelfStudyMode) DeepIndigo else TextSecondary
+                                    color = if (!isSelfStudyMode) DeepIndigo else AppTextSecondary
                                 )
                             }
                         }
@@ -3176,10 +3239,10 @@ fun UploadReelDialog(
                             shape = RoundedCornerShape(10.dp),
                             border = BorderStroke(
                                 if (isSelfStudyMode) 2.dp else 1.dp,
-                                if (isSelfStudyMode) DeepIndigo else CardBorder
+                                if (isSelfStudyMode) DeepIndigo else AppBorder
                             ),
                             colors = CardDefaults.outlinedCardColors(
-                                containerColor = if (isSelfStudyMode) DeepIndigoSubtle else BackgroundOffWhite
+                                containerColor = if (isSelfStudyMode) (if (LocalIsDarkTheme.current) Color(0xFF1E2640) else DeepIndigoSubtle) else AppSurface
                             )
                         ) {
                             Row(
@@ -3197,7 +3260,7 @@ fun UploadReelDialog(
                                     text = "Self-Study",
                                     fontSize = 12.sp,
                                     fontWeight = if (isSelfStudyMode) FontWeight.Bold else FontWeight.Normal,
-                                    color = if (isSelfStudyMode) DeepIndigo else TextSecondary
+                                    color = if (isSelfStudyMode) DeepIndigo else AppTextSecondary
                                 )
                             }
                         }
@@ -3220,8 +3283,8 @@ fun UploadReelDialog(
                                     .fillMaxWidth()
                                     .testTag("upload_select_exam"),
                                 shape = RoundedCornerShape(10.dp),
-                                border = BorderStroke(1.dp, CardBorder),
-                                colors = CardDefaults.outlinedCardColors(containerColor = BackgroundOffWhite)
+                                border = BorderStroke(1.dp, AppBorder),
+                                colors = CardDefaults.outlinedCardColors(containerColor = AppSurfaceElevated)
                             ) {
                                 Row(
                                     modifier = Modifier
@@ -3240,7 +3303,7 @@ fun UploadReelDialog(
                                             text = selectedExam.ifBlank { "Select Exam" },
                                             fontSize = 13.sp,
                                             fontWeight = FontWeight.Medium,
-                                            color = TextPrimary,
+                                            color = AppTextPrimary,
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis
                                         )
@@ -3307,8 +3370,8 @@ fun UploadReelDialog(
                                 .fillMaxWidth()
                                 .testTag("upload_select_subject"),
                             shape = RoundedCornerShape(10.dp),
-                            border = BorderStroke(1.dp, CardBorder),
-                            colors = CardDefaults.outlinedCardColors(containerColor = BackgroundOffWhite)
+                            border = BorderStroke(1.dp, AppBorder),
+                            colors = CardDefaults.outlinedCardColors(containerColor = AppSurfaceElevated)
                         ) {
                             Row(
                                 modifier = Modifier
@@ -3327,7 +3390,7 @@ fun UploadReelDialog(
                                         text = selectedSubject.ifBlank { "Select Subject" },
                                         fontSize = 13.sp,
                                         fontWeight = FontWeight.Medium,
-                                        color = TextPrimary,
+                                        color = AppTextPrimary,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis
                                     )
@@ -3393,8 +3456,8 @@ fun UploadReelDialog(
                                 .fillMaxWidth()
                                 .testTag("upload_select_chapter"),
                             shape = RoundedCornerShape(10.dp),
-                            border = BorderStroke(1.dp, CardBorder),
-                            colors = CardDefaults.outlinedCardColors(containerColor = BackgroundOffWhite)
+                            border = BorderStroke(1.dp, AppBorder),
+                            colors = CardDefaults.outlinedCardColors(containerColor = AppSurfaceElevated)
                         ) {
                             Row(
                                 modifier = Modifier
@@ -3413,7 +3476,7 @@ fun UploadReelDialog(
                                         text = selectedChapter.ifBlank { "Select Chapter" },
                                         fontSize = 13.sp,
                                         fontWeight = FontWeight.Medium,
-                                        color = if (selectedChapter.startsWith("Entire Subject")) Terracotta else TextPrimary,
+                                        color = if (selectedChapter.startsWith("Entire Subject")) Terracotta else AppTextPrimary,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis
                                     )
@@ -3577,10 +3640,10 @@ fun UploadReelDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel", color = TextSecondary)
+                Text("Cancel", color = AppTextSecondary)
             }
         },
-        containerColor = SurfaceWhite,
+        containerColor = AppSurface,
         shape = RoundedCornerShape(18.dp)
     )
 }
@@ -3606,10 +3669,12 @@ fun ReelTestExamsScreen(
         subjects.filter { it.isStandalone }
     }
 
+    val isDark = LocalIsDarkTheme.current
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundOffWhite)
+            .background(AppBackground)
             .statusBarsPadding()
     ) {
         Column(
@@ -3631,7 +3696,7 @@ fun ReelTestExamsScreen(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
-                        tint = DeepIndigo
+                        tint = AppTextPrimary
                     )
                 }
                 Spacer(modifier = Modifier.width(8.dp))
@@ -3640,12 +3705,12 @@ fun ReelTestExamsScreen(
                         text = "Reels Practice Test",
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
-                        color = DeepIndigo
+                        color = AppTextPrimary
                     )
                     Text(
                         text = "Tests generated exclusively from video reels",
                         fontSize = 12.sp,
-                        color = TextSecondary
+                        color = AppTextSecondary
                     )
                 }
             }
@@ -3662,7 +3727,7 @@ fun ReelTestExamsScreen(
                         text = "Select Exam Course",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = TextSecondary
+                        color = AppTextSecondary
                     )
                 }
 
@@ -3706,14 +3771,14 @@ fun ReelTestExamsScreen(
                                     text = exam.name,
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = DeepIndigo
+                                    color = AppTextPrimary
                                 )
                                 if (exam.subtitle.isNotBlank()) {
                                     Spacer(modifier = Modifier.height(3.dp))
                                     Text(
                                         text = exam.subtitle,
                                         fontSize = 12.sp,
-                                        color = TextSecondary,
+                                        color = AppTextSecondary,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis
                                     )
@@ -3722,14 +3787,14 @@ fun ReelTestExamsScreen(
                                 Box(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(8.dp))
-                                        .background(if (qCount > 0) TerracottaLight else Color(0xFFE2E8F0))
+                                        .background(if (qCount > 0) (if (isDark) Color(0xFF3B1E16) else TerracottaLight) else AppSurfaceElevated)
                                         .padding(horizontal = 8.dp, vertical = 2.dp)
                                 ) {
                                     Text(
                                         text = if (qCount > 0) "$qCount Reel Questions" else "0 Questions",
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.SemiBold,
-                                        color = if (qCount > 0) Terracotta else TextSecondary
+                                        color = if (qCount > 0) Terracotta else AppTextSecondary
                                     )
                                 }
                             }
@@ -3737,7 +3802,7 @@ fun ReelTestExamsScreen(
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                                 contentDescription = null,
-                                tint = DeepIndigo
+                                tint = AppTextPrimary
                             )
                         }
                     }
@@ -3750,7 +3815,7 @@ fun ReelTestExamsScreen(
                         text = "Self-Study & Micro-Learning",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = TextSecondary
+                        color = AppTextSecondary
                     )
                 }
 
@@ -3793,14 +3858,14 @@ fun ReelTestExamsScreen(
                                     text = subject.name,
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = DeepIndigo
+                                    color = AppTextPrimary
                                 )
                                 if (subject.subtitle.isNotBlank()) {
                                     Spacer(modifier = Modifier.height(3.dp))
                                     Text(
                                         text = subject.subtitle,
                                         fontSize = 12.sp,
-                                        color = TextSecondary,
+                                        color = AppTextSecondary,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis
                                     )
@@ -3809,14 +3874,14 @@ fun ReelTestExamsScreen(
                                 Box(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(8.dp))
-                                        .background(if (qCount > 0) TerracottaLight else Color(0xFFE2E8F0))
+                                        .background(if (qCount > 0) (if (isDark) Color(0xFF3B1E16) else TerracottaLight) else AppSurfaceElevated)
                                         .padding(horizontal = 8.dp, vertical = 2.dp)
                                 ) {
                                     Text(
                                         text = if (qCount > 0) "$qCount Reel Questions" else "0 Questions",
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.SemiBold,
-                                        color = if (qCount > 0) Terracotta else TextSecondary
+                                        color = if (qCount > 0) Terracotta else AppTextSecondary
                                     )
                                 }
                             }
@@ -3824,7 +3889,7 @@ fun ReelTestExamsScreen(
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                                 contentDescription = null,
-                                tint = DeepIndigo
+                                tint = AppTextPrimary
                             )
                         }
                     }
@@ -3855,7 +3920,7 @@ fun ReelTestSubjectsGridScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundOffWhite)
+            .background(AppBackground)
             .statusBarsPadding()
     ) {
         // Top App Bar
@@ -3872,7 +3937,7 @@ fun ReelTestSubjectsGridScreen(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
-                    tint = DeepIndigo
+                    tint = AppTextPrimary
                 )
             }
             Spacer(modifier = Modifier.width(8.dp))
@@ -3881,12 +3946,12 @@ fun ReelTestSubjectsGridScreen(
                     text = "$examName - Reels Test",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = DeepIndigo
+                    color = AppTextPrimary
                 )
                 Text(
                     text = "Select a subject to practice questions",
                     fontSize = 12.sp,
-                    color = TextSecondary
+                    color = AppTextSecondary
                 )
             }
         }
@@ -3935,7 +4000,7 @@ fun ReelTestSubjectsGridScreen(
                             text = subject.name,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
-                            color = DeepIndigo,
+                            color = AppTextPrimary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -3946,14 +4011,14 @@ fun ReelTestSubjectsGridScreen(
                             text = if (qCount > 0) "$qCount Questions" else "0 Questions",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Medium,
-                            color = if (qCount > 0) Terracotta else TextSecondary
+                            color = if (qCount > 0) Terracotta else AppTextSecondary
                         )
 
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "Tap to practice",
                             fontSize = 11.sp,
-                            color = TextSecondary
+                            color = AppTextSecondary
                         )
                     }
                 }
@@ -3995,7 +4060,7 @@ fun ReelTestSubjectDetailScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundOffWhite)
+            .background(AppBackground)
             .statusBarsPadding()
     ) {
         // Top App Bar
@@ -4012,7 +4077,7 @@ fun ReelTestSubjectDetailScreen(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
-                    tint = DeepIndigo
+                    tint = AppTextPrimary
                 )
             }
             Spacer(modifier = Modifier.width(4.dp))
@@ -4021,12 +4086,12 @@ fun ReelTestSubjectDetailScreen(
                     text = subjectName,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = DeepIndigo
+                    color = AppTextPrimary
                 )
                 Text(
                     text = "$examName • ${subjectReelQuestions.size} Reel Questions",
                     fontSize = 12.sp,
-                    color = TextSecondary
+                    color = AppTextSecondary
                 )
             }
         }
@@ -4108,12 +4173,12 @@ fun ReelTestSubjectDetailScreen(
                         text = "Chapters",
                         fontSize = 17.sp,
                         fontWeight = FontWeight.Bold,
-                        color = DeepIndigo
+                        color = AppTextPrimary
                     )
                     Text(
                         text = "${subjectChapters.size} Chapters",
                         fontSize = 12.sp,
-                        color = TextSecondary
+                        color = AppTextSecondary
                     )
                 }
             }
@@ -4134,13 +4199,13 @@ fun ReelTestSubjectDetailScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("reel_test_chapter_${chapterName.lowercase().replace(" ", "_")}"),
-                    shape = RoundedCornerShape(16.dp),
-                    elevation = 4.dp
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = 2.dp
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp)
+                            .padding(12.dp)
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -4150,15 +4215,15 @@ fun ReelTestSubjectDetailScreen(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = chapterName,
-                                    fontSize = 16.sp,
+                                    fontSize = 15.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = DeepIndigo
+                                    color = AppTextPrimary
                                 )
-                                Spacer(modifier = Modifier.height(4.dp))
+                                Spacer(modifier = Modifier.height(2.dp))
                                 Text(
                                     text = if (hasQuestions) "${chapterQuestions.size} Reel Questions" else "No questions yet",
                                     fontSize = 12.sp,
-                                    color = if (hasQuestions) Terracotta else TextSecondary,
+                                    color = if (hasQuestions) Terracotta else AppTextSecondary,
                                     fontWeight = if (hasQuestions) FontWeight.SemiBold else FontWeight.Normal
                                 )
                             }
@@ -4251,9 +4316,11 @@ fun ReelQuestionsHubSheet(
     onOpenCsvImport: () -> Unit,
     onOpenSingleAdd: () -> Unit
 ) {
+    val isDark = LocalIsDarkTheme.current
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = SurfaceWhite,
+        containerColor = AppSurface,
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
         Column(
@@ -4270,7 +4337,7 @@ fun ReelQuestionsHubSheet(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
-                        .background(TerracottaLight)
+                        .background(if (isDark) Color(0xFF3B1E16) else TerracottaLight)
                         .padding(horizontal = 12.dp, vertical = 5.dp)
                 ) {
                     Text(
@@ -4281,7 +4348,7 @@ fun ReelQuestionsHubSheet(
                     )
                 }
                 IconButton(onClick = onDismiss, modifier = Modifier.testTag("dismiss_reel_hub_sheet")) {
-                    Icon(Icons.Default.Close, contentDescription = "Close", tint = DeepIndigo)
+                    Icon(Icons.Default.Close, contentDescription = "Close", tint = AppTextPrimary)
                 }
             }
 
@@ -4291,12 +4358,12 @@ fun ReelQuestionsHubSheet(
                 text = reel.title,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = DeepIndigo
+                color = AppTextPrimary
             )
             Text(
                 text = "${reel.subject} • ${reel.chapter}",
                 fontSize = 13.sp,
-                color = TextSecondary
+                color = AppTextSecondary
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -4306,7 +4373,7 @@ fun ReelQuestionsHubSheet(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(14.dp),
-                    colors = CardDefaults.cardColors(containerColor = SageGreenLight),
+                    colors = CardDefaults.cardColors(containerColor = if (isDark) Color(0xFF163324) else SageGreenLight),
                     border = BorderStroke(1.dp, SageGreen.copy(alpha = 0.3f))
                 ) {
                     Column(modifier = Modifier.padding(14.dp)) {
@@ -4325,7 +4392,7 @@ fun ReelQuestionsHubSheet(
                                 Text(
                                     text = "Test your recall right now based on this video",
                                     fontSize = 12.sp,
-                                    color = DeepIndigo
+                                    color = AppTextPrimary
                                 )
                             }
                             Button(
@@ -4345,21 +4412,21 @@ fun ReelQuestionsHubSheet(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(14.dp),
-                    colors = CardDefaults.cardColors(containerColor = BackgroundOffWhite),
-                    border = BorderStroke(1.dp, CardBorder)
+                    colors = CardDefaults.cardColors(containerColor = AppSurfaceElevated),
+                    border = BorderStroke(1.dp, AppBorder)
                 ) {
                     Column(modifier = Modifier.padding(14.dp)) {
                         Text(
                             text = "💡 No questions added yet for this reel",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
-                            color = DeepIndigo
+                            color = AppTextPrimary
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "Add 3 to 5 questions or import from CSV so learners can practice active recall after watching this concept!",
                             fontSize = 12.sp,
-                            color = TextSecondary
+                            color = AppTextSecondary
                         )
                     }
                 }
@@ -4371,7 +4438,7 @@ fun ReelQuestionsHubSheet(
                 text = "Add Questions to this Reel",
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
-                color = DeepIndigo
+                color = AppTextPrimary
             )
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -4383,7 +4450,7 @@ fun ReelQuestionsHubSheet(
                     .clickable { onOpenBulkAdd() }
                     .testTag("action_open_bulk_add_reel"),
                 shape = RoundedCornerShape(14.dp),
-                colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+                colors = CardDefaults.cardColors(containerColor = AppSurfaceElevated),
                 border = BorderStroke(1.5.dp, Terracotta)
             ) {
                 Row(
@@ -4394,7 +4461,7 @@ fun ReelQuestionsHubSheet(
                         modifier = Modifier
                             .size(42.dp)
                             .clip(CircleShape)
-                            .background(TerracottaLight),
+                            .background(if (isDark) Color(0xFF3B1E16) else TerracottaLight),
                         contentAlignment = Alignment.Center
                     ) {
                         Text("⚡", fontSize = 20.sp)
@@ -4405,12 +4472,12 @@ fun ReelQuestionsHubSheet(
                             text = "Bulk Add (3–5+ Questions)",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
-                            color = DeepIndigo
+                            color = AppTextPrimary
                         )
                         Text(
                             text = "Draft multiple questions with options in a single screen",
                             fontSize = 12.sp,
-                            color = TextSecondary
+                            color = AppTextSecondary
                         )
                     }
                 }
@@ -4426,8 +4493,8 @@ fun ReelQuestionsHubSheet(
                     .clickable { onOpenCsvImport() }
                     .testTag("action_open_csv_import_reel"),
                 shape = RoundedCornerShape(14.dp),
-                colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-                border = BorderStroke(1.5.dp, DeepIndigo)
+                colors = CardDefaults.cardColors(containerColor = AppSurfaceElevated),
+                border = BorderStroke(1.5.dp, if (isDark) Color(0xFF5C6BC0) else DeepIndigo)
             ) {
                 Row(
                     modifier = Modifier.padding(14.dp),
@@ -4437,10 +4504,10 @@ fun ReelQuestionsHubSheet(
                         modifier = Modifier
                             .size(42.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFFEAEDF3)),
+                            .background(if (isDark) Color(0xFF1E2640) else Color(0xFFEAEDF3)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Default.UploadFile, contentDescription = null, tint = DeepIndigo)
+                        Icon(Icons.Default.UploadFile, contentDescription = null, tint = if (isDark) Color(0xFF90CAF9) else DeepIndigo)
                     }
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
@@ -4448,12 +4515,12 @@ fun ReelQuestionsHubSheet(
                             text = "Import CSV or Text File",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
-                            color = DeepIndigo
+                            color = AppTextPrimary
                         )
                         Text(
                             text = "Upload .csv file with 3 to 5+ questions or paste spreadsheet rows",
                             fontSize = 12.sp,
-                            color = TextSecondary
+                            color = AppTextSecondary
                         )
                     }
                 }
@@ -4469,8 +4536,8 @@ fun ReelQuestionsHubSheet(
                     .clickable { onOpenSingleAdd() }
                     .testTag("action_open_single_add_reel"),
                 shape = RoundedCornerShape(14.dp),
-                colors = CardDefaults.cardColors(containerColor = BackgroundOffWhite),
-                border = BorderStroke(1.dp, CardBorder)
+                colors = CardDefaults.cardColors(containerColor = AppSurfaceElevated),
+                border = BorderStroke(1.dp, AppBorder)
             ) {
                 Row(
                     modifier = Modifier.padding(14.dp),
@@ -4480,10 +4547,10 @@ fun ReelQuestionsHubSheet(
                         modifier = Modifier
                             .size(42.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFFEAEDF3)),
+                            .background(if (isDark) Color(0xFF1E2640) else Color(0xFFEAEDF3)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = null, tint = DeepIndigo)
+                        Icon(Icons.Default.Add, contentDescription = null, tint = if (isDark) Color(0xFF90CAF9) else DeepIndigo)
                     }
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
@@ -4491,12 +4558,12 @@ fun ReelQuestionsHubSheet(
                             text = "Single Question",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = DeepIndigo
+                            color = AppTextPrimary
                         )
                         Text(
                             text = "Manually add one question at a time",
                             fontSize = 12.sp,
-                            color = TextSecondary
+                            color = AppTextSecondary
                         )
                     }
                 }
@@ -4509,7 +4576,7 @@ fun ReelQuestionsHubSheet(
                     text = "Current Questions (${questions.size})",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = DeepIndigo
+                    color = AppTextPrimary
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 questions.forEachIndexed { qIdx, q ->
@@ -4518,15 +4585,15 @@ fun ReelQuestionsHubSheet(
                             .fillMaxWidth()
                             .padding(vertical = 4.dp),
                         shape = RoundedCornerShape(10.dp),
-                        colors = CardDefaults.cardColors(containerColor = BackgroundOffWhite),
-                        border = BorderStroke(1.dp, CardBorder)
+                        colors = CardDefaults.cardColors(containerColor = AppSurfaceElevated),
+                        border = BorderStroke(1.dp, AppBorder)
                     ) {
                         Column(modifier = Modifier.padding(10.dp)) {
                             Text(
                                 text = "Q${qIdx + 1}: ${q.questionText}",
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = DeepIndigo
+                                color = AppTextPrimary
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
@@ -4557,6 +4624,7 @@ fun ReelPracticeQuizSheet(
     questions: List<QuestionEntity>,
     onDismiss: () -> Unit
 ) {
+    val isDark = LocalIsDarkTheme.current
     var currentIndex by remember { mutableIntStateOf(0) }
     var selectedOption by remember { mutableStateOf<Int?>(null) }
     var hasAnswered by remember { mutableStateOf(false) }
@@ -4565,7 +4633,7 @@ fun ReelPracticeQuizSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = SurfaceWhite,
+        containerColor = AppSurface,
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
         Column(
@@ -4583,10 +4651,10 @@ fun ReelPracticeQuizSheet(
                     text = "🎯 Reel Quiz: ${reel.chapter}",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = DeepIndigo
+                    color = AppTextPrimary
                 )
                 IconButton(onClick = onDismiss) {
-                    Icon(Icons.Default.Close, contentDescription = "Close", tint = DeepIndigo)
+                    Icon(Icons.Default.Close, contentDescription = "Close", tint = AppTextPrimary)
                 }
             }
 
@@ -4619,14 +4687,14 @@ fun ReelPracticeQuizSheet(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(14.dp),
-                    colors = CardDefaults.cardColors(containerColor = BackgroundOffWhite),
-                    border = BorderStroke(1.dp, CardBorder)
+                    colors = CardDefaults.cardColors(containerColor = AppSurfaceElevated),
+                    border = BorderStroke(1.dp, AppBorder)
                 ) {
                     Text(
                         text = currentQ.questionText,
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
-                        color = DeepIndigo,
+                        color = AppTextPrimary,
                         modifier = Modifier.padding(16.dp)
                     )
                 }
@@ -4648,17 +4716,17 @@ fun ReelPracticeQuizSheet(
                     val isCorrect = idx == currentQ.correctAnswerIndex
                     val isSelected = selectedOption == idx
                     val cardBg = when {
-                        !hasAnswered -> SurfaceWhite
-                        isSelected && isCorrect -> SageGreenLight
-                        isSelected && !isCorrect -> Color(0xFFFFEBEE)
-                        isCorrect -> SageGreenLight
-                        else -> SurfaceWhite
+                        !hasAnswered -> AppSurfaceElevated
+                        isSelected && isCorrect -> if (isDark) Color(0xFF163324) else SageGreenLight
+                        isSelected && !isCorrect -> if (isDark) Color(0xFF3B1E16) else Color(0xFFFFEBEE)
+                        isCorrect -> if (isDark) Color(0xFF163324) else SageGreenLight
+                        else -> AppSurfaceElevated
                     }
                     val borderCol = when {
-                        !hasAnswered && isSelected -> DeepIndigo
+                        !hasAnswered && isSelected -> if (isDark) Color(0xFF90CAF9) else DeepIndigo
                         hasAnswered && isCorrect -> SageGreen
                         hasAnswered && isSelected && !isCorrect -> Color.Red
-                        else -> CardBorder
+                        else -> AppBorder
                     }
 
                     Card(
@@ -4685,7 +4753,7 @@ fun ReelPracticeQuizSheet(
                                 text = "${('A' + idx)}. $optText",
                                 fontSize = 14.sp,
                                 fontWeight = if (isSelected || (hasAnswered && isCorrect)) FontWeight.Bold else FontWeight.Normal,
-                                color = DeepIndigo,
+                                color = AppTextPrimary,
                                 modifier = Modifier.weight(1f)
                             )
                             if (hasAnswered && isCorrect) {
@@ -4728,7 +4796,7 @@ fun ReelPracticeQuizSheet(
                         .padding(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("🎉 Quiz Complete!", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = DeepIndigo)
+                    Text("🎉 Quiz Complete!", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = AppTextPrimary)
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
                         text = "You scored $score / ${questions.size}",
@@ -4740,7 +4808,7 @@ fun ReelPracticeQuizSheet(
                     Text(
                         text = if (score == questions.size) "Perfect recall! Knowledge retained." else "Great active practice! Keep repeating for maximum retention.",
                         fontSize = 13.sp,
-                        color = TextSecondary,
+                        color = AppTextSecondary,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
                     Spacer(modifier = Modifier.height(24.dp))

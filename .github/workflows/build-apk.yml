@@ -59,29 +59,23 @@ jobs:
           echo "=== Debug Keystore Setup ==="
           KEYSTORE_PATH="./debug.keystore"
           if [ -f "$KEYSTORE_PATH" ]; then
-            echo "Debug keystore already exists at $KEYSTORE_PATH."
+            echo "Debug keystore found directly at $KEYSTORE_PATH."
           elif [ -f "./debug.keystore.base64" ]; then
             echo "Restoring persistent debug keystore from debug.keystore.base64..."
             base64 -d ./debug.keystore.base64 > "$KEYSTORE_PATH"
           else
-            echo "Debug keystore missing. Generating temporary debug keystore..."
-            "$JAVA_HOME/bin/keytool" -genkey -v \
-              -keystore "$KEYSTORE_PATH" \
-              -storepass android \
-              -alias androiddebugkey \
-              -keypass android \
-              -dname "CN=Android Debug,O=Android,C=US" \
-              -keyalg RSA \
-              -keysize 2048 \
-              -validity 10000
-          fi
-
-          if [ ! -f "$KEYSTORE_PATH" ]; then
-            echo "ERROR: Debug keystore $KEYSTORE_PATH was not found after generation step." >&2
+            echo "ERROR: Persistent debug keystore not found! Refusing to generate a random key to prevent APK signing conflicts on user devices." >&2
             exit 1
           fi
 
-          echo "Debug keystore confirmed present."
+          if [ ! -f "$KEYSTORE_PATH" ] || [ ! -s "$KEYSTORE_PATH" ]; then
+            echo "ERROR: Debug keystore $KEYSTORE_PATH is missing or empty." >&2
+            exit 1
+          fi
+
+          echo "Persistent debug keystore confirmed present."
+          echo "Verifying SHA-256 Certificate Fingerprint:"
+          keytool -list -v -keystore "$KEYSTORE_PATH" -storepass android -alias androiddebugkey | grep -E "Owner|SHA256" || true
 
       - name: Build debug APK
         run: gradle :app:assembleDebug --stacktrace --no-daemon
@@ -187,8 +181,9 @@ jobs:
           - **Run Attempt**: #${{ github.run_attempt }}
           - **Source Commit**: ${{ github.sha }}
           - **Release Asset**: `${{ steps.prepare_asset.outputs.asset_name }}`
+          - **Signing Key Fingerprint (SHA-256)**: `27:3E:28:47:70:00:AB:0A:C2:16:4F:2E:94:15:28:FF:08:FB:22:3F:60:A9:21:C6:2E:CA:61:47:42:CC:1E:49`
 
-          > **Note**: This is an automatically generated debug APK intended for testing. It is not a Play Store production release and is signed only with a temporary debug keystore.
+          > **Note**: This APK is signed with the project's permanent debug keystore. All future builds share this exact same signature, supporting direct 1-tap in-place updates on your phone without uninstalling.
           EOF
 
           echo "Creating release with tag: $RELEASE_TAG and title: $RELEASE_TITLE..."

@@ -92,9 +92,17 @@ import com.example.ui.components.InteractiveCardBorder
 import com.example.ui.components.MindLoopPrimaryButton
 import com.example.ui.components.MindLoopSecondaryButton
 import com.example.ui.components.tapAffordance
+import com.example.ui.theme.AppBackground
+import com.example.ui.theme.AppBorder
+import com.example.ui.theme.AppSurface
+import com.example.ui.theme.AppSurfaceElevated
+import com.example.ui.theme.AppTextMuted
+import com.example.ui.theme.AppTextPrimary
+import com.example.ui.theme.AppTextSecondary
 import com.example.ui.theme.BackgroundOffWhite
 import com.example.ui.theme.DeepIndigo
 import com.example.ui.theme.DeepIndigoSubtle
+import com.example.ui.theme.LocalIsDarkTheme
 import com.example.ui.theme.SageGreen
 import com.example.ui.theme.SurfaceWhite
 import com.example.ui.theme.Terracotta
@@ -396,10 +404,12 @@ fun AuthScreen(
         }
     }
 
+    val isDark = LocalIsDarkTheme.current
+
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundOffWhite)
+            .background(AppBackground)
             .statusBarsPadding()
             .imePadding()
             .verticalScroll(rememberScrollState())
@@ -420,14 +430,14 @@ fun AuthScreen(
                     modifier = Modifier
                         .size(44.dp)
                         .clip(CircleShape)
-                        .background(SurfaceWhite)
-                        .border(1.dp, InteractiveCardBorder, CircleShape)
+                        .background(AppSurface)
+                        .border(1.dp, AppBorder, CircleShape)
                         .testTag("auth_back_button")
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
-                        tint = DeepIndigo
+                        tint = if (isDark) Color(0xFFA5B4FC) else DeepIndigo
                     )
                 }
             } else {
@@ -439,13 +449,13 @@ fun AuthScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .clip(RoundedCornerShape(20.dp))
-                    .background(DeepIndigoSubtle)
+                    .background(if (isDark) Color(0xFF312E81).copy(alpha = 0.5f) else DeepIndigoSubtle)
                     .padding(horizontal = 12.dp, vertical = 6.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.School,
                     contentDescription = null,
-                    tint = DeepIndigo,
+                    tint = if (isDark) Color(0xFFA5B4FC) else DeepIndigo,
                     modifier = Modifier.size(16.dp)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
@@ -453,7 +463,7 @@ fun AuthScreen(
                     text = "MindLoop",
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
-                    color = DeepIndigo
+                    color = if (isDark) Color(0xFFA5B4FC) else DeepIndigo
                 )
             }
 
@@ -466,7 +476,7 @@ fun AuthScreen(
                         text = "Cancel",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = DeepIndigo
+                        color = if (isDark) Color(0xFFA5B4FC) else DeepIndigo
                     )
                 }
             } else {
@@ -485,7 +495,7 @@ fun AuthScreen(
                 modifier = Modifier
                     .size(64.dp)
                     .clip(RoundedCornerShape(20.dp))
-                    .background(DeepIndigo)
+                    .background(if (isDark) Color(0xFF4F46E5) else DeepIndigo)
                     .tapAffordance(shape = RoundedCornerShape(20.dp), elevation = 6.dp),
                 contentAlignment = Alignment.Center
             ) {
@@ -503,7 +513,7 @@ fun AuthScreen(
                 text = if (isSignUp) "Create Your Account" else "Welcome Back",
                 fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
-                color = DeepIndigo,
+                color = AppTextPrimary,
                 letterSpacing = (-0.5).sp
             )
 
@@ -515,7 +525,7 @@ fun AuthScreen(
                 else
                     "Log in to sync your notes, flashcards, and SRS progress",
                 fontSize = 14.sp,
-                color = TextSecondary,
+                color = AppTextSecondary,
                 textAlign = TextAlign.Center,
                 lineHeight = 20.sp,
                 modifier = Modifier.padding(horizontal = 16.dp)
@@ -527,19 +537,19 @@ fun AuthScreen(
         // Tab Selector (Log In / Sign Up)
         TabRow(
             selectedTabIndex = selectedTab,
-            containerColor = SurfaceWhite,
-            contentColor = DeepIndigo,
+            containerColor = AppSurface,
+            contentColor = if (isDark) Color(0xFFA5B4FC) else DeepIndigo,
             indicator = { tabPositions ->
                 TabRowDefaults.SecondaryIndicator(
                     modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
-                    color = DeepIndigo,
+                    color = if (isDark) Color(0xFFA5B4FC) else DeepIndigo,
                     height = 3.dp
                 )
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
-                .border(1.dp, InteractiveCardBorder, RoundedCornerShape(12.dp))
+                .border(1.dp, AppBorder, RoundedCornerShape(12.dp))
         ) {
             Tab(
                 selected = !isSignUp,
@@ -553,7 +563,7 @@ fun AuthScreen(
                         text = "Log In",
                         fontWeight = if (!isSignUp) FontWeight.Bold else FontWeight.Medium,
                         fontSize = 15.sp,
-                        color = if (!isSignUp) DeepIndigo else TextSecondary
+                        color = if (!isSignUp) (if (isDark) Color(0xFFA5B4FC) else DeepIndigo) else AppTextSecondary
                     )
                 }
             )
@@ -569,7 +579,7 @@ fun AuthScreen(
                         text = "Sign Up",
                         fontWeight = if (isSignUp) FontWeight.Bold else FontWeight.Medium,
                         fontSize = 15.sp,
-                        color = if (isSignUp) DeepIndigo else TextSecondary
+                        color = if (isSignUp) (if (isDark) Color(0xFFA5B4FC) else DeepIndigo) else AppTextSecondary
                     )
                 }
             )
@@ -582,7 +592,7 @@ fun AuthScreen(
             text = "Continue with social account",
             fontSize = 12.sp,
             fontWeight = FontWeight.SemiBold,
-            color = TextMuted,
+            color = AppTextMuted,
             modifier = Modifier.padding(bottom = 12.dp)
         )
 
@@ -624,8 +634,8 @@ fun AuthScreen(
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(14.dp),
-            color = SurfaceWhite,
-            border = androidx.compose.foundation.BorderStroke(1.dp, DeepIndigo.copy(alpha = 0.18f))
+            color = AppSurface,
+            border = androidx.compose.foundation.BorderStroke(1.dp, if (isDark) Color(0xFF4F46E5).copy(alpha = 0.4f) else DeepIndigo.copy(alpha = 0.18f))
         ) {
             Column(modifier = Modifier.padding(14.dp)) {
                 Row(
@@ -635,7 +645,7 @@ fun AuthScreen(
                     Icon(
                         imageVector = Icons.Default.Shield,
                         contentDescription = null,
-                        tint = DeepIndigo,
+                        tint = if (isDark) Color(0xFFA5B4FC) else DeepIndigo,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
@@ -643,7 +653,7 @@ fun AuthScreen(
                         text = "Instant 1-Tap Access",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
-                        color = DeepIndigo
+                        color = AppTextPrimary
                     )
                 }
                 Spacer(modifier = Modifier.height(10.dp))
@@ -653,7 +663,7 @@ fun AuthScreen(
                 ) {
                     Button(
                         onClick = { continueAsAdmin() },
-                        colors = ButtonDefaults.buttonColors(containerColor = DeepIndigo),
+                        colors = ButtonDefaults.buttonColors(containerColor = if (isDark) Color(0xFF4F46E5) else DeepIndigo),
                         shape = RoundedCornerShape(10.dp),
                         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp),
                         modifier = Modifier
@@ -679,7 +689,7 @@ fun AuthScreen(
                     OutlinedButton(
                         onClick = { continueAsDemoStudent() },
                         shape = RoundedCornerShape(10.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, SageGreen),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, if (isDark) Color(0xFF34D399) else SageGreen),
                         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp),
                         modifier = Modifier
                             .weight(0.9f)
@@ -690,14 +700,14 @@ fun AuthScreen(
                             imageVector = Icons.Default.School,
                             contentDescription = null,
                             modifier = Modifier.size(14.dp),
-                            tint = SageGreen
+                            tint = if (isDark) Color(0xFF34D399) else SageGreen
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = "Aspirant Demo",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = SageGreen
+                            color = if (isDark) Color(0xFF34D399) else SageGreen
                         )
                     }
                 }
@@ -715,13 +725,13 @@ fun AuthScreen(
                 modifier = Modifier
                     .weight(1f)
                     .height(1.dp)
-                    .background(InteractiveCardBorder)
+                    .background(AppBorder)
             )
             Text(
                 text = "OR EMAIL",
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
-                color = TextMuted,
+                color = AppTextMuted,
                 letterSpacing = 1.sp,
                 modifier = Modifier.padding(horizontal = 14.dp)
             )
@@ -729,7 +739,7 @@ fun AuthScreen(
                 modifier = Modifier
                     .weight(1f)
                     .height(1.dp)
-                    .background(InteractiveCardBorder)
+                    .background(AppBorder)
             )
         }
 
@@ -746,7 +756,7 @@ fun AuthScreen(
                 label = { Text("Full Name") },
                 placeholder = { Text("e.g. Ankit Sharma") },
                 leadingIcon = {
-                    Icon(Icons.Default.Person, contentDescription = null, tint = DeepIndigo)
+                    Icon(Icons.Default.Person, contentDescription = null, tint = if (isDark) Color(0xFFA5B4FC) else DeepIndigo)
                 },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
@@ -757,10 +767,14 @@ fun AuthScreen(
                     onNext = { focusManager.moveFocus(FocusDirection.Down) }
                 ),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = SurfaceWhite,
-                    unfocusedContainerColor = SurfaceWhite,
-                    focusedBorderColor = DeepIndigo,
-                    unfocusedBorderColor = InteractiveCardBorder
+                    focusedContainerColor = AppSurface,
+                    unfocusedContainerColor = AppSurface,
+                    focusedTextColor = AppTextPrimary,
+                    unfocusedTextColor = AppTextPrimary,
+                    focusedLabelColor = if (isDark) Color(0xFFA5B4FC) else DeepIndigo,
+                    unfocusedLabelColor = AppTextSecondary,
+                    focusedBorderColor = if (isDark) Color(0xFF4F46E5) else DeepIndigo,
+                    unfocusedBorderColor = AppBorder
                 ),
                 shape = RoundedCornerShape(14.dp),
                 modifier = Modifier
@@ -780,7 +794,7 @@ fun AuthScreen(
             label = { Text("Email Address") },
             placeholder = { Text("aspirant@upsc.org") },
             leadingIcon = {
-                Icon(Icons.Default.Email, contentDescription = null, tint = DeepIndigo)
+                Icon(Icons.Default.Email, contentDescription = null, tint = if (isDark) Color(0xFFA5B4FC) else DeepIndigo)
             },
             singleLine = true,
             keyboardOptions = KeyboardOptions(
@@ -791,10 +805,14 @@ fun AuthScreen(
                 onNext = { focusManager.moveFocus(FocusDirection.Down) }
             ),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = SurfaceWhite,
-                unfocusedContainerColor = SurfaceWhite,
-                focusedBorderColor = DeepIndigo,
-                unfocusedBorderColor = InteractiveCardBorder
+                focusedContainerColor = AppSurface,
+                unfocusedContainerColor = AppSurface,
+                focusedTextColor = AppTextPrimary,
+                unfocusedTextColor = AppTextPrimary,
+                focusedLabelColor = if (isDark) Color(0xFFA5B4FC) else DeepIndigo,
+                unfocusedLabelColor = AppTextSecondary,
+                focusedBorderColor = if (isDark) Color(0xFF4F46E5) else DeepIndigo,
+                unfocusedBorderColor = AppBorder
             ),
             shape = RoundedCornerShape(14.dp),
             modifier = Modifier
@@ -814,14 +832,14 @@ fun AuthScreen(
             label = { Text("Password") },
             placeholder = { Text("Min 6 characters") },
             leadingIcon = {
-                Icon(Icons.Default.Lock, contentDescription = null, tint = DeepIndigo)
+                Icon(Icons.Default.Lock, contentDescription = null, tint = if (isDark) Color(0xFFA5B4FC) else DeepIndigo)
             },
             trailingIcon = {
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(
                         imageVector = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                         contentDescription = if (passwordVisible) "Hide password" else "Show password",
-                        tint = TextSecondary
+                        tint = AppTextSecondary
                     )
                 }
             },
@@ -839,10 +857,14 @@ fun AuthScreen(
                 }
             ),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = SurfaceWhite,
-                unfocusedContainerColor = SurfaceWhite,
-                focusedBorderColor = DeepIndigo,
-                unfocusedBorderColor = InteractiveCardBorder
+                focusedContainerColor = AppSurface,
+                unfocusedContainerColor = AppSurface,
+                focusedTextColor = AppTextPrimary,
+                unfocusedTextColor = AppTextPrimary,
+                focusedLabelColor = if (isDark) Color(0xFFA5B4FC) else DeepIndigo,
+                unfocusedLabelColor = AppTextSecondary,
+                focusedBorderColor = if (isDark) Color(0xFF4F46E5) else DeepIndigo,
+                unfocusedBorderColor = AppBorder
             ),
             shape = RoundedCornerShape(14.dp),
             modifier = Modifier
@@ -863,7 +885,7 @@ fun AuthScreen(
                 label = { Text("Confirm Password") },
                 placeholder = { Text("Re-enter password") },
                 leadingIcon = {
-                    Icon(Icons.Default.Lock, contentDescription = null, tint = DeepIndigo)
+                    Icon(Icons.Default.Lock, contentDescription = null, tint = if (isDark) Color(0xFFA5B4FC) else DeepIndigo)
                 },
                 singleLine = true,
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -878,10 +900,14 @@ fun AuthScreen(
                     }
                 ),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = SurfaceWhite,
-                    unfocusedContainerColor = SurfaceWhite,
-                    focusedBorderColor = DeepIndigo,
-                    unfocusedBorderColor = InteractiveCardBorder
+                    focusedContainerColor = AppSurface,
+                    unfocusedContainerColor = AppSurface,
+                    focusedTextColor = AppTextPrimary,
+                    unfocusedTextColor = AppTextPrimary,
+                    focusedLabelColor = if (isDark) Color(0xFFA5B4FC) else DeepIndigo,
+                    unfocusedLabelColor = AppTextSecondary,
+                    focusedBorderColor = if (isDark) Color(0xFF4F46E5) else DeepIndigo,
+                    unfocusedBorderColor = AppBorder
                 ),
                 shape = RoundedCornerShape(14.dp),
                 modifier = Modifier
@@ -901,7 +927,7 @@ fun AuthScreen(
                 Text(
                     text = "Forgot password?",
                     fontSize = 13.sp,
-                    color = DeepIndigo,
+                    color = if (isDark) Color(0xFFA5B4FC) else DeepIndigo,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier
                         .clickable {
@@ -932,13 +958,13 @@ fun AuthScreen(
                     .fillMaxWidth()
                     .padding(top = 12.dp),
                 shape = RoundedCornerShape(12.dp),
-                color = Terracotta.copy(alpha = 0.12f),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Terracotta.copy(alpha = 0.4f))
+                color = if (isDark) Color(0xFF7F1D1D).copy(alpha = 0.35f) else Terracotta.copy(alpha = 0.12f),
+                border = androidx.compose.foundation.BorderStroke(1.dp, if (isDark) Color(0xFFEF4444).copy(alpha = 0.5f) else Terracotta.copy(alpha = 0.4f))
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
                     Text(
                         text = errorMessage ?: "",
-                        color = Terracotta,
+                        color = if (isDark) Color(0xFFF87171) else Terracotta,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -951,7 +977,7 @@ fun AuthScreen(
                         if (com.example.data.config.AdminConfig.isAuthorizedAdminEmail(email)) {
                             Button(
                                 onClick = { continueAsAdmin() },
-                                colors = ButtonDefaults.buttonColors(containerColor = DeepIndigo),
+                                colors = ButtonDefaults.buttonColors(containerColor = if (isDark) Color(0xFF4F46E5) else DeepIndigo),
                                 shape = RoundedCornerShape(8.dp),
                                 contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
                                 modifier = Modifier.height(34.dp)
@@ -966,7 +992,7 @@ fun AuthScreen(
                         } else if (email.isNotBlank() && email.contains("@")) {
                             Button(
                                 onClick = { continueAsCustomUser(email, fullName) },
-                                colors = ButtonDefaults.buttonColors(containerColor = DeepIndigo),
+                                colors = ButtonDefaults.buttonColors(containerColor = if (isDark) Color(0xFF4F46E5) else DeepIndigo),
                                 shape = RoundedCornerShape(8.dp),
                                 contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
                                 modifier = Modifier.height(34.dp)
@@ -991,7 +1017,7 @@ fun AuthScreen(
                                     text = "Switch to Sign Up",
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = DeepIndigo
+                                    color = if (isDark) Color(0xFFA5B4FC) else DeepIndigo
                                 )
                             }
                         }
@@ -1004,7 +1030,7 @@ fun AuthScreen(
                                 text = "Use Demo Account",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Terracotta
+                                color = if (isDark) Color(0xFFF87171) else Terracotta
                             )
                         }
                     }
@@ -1023,8 +1049,8 @@ fun AuthScreen(
                     .fillMaxWidth()
                     .padding(top = 12.dp),
                 shape = RoundedCornerShape(12.dp),
-                color = SageGreen.copy(alpha = 0.12f),
-                border = androidx.compose.foundation.BorderStroke(1.dp, SageGreen.copy(alpha = 0.4f))
+                color = if (isDark) Color(0xFF064E3B).copy(alpha = 0.35f) else SageGreen.copy(alpha = 0.12f),
+                border = androidx.compose.foundation.BorderStroke(1.dp, if (isDark) Color(0xFF10B981).copy(alpha = 0.5f) else SageGreen.copy(alpha = 0.4f))
             ) {
                 Row(
                     modifier = Modifier.padding(12.dp),
@@ -1033,13 +1059,13 @@ fun AuthScreen(
                     Icon(
                         imageVector = Icons.Default.CheckCircle,
                         contentDescription = null,
-                        tint = SageGreen,
+                        tint = if (isDark) Color(0xFF34D399) else SageGreen,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = successNotice ?: "",
-                        color = SageGreen,
+                        color = if (isDark) Color(0xFF34D399) else SageGreen,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -1097,13 +1123,13 @@ fun AuthScreen(
             Text(
                 text = if (isSignUp) "Already have an account? " else "Don't have an account yet? ",
                 fontSize = 14.sp,
-                color = TextSecondary
+                color = AppTextSecondary
             )
             Text(
                 text = if (isSignUp) "Log In" else "Sign Up",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
-                color = DeepIndigo,
+                color = if (isDark) Color(0xFFA5B4FC) else DeepIndigo,
                 modifier = Modifier
                     .clickable {
                         selectedTab = if (isSignUp) 0 else 1
@@ -1134,10 +1160,12 @@ private fun AccountProfileView(
     var isSyncingNow by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
+    val isDark = LocalIsDarkTheme.current
+
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundOffWhite)
+            .background(AppBackground)
             .statusBarsPadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp)
@@ -1157,14 +1185,14 @@ private fun AccountProfileView(
                     modifier = Modifier
                         .size(44.dp)
                         .clip(CircleShape)
-                        .background(SurfaceWhite)
-                        .border(1.dp, InteractiveCardBorder, CircleShape)
+                        .background(AppSurface)
+                        .border(1.dp, AppBorder, CircleShape)
                         .testTag("account_back_button")
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
-                        tint = DeepIndigo
+                        tint = if (isDark) Color(0xFFA5B4FC) else DeepIndigo
                     )
                 }
             } else {
@@ -1175,7 +1203,7 @@ private fun AccountProfileView(
                 text = "My Account",
                 fontSize = 17.sp,
                 fontWeight = FontWeight.Bold,
-                color = DeepIndigo
+                color = AppTextPrimary
             )
 
             Spacer(modifier = Modifier.size(44.dp))
@@ -1187,9 +1215,9 @@ private fun AccountProfileView(
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(20.dp),
-            color = SurfaceWhite,
-            border = BorderStroke(1.dp, InteractiveCardBorder),
-            shadowElevation = 2.dp
+            color = AppSurface,
+            border = BorderStroke(1.dp, AppBorder),
+            shadowElevation = if (isDark) 0.dp else 2.dp
         ) {
             Column(
                 modifier = Modifier
@@ -1211,15 +1239,15 @@ private fun AccountProfileView(
                         .size(84.dp)
                         .shadow(4.dp, CircleShape)
                         .clip(CircleShape)
-                        .background(Color(0xFFE0E7FF))
-                        .border(3.dp, Color.White, CircleShape),
+                        .background(if (isDark) Color(0xFF312E81) else Color(0xFFE0E7FF))
+                        .border(3.dp, if (isDark) Color(0xFF6366F1) else Color.White, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = profileInitials,
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 30.sp,
-                        color = Color(0xFF4338CA)
+                        color = if (isDark) Color(0xFFA5B4FC) else Color(0xFF4338CA)
                     )
                 }
 
@@ -1229,7 +1257,7 @@ private fun AccountProfileView(
                     text = user.name.ifBlank { "MindLoop Aspirant" },
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
-                    color = DeepIndigo
+                    color = AppTextPrimary
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -1237,7 +1265,7 @@ private fun AccountProfileView(
                 Text(
                     text = user.email.ifBlank { "No email associated" },
                     fontSize = 14.sp,
-                    color = TextSecondary
+                    color = AppTextSecondary
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
@@ -1247,14 +1275,14 @@ private fun AccountProfileView(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .clip(RoundedCornerShape(20.dp))
-                        .background(SageGreen.copy(alpha = 0.12f))
-                        .border(1.dp, SageGreen.copy(alpha = 0.4f), RoundedCornerShape(20.dp))
+                        .background(if (isDark) Color(0xFF064E3B).copy(alpha = 0.35f) else SageGreen.copy(alpha = 0.12f))
+                        .border(1.dp, if (isDark) Color(0xFF10B981).copy(alpha = 0.5f) else SageGreen.copy(alpha = 0.4f), RoundedCornerShape(20.dp))
                         .padding(horizontal = 14.dp, vertical = 6.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.CheckCircle,
                         contentDescription = null,
-                        tint = SageGreen,
+                        tint = if (isDark) Color(0xFF34D399) else SageGreen,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
@@ -1262,7 +1290,7 @@ private fun AccountProfileView(
                         text = "Cloud Firestore Sync Active",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = SageGreen
+                        color = if (isDark) Color(0xFF34D399) else SageGreen
                     )
                 }
             }
@@ -1274,8 +1302,8 @@ private fun AccountProfileView(
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
-            color = SurfaceWhite,
-            border = BorderStroke(1.dp, InteractiveCardBorder)
+            color = AppSurface,
+            border = BorderStroke(1.dp, AppBorder)
         ) {
             Column(modifier = Modifier.fillMaxWidth().padding(18.dp)) {
                 Row(
@@ -1286,13 +1314,13 @@ private fun AccountProfileView(
                         modifier = Modifier
                             .size(32.dp)
                             .clip(CircleShape)
-                            .background(DeepIndigo.copy(alpha = 0.1f)),
+                            .background(if (isDark) Color(0xFF312E81).copy(alpha = 0.6f) else DeepIndigo.copy(alpha = 0.1f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.Cloud,
                             contentDescription = null,
-                            tint = DeepIndigo,
+                            tint = if (isDark) Color(0xFFA5B4FC) else DeepIndigo,
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -1302,12 +1330,12 @@ private fun AccountProfileView(
                             text = "Cloud Database Storage",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
-                            color = DeepIndigo
+                            color = AppTextPrimary
                         )
                         Text(
                             text = "Where your answers, notes & questions are stored",
                             fontSize = 11.sp,
-                            color = TextSecondary
+                            color = AppTextSecondary
                         )
                     }
                 }
@@ -1365,7 +1393,7 @@ private fun AccountProfileView(
                             }
                         },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = DeepIndigo,
+                            containerColor = if (isDark) Color(0xFF4F46E5) else DeepIndigo,
                             contentColor = Color.White
                         ),
                         shape = RoundedCornerShape(12.dp),
@@ -1404,9 +1432,9 @@ private fun AccountProfileView(
                 .fillMaxWidth()
                 .testTag("data_transfer_section_card"),
             shape = RoundedCornerShape(16.dp),
-            color = SurfaceWhite,
-            border = BorderStroke(1.dp, InteractiveCardBorder),
-            shadowElevation = 2.dp
+            color = AppSurface,
+            border = BorderStroke(1.dp, AppBorder),
+            shadowElevation = if (isDark) 0.dp else 2.dp
         ) {
             Column(
                 modifier = Modifier.padding(18.dp)
@@ -1419,13 +1447,13 @@ private fun AccountProfileView(
                         modifier = Modifier
                             .size(34.dp)
                             .clip(CircleShape)
-                            .background(DeepIndigo.copy(alpha = 0.1f)),
+                            .background(if (isDark) Color(0xFF312E81).copy(alpha = 0.6f) else DeepIndigo.copy(alpha = 0.1f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.Share,
                             contentDescription = null,
-                            tint = DeepIndigo,
+                            tint = if (isDark) Color(0xFFA5B4FC) else DeepIndigo,
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -1435,12 +1463,12 @@ private fun AccountProfileView(
                             text = "Course Backup & Data Transfer",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
-                            color = DeepIndigo
+                            color = AppTextPrimary
                         )
                         Text(
                             text = "Export or import study packs between devices",
                             fontSize = 11.sp,
-                            color = TextSecondary
+                            color = AppTextSecondary
                         )
                     }
                 }
@@ -1450,7 +1478,7 @@ private fun AccountProfileView(
                 Text(
                     text = "Transfer study notes, questions, reels, and curriculum structure with other students or devices. Personal test mistakes and user attempt logs are safely excluded.",
                     fontSize = 12.sp,
-                    color = TextSecondary,
+                    color = AppTextSecondary,
                     lineHeight = 16.sp
                 )
 
@@ -1464,7 +1492,7 @@ private fun AccountProfileView(
                     Button(
                         onClick = { onExportData?.invoke() },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = DeepIndigo,
+                            containerColor = if (isDark) Color(0xFF4F46E5) else DeepIndigo,
                             contentColor = Color.White
                         ),
                         shape = RoundedCornerShape(12.dp),
@@ -1489,9 +1517,9 @@ private fun AccountProfileView(
                     // Import Data Button
                     OutlinedButton(
                         onClick = { onImportData?.invoke() },
-                        border = BorderStroke(1.5.dp, DeepIndigo),
+                        border = BorderStroke(1.5.dp, if (isDark) Color(0xFF6366F1) else DeepIndigo),
                         colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = DeepIndigo
+                            contentColor = if (isDark) Color(0xFFA5B4FC) else DeepIndigo
                         ),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier
@@ -1518,8 +1546,8 @@ private fun AccountProfileView(
                     Surface(
                         onClick = onClearStarterPack,
                         shape = RoundedCornerShape(12.dp),
-                        color = Terracotta.copy(alpha = 0.08f),
-                        border = BorderStroke(1.dp, Terracotta.copy(alpha = 0.25f)),
+                        color = if (isDark) Color(0xFF7F1D1D).copy(alpha = 0.25f) else Terracotta.copy(alpha = 0.08f),
+                        border = BorderStroke(1.dp, if (isDark) Color(0xFFEF4444).copy(alpha = 0.4f) else Terracotta.copy(alpha = 0.25f)),
                         modifier = Modifier
                             .fillMaxWidth()
                             .testTag("auth_clear_starter_pack_button")
@@ -1534,7 +1562,7 @@ private fun AccountProfileView(
                             Icon(
                                 imageVector = Icons.Default.DeleteSweep,
                                 contentDescription = null,
-                                tint = Terracotta,
+                                tint = if (isDark) Color(0xFFF87171) else Terracotta,
                                 modifier = Modifier.size(17.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
@@ -1542,7 +1570,7 @@ private fun AccountProfileView(
                                 text = "Clear or Restore Starter Pack",
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Terracotta
+                                color = if (isDark) Color(0xFFF87171) else Terracotta
                             )
                         }
                     }
@@ -1558,7 +1586,7 @@ private fun AccountProfileView(
                 onClick = onOpenAdmin,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                color = DeepIndigo,
+                color = if (isDark) Color(0xFF312E81) else DeepIndigo,
                 shadowElevation = 4.dp
             ) {
                 Row(
@@ -1625,15 +1653,15 @@ private fun AccountProfileView(
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
-            color = SurfaceWhite,
-            border = BorderStroke(1.dp, InteractiveCardBorder)
+            color = AppSurface,
+            border = BorderStroke(1.dp, AppBorder)
         ) {
             Column(modifier = Modifier.fillMaxWidth().padding(18.dp)) {
                 Text(
                     text = "Account Details",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = DeepIndigo
+                    color = AppTextPrimary
                 )
                 Spacer(modifier = Modifier.height(14.dp))
 
@@ -1665,8 +1693,8 @@ private fun AccountProfileView(
         Surface(
             onClick = onSwitchAccount,
             shape = RoundedCornerShape(14.dp),
-            color = SurfaceWhite,
-            border = BorderStroke(1.dp, InteractiveCardBorder),
+            color = AppSurface,
+            border = BorderStroke(1.dp, AppBorder),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
@@ -1682,7 +1710,7 @@ private fun AccountProfileView(
                 Icon(
                     imageVector = Icons.Default.SwapHoriz,
                     contentDescription = null,
-                    tint = DeepIndigo,
+                    tint = if (isDark) Color(0xFFA5B4FC) else DeepIndigo,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -1690,7 +1718,7 @@ private fun AccountProfileView(
                     text = "Switch or Create Another Account",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = DeepIndigo
+                    color = if (isDark) Color(0xFFA5B4FC) else DeepIndigo
                 )
             }
         }
@@ -1701,8 +1729,8 @@ private fun AccountProfileView(
         Surface(
             onClick = { onSignOut?.invoke() },
             shape = RoundedCornerShape(14.dp),
-            color = Terracotta.copy(alpha = 0.08f),
-            border = BorderStroke(1.dp, Terracotta.copy(alpha = 0.3f)),
+            color = if (isDark) Color(0xFF7F1D1D).copy(alpha = 0.25f) else Terracotta.copy(alpha = 0.08f),
+            border = BorderStroke(1.dp, if (isDark) Color(0xFFEF4444).copy(alpha = 0.4f) else Terracotta.copy(alpha = 0.3f)),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
@@ -1718,7 +1746,7 @@ private fun AccountProfileView(
                 Icon(
                     imageVector = Icons.Default.Logout,
                     contentDescription = null,
-                    tint = Terracotta,
+                    tint = if (isDark) Color(0xFFF87171) else Terracotta,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -1726,7 +1754,7 @@ private fun AccountProfileView(
                     text = "Sign Out of MindLoop",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Terracotta
+                    color = if (isDark) Color(0xFFF87171) else Terracotta
                 )
             }
         }
@@ -1742,8 +1770,8 @@ private fun AccountInfoRow(label: String, value: String) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = label, fontSize = 13.sp, color = TextSecondary)
-        Text(text = value, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = TextPrimary)
+        Text(text = label, fontSize = 13.sp, color = AppTextSecondary)
+        Text(text = value, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = AppTextPrimary)
     }
 }
 
@@ -1758,6 +1786,7 @@ fun SocialAuthButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val isDark = LocalIsDarkTheme.current
     Surface(
         onClick = onClick,
         enabled = !isLoading,
@@ -1765,8 +1794,8 @@ fun SocialAuthButton(
             .height(48.dp)
             .tapAffordance(shape = RoundedCornerShape(12.dp), elevation = 3.dp),
         shape = RoundedCornerShape(12.dp),
-        color = SurfaceWhite,
-        border = androidx.compose.foundation.BorderStroke(1.dp, InteractiveCardBorder)
+        color = AppSurface,
+        border = androidx.compose.foundation.BorderStroke(1.dp, AppBorder)
     ) {
         Row(
             modifier = Modifier
@@ -1779,20 +1808,23 @@ fun SocialAuthButton(
                 CircularProgressIndicator(
                     modifier = Modifier.size(18.dp),
                     strokeWidth = 2.dp,
-                    color = DeepIndigo
+                    color = if (isDark) Color(0xFFA5B4FC) else DeepIndigo
                 )
             } else {
                 when (provider) {
                     SocialProvider.GOOGLE -> GoogleIcon(modifier = Modifier.size(20.dp))
                     SocialProvider.FACEBOOK -> FacebookIcon(modifier = Modifier.size(20.dp))
-                    SocialProvider.X_TWITTER -> XTwitterIcon(modifier = Modifier.size(18.dp))
+                    SocialProvider.X_TWITTER -> XTwitterIcon(
+                        modifier = Modifier.size(18.dp),
+                        tint = if (isDark) Color(0xFFF8FAFC) else Color(0xFF0F1419)
+                    )
                 }
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = label,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = TextPrimary
+                    color = AppTextPrimary
                 )
             }
         }
@@ -1922,33 +1954,36 @@ fun FacebookIcon(modifier: Modifier = Modifier) {
  * Vector drawing of X.com (Twitter) logo
  */
 @Composable
-fun XTwitterIcon(modifier: Modifier = Modifier) {
+fun XTwitterIcon(
+    modifier: Modifier = Modifier,
+    tint: Color = Color(0xFF0F1419)
+) {
     Canvas(modifier = modifier) {
         val w = size.width
         val h = size.height
 
-        // Clean black bold geometric X lines
+        // Clean black/white bold geometric X lines
         drawLine(
-            color = Color(0xFF0F1419),
+            color = tint,
             start = Offset(0f, 0f),
             end = Offset(w, h),
             strokeWidth = 3.2f
         )
         drawLine(
-            color = Color(0xFF0F1419),
+            color = tint,
             start = Offset(w, 0f),
             end = Offset(0f, h),
             strokeWidth = 3.2f
         )
         // Upper accent serif lines for iconic X brand mark
         drawLine(
-            color = Color(0xFF0F1419),
+            color = tint,
             start = Offset(0f, 0f),
             end = Offset(w * 0.35f, 0f),
             strokeWidth = 2.5f
         )
         drawLine(
-            color = Color(0xFF0F1419),
+            color = tint,
             start = Offset(w * 0.65f, h),
             end = Offset(w, h),
             strokeWidth = 2.5f

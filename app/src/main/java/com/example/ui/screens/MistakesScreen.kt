@@ -79,8 +79,22 @@ import com.example.ui.components.MindLoopSecondaryButton
 import com.example.ui.components.tapAffordance
 import com.example.ui.theme.Amber
 import com.example.ui.theme.AmberLight
+import com.example.ui.theme.AppAccentPrimary
+import com.example.ui.theme.AppBackground
+import com.example.ui.theme.AppBorder
+import com.example.ui.theme.AppErrorBg
+import com.example.ui.theme.AppErrorText
+import com.example.ui.theme.AppIconCircleBg
+import com.example.ui.theme.AppSuccessBg
+import com.example.ui.theme.AppSuccessText
+import com.example.ui.theme.AppSurface
+import com.example.ui.theme.AppSurfaceElevated
+import com.example.ui.theme.AppTextPrimary
+import com.example.ui.theme.AppTextSecondary
+import com.example.ui.theme.AppTrackColor
 import com.example.ui.theme.BackgroundOffWhite
 import com.example.ui.theme.DeepIndigo
+import com.example.ui.theme.LocalIsDarkTheme
 import com.example.ui.theme.SageGreen
 import com.example.ui.theme.SageGreenLight
 import com.example.ui.theme.SurfaceWhite
@@ -600,7 +614,7 @@ fun MistakesScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundOffWhite)
+            .background(AppBackground)
             .statusBarsPadding()
             .padding(horizontal = 20.dp)
     ) {
@@ -726,6 +740,7 @@ private fun MistakesTopBar(
     onToggleView: () -> Unit,
     onBackClick: () -> Unit
 ) {
+    val isDark = LocalIsDarkTheme.current
     val titleText = when {
         showRankedFlatList -> "Ranked Mistakes"
         currentLevel is MistakeHierarchyLevel.Chapters -> "${(currentLevel as MistakeHierarchyLevel.Chapters).subjectName} Mistakes"
@@ -749,7 +764,7 @@ private fun MistakesTopBar(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
-                    tint = DeepIndigo
+                    tint = if (isDark) Color(0xFFF8FAFC) else DeepIndigo
                 )
             }
             Spacer(modifier = Modifier.width(4.dp))
@@ -757,7 +772,7 @@ private fun MistakesTopBar(
                 text = titleText,
                 fontSize = if (titleText.length > 18) 17.sp else 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = DeepIndigo,
+                color = AppTextPrimary,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 lineHeight = 22.sp,
@@ -766,10 +781,21 @@ private fun MistakesTopBar(
         }
 
         // View Mode Switcher: Hierarchical vs Flat
+        val toggleBg = if (showRankedFlatList) {
+            if (isDark) Color(0xFF818CF8) else DeepIndigo
+        } else {
+            if (isDark) Color(0xFF3B2D14) else AmberLight
+        }
+        val toggleColor = if (showRankedFlatList) {
+            if (isDark) Color(0xFF0F172A) else Color.White
+        } else {
+            if (isDark) Color(0xFFFBBF24) else Amber
+        }
+
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(20.dp))
-                .background(if (showRankedFlatList) DeepIndigo else AmberLight)
+                .background(toggleBg)
                 .clickable { onToggleView() }
                 .padding(horizontal = 12.dp, vertical = 6.dp)
                 .testTag("toggle_mistakes_view_button"),
@@ -779,7 +805,7 @@ private fun MistakesTopBar(
                 Icon(
                     imageVector = if (showRankedFlatList) Icons.Default.FilterList else Icons.Outlined.TrackChanges,
                     contentDescription = null,
-                    tint = if (showRankedFlatList) Color.White else Amber,
+                    tint = toggleColor,
                     modifier = Modifier.size(15.dp)
                 )
                 Spacer(modifier = Modifier.width(4.dp))
@@ -787,7 +813,7 @@ private fun MistakesTopBar(
                     text = if (showRankedFlatList) "By Exam" else "All Errors",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = if (showRankedFlatList) Color.White else Amber
+                    color = toggleColor
                 )
             }
         }
@@ -803,32 +829,36 @@ private fun MistakesExamListView(
     onSelectExam: (String) -> Unit,
     onViewRankedList: () -> Unit
 ) {
+    val isDark = LocalIsDarkTheme.current
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(14.dp),
         modifier = Modifier.fillMaxSize()
     ) {
         item {
-            // Introductory Card
+            // Introductory Diagnostic Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-                border = BorderStroke(1.dp, InteractiveCardBorder),
+                colors = CardDefaults.cardColors(containerColor = AppSurface),
+                border = BorderStroke(1.dp, AppBorder),
                 elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
             ) {
                 Column(modifier = Modifier.padding(18.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
+                        val diagIconBg = if (isDark) Color(0xFF3E1B1B) else TerracottaLight
+                        val diagIconTint = if (isDark) Color(0xFFF87171) else Terracotta
+
                         Box(
                             modifier = Modifier
                                 .size(36.dp)
                                 .clip(CircleShape)
-                                .background(TerracottaLight),
+                                .background(diagIconBg),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Outlined.TrackChanges,
                                 contentDescription = null,
-                                tint = Terracotta,
+                                tint = diagIconTint,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -838,12 +868,12 @@ private fun MistakesExamListView(
                                 text = "Exam-Wise Error Diagnostics",
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = DeepIndigo
+                                color = AppTextPrimary
                             )
                             Text(
                                 text = "Select an exam below to explore subject & chapter errors",
                                 fontSize = 12.5.sp,
-                                color = TextSecondary
+                                color = AppTextSecondary
                             )
                         }
                     }
@@ -856,7 +886,7 @@ private fun MistakesExamListView(
                 text = "Target Exams",
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
-                color = TextSecondary,
+                color = AppTextSecondary,
                 modifier = Modifier.padding(top = 6.dp)
             )
         }
@@ -881,42 +911,48 @@ private fun MistakesExamListView(
                                 text = exam.examName,
                                 fontSize = 17.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = DeepIndigo
+                                color = AppTextPrimary
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = "${exam.subjectsCount} Subjects Curriculum",
                                 fontSize = 12.5.sp,
-                                color = TextSecondary
+                                color = AppTextSecondary
                             )
                         }
 
                         if (exam.isActive && exam.totalWrongAttempts > 0) {
+                            val badgeBg = if (isDark) Color(0xFF3E1B1B) else TerracottaLight
+                            val badgeColor = if (isDark) Color(0xFFF87171) else Terracotta
+
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(12.dp))
-                                    .background(TerracottaLight)
+                                    .background(badgeBg)
                                     .padding(horizontal = 10.dp, vertical = 4.dp)
                             ) {
                                 Text(
                                     text = "${exam.totalWrongAttempts} Wrong Attempts",
                                     fontSize = 11.5.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Terracotta
+                                    color = badgeColor
                                 )
                             }
                         } else {
+                            val cleanBg = if (isDark) Color(0xFF133322) else SageGreenLight
+                            val cleanColor = if (isDark) Color(0xFF34D399) else SageGreen
+
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(12.dp))
-                                    .background(SageGreenLight)
+                                    .background(cleanBg)
                                     .padding(horizontal = 10.dp, vertical = 4.dp)
                             ) {
                                 Text(
                                     text = "Clean",
                                     fontSize = 11.5.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = SageGreen
+                                    color = cleanColor
                                 )
                             }
                         }
@@ -926,19 +962,26 @@ private fun MistakesExamListView(
 
                     // Progress / Accuracy Bar
                     Column {
+                        val trackBg = if (isDark) Color(0xFF334155) else Color(0xFFEFF2F6)
+                        val barColor = if (exam.masteryProgress > 0.7f) {
+                            if (isDark) Color(0xFF34D399) else SageGreen
+                        } else {
+                            if (isDark) Color(0xFFFBBF24) else Amber
+                        }
+
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(6.dp)
                                 .clip(RoundedCornerShape(3.dp))
-                                .background(Color(0xFFEFF2F6))
+                                .background(trackBg)
                         ) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth(exam.masteryProgress)
                                     .height(6.dp)
                                     .clip(RoundedCornerShape(3.dp))
-                                    .background(if (exam.masteryProgress > 0.7f) SageGreen else Amber)
+                                    .background(barColor)
                             )
                         }
                         Spacer(modifier = Modifier.height(6.dp))
@@ -949,13 +992,13 @@ private fun MistakesExamListView(
                             Text(
                                 text = if (exam.totalWrongAttempts > 0) "${exam.mistakeQuestionsCount} mistake questions identified" else "No mistakes registered",
                                 fontSize = 11.5.sp,
-                                color = TextSecondary
+                                color = AppTextSecondary
                             )
                             Text(
                                 text = "${(exam.masteryProgress * 100).toInt()}% Accuracy",
                                 fontSize = 11.5.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = if (exam.masteryProgress > 0.7f) SageGreen else Amber
+                                color = barColor
                             )
                         }
                     }
@@ -963,6 +1006,7 @@ private fun MistakesExamListView(
                     Spacer(modifier = Modifier.height(14.dp))
 
                     // Tap affordance
+                    val affordanceColor = if (isDark) Color(0xFF818CF8) else DeepIndigo
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.End,
@@ -972,13 +1016,13 @@ private fun MistakesExamListView(
                             text = "Explore Subject Mistakes",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = DeepIndigo
+                            color = affordanceColor
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                             contentDescription = null,
-                            tint = DeepIndigo,
+                            tint = affordanceColor,
                             modifier = Modifier.size(16.dp)
                         )
                     }
@@ -1051,6 +1095,7 @@ private fun MistakesSubjectListView(
         }
 
         items(subjects) { subject ->
+            val isDark = LocalIsDarkTheme.current
             val hasErrors = subject.totalWrongAttempts > 0
 
             Card(
@@ -1059,12 +1104,23 @@ private fun MistakesSubjectListView(
                     .tapAffordance(shape = RoundedCornerShape(16.dp), elevation = 4.dp)
                     .testTag("mistakes_subject_card_${subject.subjectName.take(5)}"),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-                border = BorderStroke(1.dp, if (hasErrors) Amber.copy(alpha = 0.6f) else InteractiveCardBorder),
+                colors = CardDefaults.cardColors(containerColor = AppSurface),
+                border = BorderStroke(1.dp, if (hasErrors) (if (isDark) Color(0xFFFBBF24).copy(alpha = 0.5f) else Amber.copy(alpha = 0.6f)) else AppBorder),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Column(modifier = Modifier.padding(18.dp)) {
                     // Header: Subject Icon, Name, and Wrong Attempts Badge
+                    val iconBg = if (hasErrors) {
+                        if (isDark) Color(0xFF3B2D13) else AmberLight
+                    } else {
+                        if (isDark) Color(0xFF133322) else SageGreenLight
+                    }
+                    val iconTint = if (hasErrors) {
+                        if (isDark) Color(0xFFFBBF24) else Amber
+                    } else {
+                        if (isDark) Color(0xFF34D399) else SageGreen
+                    }
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
@@ -1073,13 +1129,13 @@ private fun MistakesSubjectListView(
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(CircleShape)
-                                .background(if (hasErrors) AmberLight else SageGreenLight),
+                                .background(iconBg),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = subject.icon,
                                 contentDescription = null,
-                                tint = if (hasErrors) Amber else SageGreen,
+                                tint = iconTint,
                                 modifier = Modifier.size(22.dp)
                             )
                         }
@@ -1091,43 +1147,47 @@ private fun MistakesSubjectListView(
                                 text = subject.subjectName,
                                 fontSize = 16.5.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = DeepIndigo
+                                color = AppTextPrimary
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = "${subject.totalChapters} Chapters • ${subject.totalQuestions} Questions",
                                 fontSize = 12.sp,
-                                color = TextSecondary
+                                color = AppTextSecondary
                             )
                         }
 
                         // Prominent Mistakes Badge (User requirement: all the questions data should be mentioned how many questions of this subject are wrong you did)
                         if (hasErrors) {
+                            val badgeBg = if (isDark) Color(0xFF3B151E) else TerracottaLight
+                            val badgeColor = if (isDark) Color(0xFFF87171) else Terracotta
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(12.dp))
-                                    .background(TerracottaLight)
+                                    .background(badgeBg)
                                     .padding(horizontal = 9.dp, vertical = 4.dp)
                             ) {
                                 Text(
                                     text = "${subject.totalWrongAttempts} Wrong",
                                     fontSize = 11.5.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Terracotta
+                                    color = badgeColor
                                 )
                             }
                         } else {
+                            val badgeBg = if (isDark) Color(0xFF133322) else SageGreenLight
+                            val badgeColor = if (isDark) Color(0xFF34D399) else SageGreen
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(12.dp))
-                                    .background(SageGreenLight)
+                                    .background(badgeBg)
                                     .padding(horizontal = 9.dp, vertical = 4.dp)
                             ) {
                                 Text(
                                     text = "0 Mistakes",
                                     fontSize = 11.5.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = SageGreen
+                                    color = badgeColor
                                 )
                             }
                         }
@@ -1136,20 +1196,27 @@ private fun MistakesSubjectListView(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     // Mastery & Questions Wrong breakdown
+                    val barBg = if (isDark) Color(0xFF334155) else Color(0xFFEFF2F6)
+                    val barFill = if (subject.masteryProgress > 0.7f) {
+                        if (isDark) Color(0xFF34D399) else SageGreen
+                    } else {
+                        if (isDark) Color(0xFFFBBF24) else Amber
+                    }
+
                     Column {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(6.dp)
                                 .clip(RoundedCornerShape(3.dp))
-                                .background(Color(0xFFEFF2F6))
+                                .background(barBg)
                         ) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth(subject.masteryProgress)
                                     .height(6.dp)
                                     .clip(RoundedCornerShape(3.dp))
-                                    .background(if (subject.masteryProgress > 0.7f) SageGreen else Amber)
+                                    .background(barFill)
                             )
                         }
                         Spacer(modifier = Modifier.height(6.dp))
@@ -1160,14 +1227,14 @@ private fun MistakesSubjectListView(
                             Text(
                                 text = if (hasErrors) "${subject.mistakeQuestionsCount} questions wrong across ${subject.chaptersWithMistakes} chapters" else "All questions answered correctly",
                                 fontSize = 11.5.sp,
-                                color = if (hasErrors) Terracotta else SageGreen,
+                                color = if (hasErrors) (if (isDark) Color(0xFFF87171) else Terracotta) else (if (isDark) Color(0xFF34D399) else SageGreen),
                                 fontWeight = FontWeight.Medium
                             )
                             Text(
                                 text = "${(subject.masteryProgress * 100).toInt()}% Mastery",
                                 fontSize = 11.5.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = TextSecondary
+                                color = AppTextSecondary
                             )
                         }
                     }
@@ -1175,13 +1242,18 @@ private fun MistakesSubjectListView(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     // ACTION BUTTON 1 (User requirement: "there should be a button also as wellbe for anlye the entire subjects mistakes")
+                    val btnContainerColor = if (hasErrors) {
+                        if (isDark) Color(0xFF059669) else SageGreen
+                    } else {
+                        if (isDark) Color(0xFF6366F1) else DeepIndigo
+                    }
                     MindLoopPrimaryButton(
                         onClick = { onAnalyzeEntireSubject(subject.subjectName) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(46.dp)
                             .testTag("analyze_entire_subject_${subject.subjectName.take(5)}"),
-                        containerColor = if (hasErrors) SageGreen else DeepIndigo,
+                        containerColor = btnContainerColor,
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Icon(
@@ -1343,6 +1415,7 @@ private fun ChapterMistakeCardItem(
     onRetestConcept: (MistakeConceptModel) -> Unit,
     onStudyConceptNotes: (MistakeConceptModel) -> Unit
 ) {
+    val isDark = LocalIsDarkTheme.current
     var isExpanded by remember { mutableStateOf(false) }
     val hasErrors = chapter.totalWrongAttempts > 0
 
@@ -1352,12 +1425,23 @@ private fun ChapterMistakeCardItem(
             .tapAffordance(shape = RoundedCornerShape(16.dp), elevation = 4.dp)
             .testTag("mistakes_chapter_card_${chapter.chapterNumber}"),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-        border = BorderStroke(1.dp, if (hasErrors) Amber.copy(alpha = 0.5f) else InteractiveCardBorder),
+        colors = CardDefaults.cardColors(containerColor = AppSurface),
+        border = BorderStroke(1.dp, if (hasErrors) (if (isDark) Color(0xFFFBBF24).copy(alpha = 0.5f) else Amber.copy(alpha = 0.5f)) else AppBorder),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             // Header: Chapter number + title + error badge
+            val iconBg = if (hasErrors) {
+                if (isDark) Color(0xFF3B151E) else TerracottaLight
+            } else {
+                if (isDark) Color(0xFF133322) else SageGreenLight
+            }
+            val iconText = if (hasErrors) {
+                if (isDark) Color(0xFFF87171) else Terracotta
+            } else {
+                if (isDark) Color(0xFF34D399) else SageGreen
+            }
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -1366,14 +1450,14 @@ private fun ChapterMistakeCardItem(
                     modifier = Modifier
                         .size(34.dp)
                         .clip(CircleShape)
-                        .background(if (hasErrors) TerracottaLight else SageGreenLight),
+                        .background(iconBg),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "${chapter.chapterNumber}",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = if (hasErrors) Terracotta else SageGreen
+                        color = iconText
                     )
                 }
 
@@ -1384,42 +1468,46 @@ private fun ChapterMistakeCardItem(
                         text = chapter.chapterName,
                         fontSize = 15.5.sp,
                         fontWeight = FontWeight.Bold,
-                        color = DeepIndigo
+                        color = AppTextPrimary
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = "${chapter.totalQuestions} Total Questions • ${chapter.concepts.size} Tracked Concepts",
                         fontSize = 12.sp,
-                        color = TextSecondary
+                        color = AppTextSecondary
                     )
                 }
 
                 if (hasErrors) {
+                    val badgeBg = if (isDark) Color(0xFF3B151E) else TerracottaLight
+                    val badgeColor = if (isDark) Color(0xFFF87171) else Terracotta
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(12.dp))
-                            .background(TerracottaLight)
+                            .background(badgeBg)
                             .padding(horizontal = 8.dp, vertical = 3.dp)
                     ) {
                         Text(
                             text = "${chapter.totalWrongAttempts} Wrong",
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Terracotta
+                            color = badgeColor
                         )
                     }
                 } else {
+                    val badgeBg = if (isDark) Color(0xFF133322) else SageGreenLight
+                    val badgeColor = if (isDark) Color(0xFF34D399) else SageGreen
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(12.dp))
-                            .background(SageGreenLight)
+                            .background(badgeBg)
                             .padding(horizontal = 8.dp, vertical = 3.dp)
                     ) {
                         Text(
                             text = "Clean",
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
-                            color = SageGreen
+                            color = badgeColor
                         )
                     }
                 }
@@ -1428,20 +1516,27 @@ private fun ChapterMistakeCardItem(
             Spacer(modifier = Modifier.height(10.dp))
 
             // Mastery bar
+            val barBg = if (isDark) Color(0xFF334155) else Color(0xFFEFF2F6)
+            val barFill = if (chapter.masteryProgress > 0.7f) {
+                if (isDark) Color(0xFF34D399) else SageGreen
+            } else {
+                if (isDark) Color(0xFFFBBF24) else Amber
+            }
+
             Column {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(6.dp)
                         .clip(RoundedCornerShape(3.dp))
-                        .background(Color(0xFFEFF2F6))
+                        .background(barBg)
                 ) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth(chapter.masteryProgress)
                             .height(6.dp)
                             .clip(RoundedCornerShape(3.dp))
-                            .background(if (chapter.masteryProgress > 0.7f) SageGreen else Amber)
+                            .background(barFill)
                     )
                 }
                 Spacer(modifier = Modifier.height(4.dp))
@@ -1452,21 +1547,25 @@ private fun ChapterMistakeCardItem(
                     Text(
                         text = if (hasErrors) "${chapter.mistakeQuestionsCount} mistake questions to review" else "Optimal retention",
                         fontSize = 11.5.sp,
-                        color = TextSecondary
+                        color = AppTextSecondary
                     )
                     Text(
                         text = "${(chapter.masteryProgress * 100).toInt()}% Accuracy",
                         fontSize = 11.5.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (chapter.masteryProgress > 0.7f) SageGreen else Amber
+                        color = barFill
                     )
                 }
             }
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // TWO ACTION BUTTONS PER CHAPTER (User requirement:
-            // "in the chapter there should be button for every chapter which chapter you want to you know which chapters mistake you want to analyse or want to study the notes")
+            // TWO ACTION BUTTONS PER CHAPTER
+            val secondaryTint = if (chapter.isReel) {
+                if (isDark) Color(0xFFF87171) else Terracotta
+            } else {
+                if (isDark) Color(0xFF818CF8) else DeepIndigo
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -1483,7 +1582,7 @@ private fun ChapterMistakeCardItem(
                     Icon(
                         imageVector = if (chapter.isReel) Icons.Default.PlayCircle else Icons.AutoMirrored.Outlined.MenuBook,
                         contentDescription = null,
-                        tint = if (chapter.isReel) Terracotta else DeepIndigo,
+                        tint = secondaryTint,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
@@ -1491,7 +1590,7 @@ private fun ChapterMistakeCardItem(
                         text = if (chapter.isReel) "Watch Reel" else "Study Notes",
                         fontSize = 12.5.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (chapter.isReel) Terracotta else DeepIndigo,
+                        color = secondaryTint,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -1505,7 +1604,7 @@ private fun ChapterMistakeCardItem(
                         .height(44.dp)
                         .testTag("analyze_chapter_${chapter.chapterNumber}"),
                     shape = RoundedCornerShape(12.dp),
-                    containerColor = DeepIndigo
+                    containerColor = if (isDark) Color(0xFF6366F1) else DeepIndigo
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.TrackChanges,
@@ -1543,12 +1642,12 @@ private fun ChapterMistakeCardItem(
                         text = if (isExpanded) "Hide Concept Details (${chapter.concepts.size})" else "View Concept Details (${chapter.concepts.size})",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = TextSecondary
+                        color = AppTextSecondary
                     )
                     Icon(
                         imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                         contentDescription = null,
-                        tint = TextSecondary,
+                        tint = AppTextSecondary,
                         modifier = Modifier.size(18.dp)
                     )
                 }
@@ -1586,11 +1685,12 @@ private fun SubConceptMistakeCardItem(
     onStudyNotes: () -> Unit,
     onRetest: () -> Unit
 ) {
+    val isDark = LocalIsDarkTheme.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = BackgroundOffWhite),
-        border = BorderStroke(1.dp, InteractiveCardBorder)
+        colors = CardDefaults.cardColors(containerColor = if (isDark) Color(0xFF1E293B) else AppSurface),
+        border = BorderStroke(1.dp, AppBorder)
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             Row(
@@ -1602,23 +1702,26 @@ private fun SubConceptMistakeCardItem(
                     text = concept.conceptTitle,
                     fontSize = 13.5.sp,
                     fontWeight = FontWeight.Bold,
-                    color = DeepIndigo,
+                    color = AppTextPrimary,
                     modifier = Modifier.weight(1f)
                 )
 
                 Spacer(modifier = Modifier.width(6.dp))
 
+                val badgeBg = if (isDark) Color(0xFF3B151E) else TerracottaLight
+                val badgeColor = if (isDark) Color(0xFFF87171) else Terracotta
+
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))
-                        .background(TerracottaLight)
+                        .background(badgeBg)
                         .padding(horizontal = 6.dp, vertical = 2.dp)
                 ) {
                     Text(
                         text = "${concept.wrongAttempts} wrong",
                         fontSize = 10.5.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Terracotta
+                        color = badgeColor
                     )
                 }
             }
@@ -1626,6 +1729,11 @@ private fun SubConceptMistakeCardItem(
             Spacer(modifier = Modifier.height(8.dp))
 
             // Two compact buttons: Study Notes / Watch Reel & Retest
+            val secondaryTint = if (concept.isReel) {
+                if (isDark) Color(0xFFF87171) else Terracotta
+            } else {
+                if (isDark) Color(0xFF818CF8) else DeepIndigo
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -1640,7 +1748,7 @@ private fun SubConceptMistakeCardItem(
                     Icon(
                         imageVector = if (concept.isReel) Icons.Default.PlayCircle else Icons.AutoMirrored.Outlined.MenuBook,
                         contentDescription = null,
-                        tint = if (concept.isReel) Terracotta else DeepIndigo,
+                        tint = secondaryTint,
                         modifier = Modifier.size(13.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
@@ -1648,7 +1756,7 @@ private fun SubConceptMistakeCardItem(
                         text = if (concept.isReel) "Watch Reel" else "Notes",
                         fontSize = 11.5.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (concept.isReel) Terracotta else DeepIndigo
+                        color = secondaryTint
                     )
                 }
 
@@ -1658,7 +1766,7 @@ private fun SubConceptMistakeCardItem(
                         .weight(1f)
                         .height(36.dp),
                     shape = RoundedCornerShape(8.dp),
-                    containerColor = DeepIndigo
+                    containerColor = if (isDark) Color(0xFF6366F1) else DeepIndigo
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.TrackChanges,
@@ -1719,9 +1827,11 @@ fun MistakeCardItem(
     onStudyNotes: () -> Unit,
     onRetest: () -> Unit
 ) {
+    val isDark = LocalIsDarkTheme.current
     val isTopMistake = index == 0
+    val topBorderColor = if (isDark) Color(0xFFFBBF24) else Amber
     val borderModifier = if (isTopMistake) {
-        Modifier.border(1.5.dp, Amber, RoundedCornerShape(16.dp))
+        Modifier.border(1.5.dp, topBorderColor, RoundedCornerShape(16.dp))
     } else {
         Modifier
     }
@@ -1733,8 +1843,8 @@ fun MistakeCardItem(
             .then(borderModifier)
             .testTag("mistake_item_$index"),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-        border = BorderStroke(1.dp, if (isTopMistake) Amber else InteractiveCardBorder),
+        colors = CardDefaults.cardColors(containerColor = AppSurface),
+        border = BorderStroke(1.dp, if (isTopMistake) topBorderColor else AppBorder),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 5.dp,
             pressedElevation = 1.5.dp
@@ -1752,29 +1862,32 @@ fun MistakeCardItem(
                         text = concept.conceptTitle,
                         fontSize = 15.5.sp,
                         fontWeight = FontWeight.Bold,
-                        color = DeepIndigo
+                        color = AppTextPrimary
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = "${concept.subjectName} • ${concept.chapterName}",
                         fontSize = 12.sp,
-                        color = TextSecondary
+                        color = AppTextSecondary
                     )
                 }
 
                 Spacer(modifier = Modifier.width(8.dp))
 
+                val badgeBg = if (isDark) Color(0xFF3B151E) else TerracottaLight
+                val badgeColor = if (isDark) Color(0xFFF87171) else Terracotta
+
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
-                        .background(TerracottaLight)
+                        .background(badgeBg)
                         .padding(horizontal = 8.dp, vertical = 3.dp)
                 ) {
                     Text(
                         text = "${concept.wrongAttempts} wrong attempts",
                         fontSize = 11.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Terracotta
+                        color = badgeColor
                     )
                 }
             }
@@ -1782,33 +1895,45 @@ fun MistakeCardItem(
             Spacer(modifier = Modifier.height(10.dp))
 
             // Mastery progress bar
+            val progressTrackBg = if (isDark) Color(0xFF334155) else Color(0xFFEFF2F6)
+            val progressFillColor = if (concept.masteryProgress > 0.5f) {
+                if (isDark) Color(0xFF34D399) else SageGreen
+            } else {
+                if (isDark) Color(0xFFFBBF24) else Amber
+            }
+
             Column {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(6.dp)
                         .clip(RoundedCornerShape(3.dp))
-                        .background(Color(0xFFEFF2F6))
+                        .background(progressTrackBg)
                 ) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth(concept.masteryProgress)
                             .height(6.dp)
                             .clip(RoundedCornerShape(3.dp))
-                            .background(if (concept.masteryProgress > 0.5f) SageGreen else Amber)
+                            .background(progressFillColor)
                     )
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Mastery: ${(concept.masteryProgress * 100).toInt()}%",
                     fontSize = 11.5.sp,
-                    color = TextSecondary
+                    color = AppTextSecondary
                 )
             }
 
             Spacer(modifier = Modifier.height(14.dp))
 
             // Two buttons: Study Notes / Watch Reel and Retest
+            val secondaryTint = if (concept.isReel) {
+                if (isDark) Color(0xFFF87171) else Terracotta
+            } else {
+                if (isDark) Color(0xFF818CF8) else DeepIndigo
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -1824,7 +1949,7 @@ fun MistakeCardItem(
                     Icon(
                         imageVector = if (concept.isReel) Icons.Default.PlayCircle else Icons.AutoMirrored.Outlined.MenuBook,
                         contentDescription = null,
-                        tint = if (concept.isReel) Terracotta else DeepIndigo,
+                        tint = secondaryTint,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
@@ -1832,7 +1957,7 @@ fun MistakeCardItem(
                         text = if (concept.isReel) "Watch Reel" else "Study Notes",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (concept.isReel) Terracotta else DeepIndigo
+                        color = secondaryTint
                     )
                 }
 
@@ -1843,7 +1968,7 @@ fun MistakeCardItem(
                         .height(44.dp)
                         .testTag("mistake_retest_$index"),
                     shape = RoundedCornerShape(12.dp),
-                    containerColor = DeepIndigo
+                    containerColor = if (isDark) Color(0xFF6366F1) else DeepIndigo
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.TrackChanges,
@@ -1855,7 +1980,7 @@ fun MistakeCardItem(
                     Text(
                         text = "Retest",
                         fontSize = 13.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
                 }

@@ -62,13 +62,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ui.theme.BackgroundOffWhite
+import com.example.ui.theme.AppBackground
+import com.example.ui.theme.AppBorder
+import com.example.ui.theme.AppSurface
+import com.example.ui.theme.AppSurfaceElevated
+import com.example.ui.theme.AppTextPrimary
+import com.example.ui.theme.AppTextSecondary
 import com.example.ui.theme.DeepIndigo
+import com.example.ui.theme.LocalIsDarkTheme
 import com.example.ui.theme.SageGreen
-import com.example.ui.theme.SurfaceWhite
 import com.example.ui.theme.Terracotta
-import com.example.ui.theme.TextPrimary
-import com.example.ui.theme.TextSecondary
 import com.example.ui.viewmodel.MindLoopViewModel
 
 /**
@@ -84,6 +87,7 @@ fun ClearStarterPackBottomSheet(
     viewModel: MindLoopViewModel,
     onDismiss: () -> Unit
 ) {
+    val isDark = LocalIsDarkTheme.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val context = LocalContext.current
     val isStarterCleared by viewModel.isStarterPackCleared.collectAsState()
@@ -95,7 +99,7 @@ fun ClearStarterPackBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = BackgroundOffWhite,
+        containerColor = AppBackground,
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
         modifier = Modifier.testTag("clear_starter_pack_sheet")
     ) {
@@ -117,13 +121,13 @@ fun ClearStarterPackBottomSheet(
                         modifier = Modifier
                             .size(38.dp)
                             .clip(CircleShape)
-                            .background(if (isStarterCleared) SageGreen.copy(alpha = 0.12f) else Terracotta.copy(alpha = 0.12f)),
+                            .background(if (isStarterCleared) (if (isDark) Color(0xFF133322) else SageGreen.copy(alpha = 0.12f)) else (if (isDark) Color(0xFF3B151E) else Terracotta.copy(alpha = 0.12f))),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = if (isStarterCleared) Icons.Default.Refresh else Icons.Default.DeleteSweep,
                             contentDescription = null,
-                            tint = if (isStarterCleared) SageGreen else Terracotta,
+                            tint = if (isStarterCleared) (if (isDark) Color(0xFF34D399) else SageGreen) else (if (isDark) Color(0xFFF87171) else Terracotta),
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -133,12 +137,12 @@ fun ClearStarterPackBottomSheet(
                             text = "Starter Curriculum Pack",
                             fontSize = 17.sp,
                             fontWeight = FontWeight.Bold,
-                            color = DeepIndigo
+                            color = AppTextPrimary
                         )
                         Text(
                             text = if (isStarterCleared) "Currently: Cleared (Custom Mode)" else "Currently: Pre-loaded Demo Data",
                             fontSize = 12.sp,
-                            color = if (isStarterCleared) SageGreen else TextSecondary,
+                            color = if (isStarterCleared) (if (isDark) Color(0xFF34D399) else SageGreen) else AppTextSecondary,
                             fontWeight = FontWeight.Medium
                         )
                     }
@@ -151,7 +155,7 @@ fun ClearStarterPackBottomSheet(
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Close",
-                        tint = TextSecondary
+                        tint = AppTextSecondary
                     )
                 }
             }
@@ -161,8 +165,8 @@ fun ClearStarterPackBottomSheet(
             // User Safety Guarantee Banner
             Card(
                 shape = RoundedCornerShape(14.dp),
-                colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-                border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                colors = CardDefaults.cardColors(containerColor = AppSurface),
+                border = BorderStroke(1.dp, AppBorder),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
@@ -175,13 +179,13 @@ fun ClearStarterPackBottomSheet(
                         modifier = Modifier
                             .size(32.dp)
                             .clip(CircleShape)
-                            .background(SageGreen.copy(alpha = 0.15f)),
+                            .background(if (isDark) Color(0xFF133322) else SageGreen.copy(alpha = 0.15f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.Security,
                             contentDescription = null,
-                            tint = SageGreen,
+                            tint = if (isDark) Color(0xFF34D399) else SageGreen,
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -191,13 +195,13 @@ fun ClearStarterPackBottomSheet(
                             text = "Your Personal Data Is Protected",
                             fontSize = 13.5.sp,
                             fontWeight = FontWeight.Bold,
-                            color = TextPrimary
+                            color = AppTextPrimary
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "Clearing the starter pack ONLY removes the built-in 'Indian Polity' sample curriculum. Any subjects you created, notes you added or uploaded, questions you created, and imported packs remain 100% safe and intact.",
                             fontSize = 12.sp,
-                            color = TextSecondary,
+                            color = AppTextSecondary,
                             lineHeight = 17.sp
                         )
                     }
@@ -209,8 +213,8 @@ fun ClearStarterPackBottomSheet(
             // Starter Pack Content Breakdown Card
             Surface(
                 shape = RoundedCornerShape(14.dp),
-                color = SurfaceWhite,
-                border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                color = AppSurface,
+                border = BorderStroke(1.dp, AppBorder),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(14.dp)) {
@@ -218,7 +222,7 @@ fun ClearStarterPackBottomSheet(
                         text = "Starter Pack Includes:",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
-                        color = DeepIndigo
+                        color = AppTextPrimary
                     )
                     Spacer(modifier = Modifier.height(10.dp))
 
@@ -230,7 +234,7 @@ fun ClearStarterPackBottomSheet(
                         Icon(
                             imageVector = Icons.Default.Description,
                             contentDescription = null,
-                            tint = DeepIndigo,
+                            tint = if (isDark) Color(0xFF818CF8) else DeepIndigo,
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
@@ -238,13 +242,13 @@ fun ClearStarterPackBottomSheet(
                             text = "30 Revision Notes",
                             fontSize = 12.5.sp,
                             fontWeight = FontWeight.Medium,
-                            color = TextPrimary
+                            color = AppTextPrimary
                         )
                         Spacer(modifier = Modifier.weight(1f))
                         Text(
                             text = "Indian Polity Chapters 1–30",
                             fontSize = 11.5.sp,
-                            color = TextSecondary
+                            color = AppTextSecondary
                         )
                     }
 
@@ -258,7 +262,7 @@ fun ClearStarterPackBottomSheet(
                         Icon(
                             imageVector = Icons.Default.Quiz,
                             contentDescription = null,
-                            tint = SageGreen,
+                            tint = if (isDark) Color(0xFF34D399) else SageGreen,
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
@@ -266,13 +270,13 @@ fun ClearStarterPackBottomSheet(
                             text = "24 Test Questions",
                             fontSize = 12.5.sp,
                             fontWeight = FontWeight.Medium,
-                            color = TextPrimary
+                            color = AppTextPrimary
                         )
                         Spacer(modifier = Modifier.weight(1f))
                         Text(
                             text = "SRS Baseline Drill Sets",
                             fontSize = 11.5.sp,
-                            color = TextSecondary
+                            color = AppTextSecondary
                         )
                     }
 
@@ -286,7 +290,7 @@ fun ClearStarterPackBottomSheet(
                         Icon(
                             imageVector = Icons.Default.Movie,
                             contentDescription = null,
-                            tint = Terracotta,
+                            tint = if (isDark) Color(0xFFF87171) else Terracotta,
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
@@ -294,13 +298,13 @@ fun ClearStarterPackBottomSheet(
                             text = "10 Video Reels",
                             fontSize = 12.5.sp,
                             fontWeight = FontWeight.Medium,
-                            color = TextPrimary
+                            color = AppTextPrimary
                         )
                         Spacer(modifier = Modifier.weight(1f))
                         Text(
                             text = "Micro-Lectures & Insights",
                             fontSize = 11.5.sp,
-                            color = TextSecondary
+                            color = AppTextSecondary
                         )
                     }
                 }
@@ -312,8 +316,8 @@ fun ClearStarterPackBottomSheet(
                     Spacer(modifier = Modifier.height(12.dp))
                     Surface(
                         shape = RoundedCornerShape(10.dp),
-                        color = SageGreen.copy(alpha = 0.12f),
-                        border = BorderStroke(1.dp, SageGreen.copy(alpha = 0.3f)),
+                        color = if (isDark) Color(0xFF133322) else SageGreen.copy(alpha = 0.12f),
+                        border = BorderStroke(1.dp, if (isDark) Color(0xFF059669) else SageGreen.copy(alpha = 0.3f)),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Row(
@@ -323,14 +327,14 @@ fun ClearStarterPackBottomSheet(
                             Icon(
                                 imageVector = Icons.Default.CheckCircle,
                                 contentDescription = null,
-                                tint = SageGreen,
+                                tint = if (isDark) Color(0xFF34D399) else SageGreen,
                                 modifier = Modifier.size(18.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 text = msg,
                                 fontSize = 12.5.sp,
-                                color = TextPrimary,
+                                color = AppTextPrimary,
                                 lineHeight = 16.sp
                             )
                         }
@@ -349,7 +353,7 @@ fun ClearStarterPackBottomSheet(
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator(
-                        color = DeepIndigo,
+                        color = if (isDark) Color(0xFF818CF8) else DeepIndigo,
                         strokeWidth = 2.5.dp,
                         modifier = Modifier.size(28.dp)
                     )
@@ -368,7 +372,7 @@ fun ClearStarterPackBottomSheet(
                     },
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Terracotta,
+                        containerColor = if (isDark) Color(0xFFEF4444) else Terracotta,
                         contentColor = Color.White
                     ),
                     modifier = Modifier
@@ -402,7 +406,7 @@ fun ClearStarterPackBottomSheet(
                     },
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = DeepIndigo,
+                        containerColor = if (isDark) Color(0xFF6366F1) else DeepIndigo,
                         contentColor = Color.White
                     ),
                     modifier = Modifier
@@ -434,15 +438,15 @@ fun ClearStarterPackBottomSheet(
                 Text(
                     text = if (showAdvancedWipe) "Hide Advanced Options" else "Advanced Options (Fresh Start)",
                     fontSize = 12.sp,
-                    color = TextSecondary
+                    color = AppTextSecondary
                 )
             }
 
             AnimatedVisibility(visible = showAdvancedWipe) {
                 Surface(
                     shape = RoundedCornerShape(12.dp),
-                    color = Color(0xFFFEF2F2),
-                    border = BorderStroke(1.dp, Color(0xFFFCA5A5)),
+                    color = if (isDark) Color(0xFF2D1214) else Color(0xFFFEF2F2),
+                    border = BorderStroke(1.dp, if (isDark) Color(0xFF7F1D1D) else Color(0xFFFCA5A5)),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp)
@@ -452,7 +456,7 @@ fun ClearStarterPackBottomSheet(
                             Icon(
                                 imageVector = Icons.Default.Warning,
                                 contentDescription = null,
-                                tint = Color(0xFFDC2626),
+                                tint = if (isDark) Color(0xFFF87171) else Color(0xFFDC2626),
                                 modifier = Modifier.size(18.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
@@ -460,14 +464,14 @@ fun ClearStarterPackBottomSheet(
                                 text = "Reset All App Data",
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFFDC2626)
+                                color = if (isDark) Color(0xFFF87171) else Color(0xFFDC2626)
                             )
                         }
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             text = "Clears everything including starter packs and any user-created notes or questions, leaving a completely blank slate.",
                             fontSize = 11.5.sp,
-                            color = Color(0xFF7F1D1D),
+                            color = if (isDark) Color(0xFFFCA5A5) else Color(0xFF7F1D1D),
                             lineHeight = 16.sp
                         )
                         Spacer(modifier = Modifier.height(12.dp))
@@ -480,9 +484,9 @@ fun ClearStarterPackBottomSheet(
                                     Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
                                 }
                             },
-                            border = BorderStroke(1.dp, Color(0xFFDC2626)),
+                            border = BorderStroke(1.dp, if (isDark) Color(0xFFF87171) else Color(0xFFDC2626)),
                             colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = Color(0xFFDC2626)
+                                contentColor = if (isDark) Color(0xFFF87171) else Color(0xFFDC2626)
                             ),
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier

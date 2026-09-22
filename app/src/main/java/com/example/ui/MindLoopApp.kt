@@ -921,10 +921,10 @@ fun MindLoopApp(
                             onUploadMultipleReels = { items ->
                                 coroutineScope.launch {
                                     val baseTime = System.currentTimeMillis()
-                                    items.forEachIndexed { index, item ->
+                                    val newReels = items.mapIndexed { index, item ->
                                         val newId = baseTime + index
                                         val savedPath = com.example.util.ReelVideoCacheManager.saveUploadedVideo(context, newId, item.uri)
-                                        val newReel = com.example.data.entity.ReelEntity(
+                                        com.example.data.entity.ReelEntity(
                                             id = newId,
                                             title = item.title,
                                             description = item.description,
@@ -934,8 +934,8 @@ fun MindLoopApp(
                                             videoUrl = savedPath,
                                             durationSeconds = 30
                                         )
-                                        viewModel.insertReel(newReel)
                                     }
+                                    viewModel.insertReels(newReels)
                                 }
                             },
                             exams = curriculumExams,

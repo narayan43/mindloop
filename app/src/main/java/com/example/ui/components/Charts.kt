@@ -1,5 +1,6 @@
 package com.example.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -32,8 +33,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.theme.Amber
+import com.example.ui.theme.AppBorder
+import com.example.ui.theme.AppSurface
+import com.example.ui.theme.AppTextPrimary
+import com.example.ui.theme.AppTextSecondary
 import com.example.ui.theme.CardBorder
 import com.example.ui.theme.DeepIndigo
+import com.example.ui.theme.LocalIsDarkTheme
 import com.example.ui.theme.SageGreen
 import com.example.ui.theme.SageGreenLight
 import com.example.ui.theme.SurfaceWhite
@@ -59,7 +65,8 @@ fun WeeklyQuestionsBarChart(
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+        colors = CardDefaults.cardColors(containerColor = AppSurface),
+        border = BorderStroke(1.dp, AppBorder),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -67,7 +74,7 @@ fun WeeklyQuestionsBarChart(
                 text = "Weekly Questions Attempted",
                 fontWeight = FontWeight.Bold,
                 fontSize = 15.sp,
-                color = DeepIndigo
+                color = AppTextPrimary
             )
 
             Spacer(modifier = Modifier.height(18.dp))
@@ -92,7 +99,7 @@ fun WeeklyQuestionsBarChart(
                             text = "$count",
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Medium,
-                            color = TextPrimary
+                            color = AppTextPrimary
                         )
 
                         Spacer(modifier = Modifier.height(6.dp))
@@ -102,7 +109,7 @@ fun WeeklyQuestionsBarChart(
                                 .width(22.dp)
                                 .height((80 * barHeightFraction).dp)
                                 .clip(RoundedCornerShape(topStart = 6.dp, topEnd = 6.dp))
-                                .background(DeepIndigo)
+                                .background(if (LocalIsDarkTheme.current) Color(0xFF818CF8) else DeepIndigo)
                         )
 
                         Spacer(modifier = Modifier.height(8.dp))
@@ -110,7 +117,7 @@ fun WeeklyQuestionsBarChart(
                         Text(
                             text = day,
                             fontSize = 11.sp,
-                            color = TextSecondary
+                            color = AppTextSecondary
                         )
                     }
                 }
@@ -133,7 +140,8 @@ fun AccuracyDonutChart(
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+        colors = CardDefaults.cardColors(containerColor = AppSurface),
+        border = BorderStroke(1.dp, AppBorder),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -141,7 +149,7 @@ fun AccuracyDonutChart(
                 text = "Accuracy by Chapter",
                 fontWeight = FontWeight.Bold,
                 fontSize = 15.sp,
-                color = DeepIndigo
+                color = AppTextPrimary
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -245,7 +253,8 @@ fun StudyTimeSparklineCard(
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+        colors = CardDefaults.cardColors(containerColor = AppSurface),
+        border = BorderStroke(1.dp, AppBorder),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -257,7 +266,7 @@ fun StudyTimeSparklineCard(
                 Text(
                     text = "Total Study Time This Week",
                     fontSize = 14.sp,
-                    color = TextSecondary,
+                    color = AppTextSecondary,
                     fontWeight = FontWeight.Medium
                 )
                 Text(
@@ -272,7 +281,7 @@ fun StudyTimeSparklineCard(
                 text = totalTimeStr,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
-                color = DeepIndigo
+                color = AppTextPrimary
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -349,7 +358,8 @@ fun TimeSpentBySubjectChart(
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+        colors = CardDefaults.cardColors(containerColor = AppSurface),
+        border = BorderStroke(1.dp, AppBorder),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -357,7 +367,7 @@ fun TimeSpentBySubjectChart(
                 text = "Time Spent by Subject",
                 fontWeight = FontWeight.Bold,
                 fontSize = 15.sp,
-                color = DeepIndigo
+                color = AppTextPrimary
             )
 
             Spacer(modifier = Modifier.height(14.dp))
@@ -375,7 +385,7 @@ fun TimeSpentBySubjectChart(
                     Text(
                         text = subject,
                         fontSize = 12.5.sp,
-                        color = TextPrimary,
+                        color = AppTextPrimary,
                         modifier = Modifier.width(90.dp)
                     )
 
@@ -384,7 +394,7 @@ fun TimeSpentBySubjectChart(
                             .weight(1f)
                             .height(14.dp)
                             .clip(RoundedCornerShape(7.dp))
-                            .background(Color(0xFFEFF2F5))
+                            .background(if (LocalIsDarkTheme.current) Color(0xFF334155) else Color(0xFFEFF2F5))
                     ) {
                         Box(
                             modifier = Modifier
@@ -401,7 +411,7 @@ fun TimeSpentBySubjectChart(
                         text = timeStr,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
-                        color = TextSecondary,
+                        color = AppTextSecondary,
                         modifier = Modifier.width(55.dp)
                     )
                 }
@@ -418,7 +428,8 @@ fun StudyConsistencyHeatmap(
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+        colors = CardDefaults.cardColors(containerColor = AppSurface),
+        border = BorderStroke(1.dp, AppBorder),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -431,12 +442,12 @@ fun StudyConsistencyHeatmap(
                     text = "Study Consistency",
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp,
-                    color = DeepIndigo
+                    color = AppTextPrimary
                 )
                 Text(
                     text = "Last 4–5 weeks",
                     fontSize = 12.sp,
-                    color = TextSecondary
+                    color = AppTextSecondary
                 )
             }
 

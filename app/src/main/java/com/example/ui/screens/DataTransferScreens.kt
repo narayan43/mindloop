@@ -106,8 +106,15 @@ import com.example.data.model.DataBackupManager
 import com.example.data.model.MindLoopCourseBackup
 import com.example.ui.components.InteractiveCardBorder
 import com.example.ui.components.MindLoopPrimaryButton
+import com.example.ui.theme.AppBackground
+import com.example.ui.theme.AppBorder
+import com.example.ui.theme.AppSurface
+import com.example.ui.theme.AppSurfaceElevated
+import com.example.ui.theme.AppTextPrimary
+import com.example.ui.theme.AppTextSecondary
 import com.example.ui.theme.BackgroundOffWhite
 import com.example.ui.theme.DeepIndigo
+import com.example.ui.theme.LocalIsDarkTheme
 import com.example.ui.theme.SageGreen
 import com.example.ui.theme.SurfaceWhite
 import com.example.ui.theme.Terracotta
@@ -206,6 +213,7 @@ fun ExportDataBottomSheet(
 
     val totalSelectedItems = filteredNotesCount + filteredQuestionsCount + filteredReelsCount + filteredCurriculumCount + filteredAttemptsCount + filteredSessionsCount
 
+    val isDark = LocalIsDarkTheme.current
     var isExporting by remember { mutableStateOf(false) }
     var exportedJsonString by remember { mutableStateOf<String?>(null) }
     var showSuccessCard by remember { mutableStateOf(false) }
@@ -213,7 +221,7 @@ fun ExportDataBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = BackgroundOffWhite,
+        containerColor = AppSurface,
         modifier = modifier.testTag("export_data_bottom_sheet")
     ) {
         Column(
@@ -234,13 +242,13 @@ fun ExportDataBottomSheet(
                         modifier = Modifier
                             .size(42.dp)
                             .clip(CircleShape)
-                            .background(DeepIndigo.copy(alpha = 0.12f)),
+                            .background(if (isDark) Color(0xFF312E81).copy(alpha = 0.5f) else DeepIndigo.copy(alpha = 0.12f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.CloudUpload,
                             contentDescription = null,
-                            tint = DeepIndigo,
+                            tint = if (isDark) Color(0xFFA5B4FC) else DeepIndigo,
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -250,12 +258,12 @@ fun ExportDataBottomSheet(
                             text = "Export Study Data",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = DeepIndigo
+                            color = AppTextPrimary
                         )
                         Text(
                             text = "Share notes, reels & questions with others",
                             fontSize = 12.sp,
-                            color = TextSecondary
+                            color = AppTextSecondary
                         )
                     }
                 }
@@ -267,7 +275,7 @@ fun ExportDataBottomSheet(
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Close",
-                        tint = TextSecondary
+                        tint = AppTextSecondary
                     )
                 }
             }
@@ -278,8 +286,19 @@ fun ExportDataBottomSheet(
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                color = if (includeUserData) SageGreen.copy(alpha = 0.12f) else DeepIndigo.copy(alpha = 0.08f),
-                border = BorderStroke(1.dp, if (includeUserData) SageGreen.copy(alpha = 0.35f) else DeepIndigo.copy(alpha = 0.2f))
+                color = if (includeUserData) {
+                    if (isDark) Color(0xFF064E3B).copy(alpha = 0.35f) else SageGreen.copy(alpha = 0.12f)
+                } else {
+                    if (isDark) Color(0xFF1E293B) else DeepIndigo.copy(alpha = 0.08f)
+                },
+                border = BorderStroke(
+                    1.dp,
+                    if (includeUserData) {
+                        if (isDark) Color(0xFF059669).copy(alpha = 0.5f) else SageGreen.copy(alpha = 0.35f)
+                    } else {
+                        if (isDark) Color(0xFF334155) else DeepIndigo.copy(alpha = 0.2f)
+                    }
+                )
             ) {
                 Row(
                     modifier = Modifier.padding(12.dp),
@@ -288,7 +307,7 @@ fun ExportDataBottomSheet(
                     Icon(
                         imageVector = if (includeUserData) Icons.Default.CloudSync else Icons.Default.Shield,
                         contentDescription = null,
-                        tint = if (includeUserData) SageGreen else DeepIndigo,
+                        tint = if (includeUserData) (if (isDark) Color(0xFF34D399) else SageGreen) else (if (isDark) Color(0xFFA5B4FC) else DeepIndigo),
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -299,7 +318,7 @@ fun ExportDataBottomSheet(
                             "Clean Course Pack: Personal test attempts, mistakes notebook, and streak remain private on your device."
                         },
                         fontSize = 12.sp,
-                        color = DeepIndigo,
+                        color = AppTextPrimary,
                         lineHeight = 16.sp
                     )
                 }
@@ -317,7 +336,7 @@ fun ExportDataBottomSheet(
                     text = "Select Data Categories",
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
-                    color = DeepIndigo
+                    color = AppTextPrimary
                 )
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -340,7 +359,7 @@ fun ExportDataBottomSheet(
                             text = if (isAllSelected) "Deselect All" else "Select All",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = DeepIndigo
+                            color = if (isDark) Color(0xFFA5B4FC) else DeepIndigo
                         )
                     }
                 }
@@ -415,13 +434,13 @@ fun ExportDataBottomSheet(
                 text = "Filter by Subject (Optional)",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
-                color = DeepIndigo
+                color = AppTextPrimary
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "Choose whether to export the whole course or specific subjects",
                 fontSize = 12.sp,
-                color = TextSecondary
+                color = AppTextSecondary
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -437,8 +456,10 @@ fun ExportDataBottomSheet(
                     onClick = { selectedSubjectFilters = emptySet() },
                     label = { Text("All Subjects (${availableSubjectNames.size})", fontSize = 12.sp) },
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = DeepIndigo,
-                        selectedLabelColor = Color.White
+                        selectedContainerColor = if (isDark) Color(0xFF4F46E5) else DeepIndigo,
+                        selectedLabelColor = Color.White,
+                        containerColor = if (isDark) Color(0xFF1E293B) else Color(0xFFF1F5F9),
+                        labelColor = AppTextSecondary
                     )
                 )
 
@@ -455,8 +476,10 @@ fun ExportDataBottomSheet(
                         },
                         label = { Text(subj, fontSize = 12.sp) },
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = DeepIndigo,
-                            selectedLabelColor = Color.White
+                            selectedContainerColor = if (isDark) Color(0xFF4F46E5) else DeepIndigo,
+                            selectedLabelColor = Color.White,
+                            containerColor = if (isDark) Color(0xFF1E293B) else Color(0xFFF1F5F9),
+                            labelColor = AppTextSecondary
                         )
                     )
                 }
@@ -469,8 +492,8 @@ fun ExportDataBottomSheet(
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    color = Color.White,
-                    border = BorderStroke(1.dp, SageGreen.copy(alpha = 0.5f)),
+                    color = AppSurfaceElevated,
+                    border = BorderStroke(1.dp, if (isDark) Color(0xFF059669).copy(alpha = 0.5f) else SageGreen.copy(alpha = 0.5f)),
                     shadowElevation = 2.dp
                 ) {
                     Column(
@@ -480,7 +503,7 @@ fun ExportDataBottomSheet(
                         Icon(
                             imageVector = Icons.Default.CheckCircle,
                             contentDescription = null,
-                            tint = SageGreen,
+                            tint = if (isDark) Color(0xFF34D399) else SageGreen,
                             modifier = Modifier.size(44.dp)
                         )
                         Spacer(modifier = Modifier.height(8.dp))
@@ -488,12 +511,12 @@ fun ExportDataBottomSheet(
                             text = "Course Pack (.mlpack) Generated!",
                             fontSize = 17.sp,
                             fontWeight = FontWeight.Bold,
-                            color = DeepIndigo
+                            color = AppTextPrimary
                         )
                         Text(
                             text = "Complete study pack with $totalSelectedItems items, offline videos & diagrams is ready to share.",
                             fontSize = 13.sp,
-                            color = TextSecondary,
+                            color = AppTextSecondary,
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(14.dp))
@@ -510,7 +533,11 @@ fun ExportDataBottomSheet(
                                     }
                                 },
                                 modifier = Modifier.weight(1f),
-                                shape = RoundedCornerShape(12.dp)
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = if (isDark) Color(0xFFA5B4FC) else DeepIndigo
+                                ),
+                                border = BorderStroke(1.dp, if (isDark) Color(0xFF475569) else InteractiveCardBorder)
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.ContentCopy,
@@ -543,7 +570,7 @@ fun ExportDataBottomSheet(
                                     )
                                     DataBackupManager.exportAndShareMlpack(context, backup)
                                 },
-                                colors = ButtonDefaults.buttonColors(containerColor = DeepIndigo),
+                                colors = ButtonDefaults.buttonColors(containerColor = if (isDark) Color(0xFF4F46E5) else DeepIndigo),
                                 modifier = Modifier.weight(1f),
                                 shape = RoundedCornerShape(12.dp)
                             ) {
@@ -565,8 +592,8 @@ fun ExportDataBottomSheet(
                         .fillMaxWidth()
                         .padding(bottom = 14.dp),
                     shape = RoundedCornerShape(12.dp),
-                    color = Color(0xFFF8FAFC),
-                    border = BorderStroke(1.dp, Color(0xFFE2E8F0))
+                    color = if (isDark) Color(0xFF1E293B) else Color(0xFFF8FAFC),
+                    border = BorderStroke(1.dp, if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0))
                 ) {
                     Row(
                         modifier = Modifier.padding(12.dp),
@@ -575,7 +602,7 @@ fun ExportDataBottomSheet(
                         Icon(
                             imageVector = Icons.Default.Lock,
                             contentDescription = null,
-                            tint = SageGreen,
+                            tint = if (isDark) Color(0xFF34D399) else SageGreen,
                             modifier = Modifier
                                 .size(18.dp)
                                 .padding(top = 2.dp)
@@ -586,13 +613,13 @@ fun ExportDataBottomSheet(
                                 text = "🔒 Gallery-Restricted .mlpack Export",
                                 fontSize = 12.5.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = DeepIndigo
+                                color = AppTextPrimary
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = "Bundles all notes, questions, and offline video reels (.mp4). When imported on any phone, all media files are saved strictly in app-private storage (.nomedia) and will NEVER appear in device Gallery or Google Photos.",
                                 fontSize = 11.sp,
-                                color = TextSecondary,
+                                color = AppTextSecondary,
                                 lineHeight = 15.sp
                             )
                         }
@@ -683,7 +710,11 @@ fun ExportDataBottomSheet(
                             },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Or Export Lightweight JSON Only (Without Video Files)", fontSize = 12.sp, color = DeepIndigo)
+                            Text(
+                                "Or Export Lightweight JSON Only (Without Video Files)",
+                                fontSize = 12.sp,
+                                color = if (isDark) Color(0xFFA5B4FC) else DeepIndigo
+                            )
                         }
                     }
                 }
@@ -713,15 +744,24 @@ private fun ExportCategoryCard(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
+    val isDark = LocalIsDarkTheme.current
     Surface(
         onClick = { onCheckedChange(!checked) },
         shape = RoundedCornerShape(14.dp),
-        color = if (checked) Color.White else BackgroundOffWhite,
+        color = if (checked) {
+            if (isDark) Color(0xFF1E293B) else Color.White
+        } else {
+            if (isDark) Color(0xFF0F172A).copy(alpha = 0.6f) else BackgroundOffWhite
+        },
         border = BorderStroke(
             1.dp,
-            if (checked) DeepIndigo.copy(alpha = 0.4f) else InteractiveCardBorder
+            if (checked) {
+                if (isDark) Color(0xFF4F46E5).copy(alpha = 0.6f) else DeepIndigo.copy(alpha = 0.4f)
+            } else {
+                if (isDark) Color(0xFF334155) else InteractiveCardBorder
+            }
         ),
-        shadowElevation = if (checked) 2.dp else 0.dp,
+        shadowElevation = if (checked && !isDark) 2.dp else 0.dp,
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
@@ -734,13 +774,19 @@ private fun ExportCategoryCard(
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(if (checked) DeepIndigo.copy(alpha = 0.1f) else Color(0xFFF1F5F9)),
+                    .background(
+                        if (checked) {
+                            if (isDark) Color(0xFF312E81).copy(alpha = 0.5f) else DeepIndigo.copy(alpha = 0.1f)
+                        } else {
+                            if (isDark) Color(0xFF1E293B) else Color(0xFFF1F5F9)
+                        }
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = if (checked) DeepIndigo else TextSecondary,
+                    tint = if (checked) (if (isDark) Color(0xFFA5B4FC) else DeepIndigo) else AppTextSecondary,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -752,12 +798,12 @@ private fun ExportCategoryCard(
                     text = title,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = if (checked) DeepIndigo else TextSecondary
+                    color = if (checked) AppTextPrimary else AppTextSecondary
                 )
                 Text(
                     text = subtitle,
                     fontSize = 11.5.sp,
-                    color = TextSecondary,
+                    color = AppTextSecondary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -766,7 +812,7 @@ private fun ExportCategoryCard(
                     text = countText,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = if (checked) SageGreen else TextMuted
+                    color = if (checked) (if (isDark) Color(0xFF34D399) else SageGreen) else TextMuted
                 )
             }
 
@@ -774,8 +820,9 @@ private fun ExportCategoryCard(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 colors = CheckboxDefaults.colors(
-                    checkedColor = DeepIndigo,
-                    checkmarkColor = Color.White
+                    checkedColor = if (isDark) Color(0xFF4F46E5) else DeepIndigo,
+                    checkmarkColor = Color.White,
+                    uncheckedColor = if (isDark) Color(0xFF64748B) else TextSecondary
                 )
             )
         }
@@ -836,10 +883,11 @@ fun ImportDataBottomSheet(
         }
     }
 
+    val isDark = LocalIsDarkTheme.current
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = BackgroundOffWhite,
+        containerColor = AppSurface,
         modifier = modifier.testTag("import_data_bottom_sheet")
     ) {
         Column(
@@ -861,13 +909,13 @@ fun ImportDataBottomSheet(
                         modifier = Modifier
                             .size(42.dp)
                             .clip(CircleShape)
-                            .background(SageGreen.copy(alpha = 0.15f)),
+                            .background(if (isDark) Color(0xFF064E3B).copy(alpha = 0.4f) else SageGreen.copy(alpha = 0.15f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.CloudDownload,
                             contentDescription = null,
-                            tint = SageGreen,
+                            tint = if (isDark) Color(0xFF34D399) else SageGreen,
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -877,12 +925,12 @@ fun ImportDataBottomSheet(
                             text = "Import Study Data",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = DeepIndigo
+                            color = AppTextPrimary
                         )
                         Text(
                             text = "Load shared notes, reels & questions into your app",
                             fontSize = 12.sp,
-                            color = TextSecondary
+                            color = AppTextSecondary
                         )
                     }
                 }
@@ -894,7 +942,7 @@ fun ImportDataBottomSheet(
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Close",
-                        tint = TextSecondary
+                        tint = AppTextSecondary
                     )
                 }
             }
@@ -907,8 +955,8 @@ fun ImportDataBottomSheet(
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(18.dp),
-                    color = Color.White,
-                    border = BorderStroke(1.dp, SageGreen.copy(alpha = 0.5f)),
+                    color = AppSurfaceElevated,
+                    border = BorderStroke(1.dp, if (isDark) Color(0xFF059669).copy(alpha = 0.5f) else SageGreen.copy(alpha = 0.5f)),
                     shadowElevation = 3.dp
                 ) {
                     Column(
@@ -919,13 +967,13 @@ fun ImportDataBottomSheet(
                             modifier = Modifier
                                 .size(56.dp)
                                 .clip(CircleShape)
-                                .background(SageGreen.copy(alpha = 0.12f)),
+                                .background(if (isDark) Color(0xFF064E3B).copy(alpha = 0.4f) else SageGreen.copy(alpha = 0.12f)),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.CheckCircle,
                                 contentDescription = null,
-                                tint = SageGreen,
+                                tint = if (isDark) Color(0xFF34D399) else SageGreen,
                                 modifier = Modifier.size(36.dp)
                             )
                         }
@@ -936,13 +984,13 @@ fun ImportDataBottomSheet(
                             text = "Import Complete!",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = DeepIndigo
+                            color = AppTextPrimary
                         )
 
                         Text(
                             text = "All study data has been successfully imported into your curriculum and database.",
                             fontSize = 13.sp,
-                            color = TextSecondary,
+                            color = AppTextSecondary,
                             textAlign = TextAlign.Center
                         )
 
@@ -994,28 +1042,42 @@ fun ImportDataBottomSheet(
                     // Method Tabs
                     TabRow(
                         selectedTabIndex = inputModeTab,
-                        containerColor = SurfaceWhite,
-                        contentColor = DeepIndigo,
+                        containerColor = AppSurfaceElevated,
+                        contentColor = if (isDark) Color(0xFFA5B4FC) else DeepIndigo,
                         indicator = { tabPositions ->
                             TabRowDefaults.SecondaryIndicator(
                                 Modifier.tabIndicatorOffset(tabPositions[inputModeTab]),
-                                color = DeepIndigo
+                                color = if (isDark) Color(0xFFA5B4FC) else DeepIndigo
                             )
                         },
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(12.dp))
-                            .border(1.dp, InteractiveCardBorder, RoundedCornerShape(12.dp))
+                            .border(1.dp, AppBorder, RoundedCornerShape(12.dp))
                     ) {
                         Tab(
                             selected = inputModeTab == 0,
                             onClick = { inputModeTab = 0 },
-                            text = { Text("📁 Select Backup File", fontSize = 13.sp, fontWeight = FontWeight.Bold) }
+                            text = {
+                                Text(
+                                    "📁 Select Backup File",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (inputModeTab == 0) (if (isDark) Color(0xFFA5B4FC) else DeepIndigo) else AppTextSecondary
+                                )
+                            }
                         )
                         Tab(
                             selected = inputModeTab == 1,
                             onClick = { inputModeTab = 1 },
-                            text = { Text("📋 Paste JSON Text", fontSize = 13.sp, fontWeight = FontWeight.Bold) }
+                            text = {
+                                Text(
+                                    "📋 Paste JSON Text",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (inputModeTab == 1) (if (isDark) Color(0xFFA5B4FC) else DeepIndigo) else AppTextSecondary
+                                )
+                            }
                         )
                     }
 
@@ -1026,8 +1088,8 @@ fun ImportDataBottomSheet(
                         Surface(
                             onClick = { filePickerLauncher.launch("*/*") },
                             shape = RoundedCornerShape(16.dp),
-                            color = SurfaceWhite,
-                            border = BorderStroke(1.5.dp, DeepIndigo.copy(alpha = 0.3f)),
+                            color = AppSurfaceElevated,
+                            border = BorderStroke(1.5.dp, if (isDark) Color(0xFF4F46E5).copy(alpha = 0.5f) else DeepIndigo.copy(alpha = 0.3f)),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Column(
@@ -1040,13 +1102,13 @@ fun ImportDataBottomSheet(
                                     modifier = Modifier
                                         .size(54.dp)
                                         .clip(CircleShape)
-                                        .background(DeepIndigo.copy(alpha = 0.1f)),
+                                        .background(if (isDark) Color(0xFF312E81).copy(alpha = 0.5f) else DeepIndigo.copy(alpha = 0.1f)),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.FileOpen,
                                         contentDescription = null,
-                                        tint = DeepIndigo,
+                                        tint = if (isDark) Color(0xFFA5B4FC) else DeepIndigo,
                                         modifier = Modifier.size(28.dp)
                                     )
                                 }
@@ -1057,7 +1119,7 @@ fun ImportDataBottomSheet(
                                     text = "Choose Study Pack File",
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = DeepIndigo
+                                    color = AppTextPrimary
                                 )
 
                                 Spacer(modifier = Modifier.height(4.dp))
@@ -1065,7 +1127,7 @@ fun ImportDataBottomSheet(
                                 Text(
                                     text = "Supports .mlpack complete packs (with offline videos & images) or .json files",
                                     fontSize = 12.sp,
-                                    color = TextSecondary,
+                                    color = AppTextSecondary,
                                     textAlign = TextAlign.Center
                                 )
 
@@ -1073,8 +1135,8 @@ fun ImportDataBottomSheet(
 
                                 Surface(
                                     shape = RoundedCornerShape(8.dp),
-                                    color = Color(0xFFF1F5F9),
-                                    border = BorderStroke(1.dp, Color(0xFFE2E8F0))
+                                    color = if (isDark) Color(0xFF1E293B) else Color(0xFFF1F5F9),
+                                    border = BorderStroke(1.dp, if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0))
                                 ) {
                                     Row(
                                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
@@ -1083,14 +1145,14 @@ fun ImportDataBottomSheet(
                                         Icon(
                                             imageVector = Icons.Default.Lock,
                                             contentDescription = null,
-                                            tint = SageGreen,
+                                            tint = if (isDark) Color(0xFF34D399) else SageGreen,
                                             modifier = Modifier.size(13.dp)
                                         )
                                         Spacer(modifier = Modifier.width(6.dp))
                                         Text(
                                             text = "App-restricted storage: Media will not show in phone Gallery",
                                             fontSize = 11.sp,
-                                            color = TextSecondary
+                                            color = AppTextSecondary
                                         )
                                     }
                                 }
@@ -1099,7 +1161,7 @@ fun ImportDataBottomSheet(
 
                                 Button(
                                     onClick = { filePickerLauncher.launch("*/*") },
-                                    colors = ButtonDefaults.buttonColors(containerColor = DeepIndigo),
+                                    colors = ButtonDefaults.buttonColors(containerColor = if (isDark) Color(0xFF4F46E5) else DeepIndigo),
                                     shape = RoundedCornerShape(10.dp)
                                 ) {
                                     Text("Browse Files (.mlpack / .json)", fontSize = 13.sp, fontWeight = FontWeight.Bold)
@@ -1200,8 +1262,8 @@ fun ImportDataBottomSheet(
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
-                        color = SurfaceWhite,
-                        border = BorderStroke(1.dp, SageGreen.copy(alpha = 0.4f)),
+                        color = AppSurfaceElevated,
+                        border = BorderStroke(1.dp, if (isDark) Color(0xFF059669).copy(alpha = 0.5f) else SageGreen.copy(alpha = 0.4f)),
                         shadowElevation = 2.dp
                     ) {
                         Column(modifier = Modifier.padding(18.dp)) {
@@ -1214,7 +1276,7 @@ fun ImportDataBottomSheet(
                                     Icon(
                                         imageVector = Icons.Default.AutoAwesome,
                                         contentDescription = null,
-                                        tint = SageGreen,
+                                        tint = if (isDark) Color(0xFF34D399) else SageGreen,
                                         modifier = Modifier.size(20.dp)
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
@@ -1222,7 +1284,7 @@ fun ImportDataBottomSheet(
                                         text = "Course Pack Verified",
                                         fontSize = 15.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = DeepIndigo
+                                        color = AppTextPrimary
                                     )
                                 }
 
@@ -1233,7 +1295,7 @@ fun ImportDataBottomSheet(
                                         rawJsonText = ""
                                     }
                                 ) {
-                                    Text("Change File", fontSize = 12.sp, color = DeepIndigo)
+                                    Text("Change File", fontSize = 12.sp, color = if (isDark) Color(0xFFA5B4FC) else DeepIndigo)
                                 }
                             }
 
@@ -1242,7 +1304,7 @@ fun ImportDataBottomSheet(
                             Text(
                                 text = "Source: ${backup.sourceUser} • Exported: ${backup.exportedDateFormatted.ifBlank { "Recently" }}",
                                 fontSize = 12.sp,
-                                color = TextSecondary
+                                color = AppTextSecondary
                             )
 
                             Spacer(modifier = Modifier.height(10.dp))
@@ -1251,8 +1313,8 @@ fun ImportDataBottomSheet(
                             if (parsedPackageResult?.isMlpack == true) {
                                 Surface(
                                     shape = RoundedCornerShape(10.dp),
-                                    color = DeepIndigo.copy(alpha = 0.06f),
-                                    border = BorderStroke(1.dp, DeepIndigo.copy(alpha = 0.2f)),
+                                    color = if (isDark) Color(0xFF1E293B) else DeepIndigo.copy(alpha = 0.06f),
+                                    border = BorderStroke(1.dp, if (isDark) Color(0xFF334155) else DeepIndigo.copy(alpha = 0.2f)),
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
                                     Column(modifier = Modifier.padding(12.dp)) {
@@ -1260,7 +1322,7 @@ fun ImportDataBottomSheet(
                                             Icon(
                                                 imageVector = Icons.Default.CheckCircle,
                                                 contentDescription = null,
-                                                tint = SageGreen,
+                                                tint = if (isDark) Color(0xFF34D399) else SageGreen,
                                                 modifier = Modifier.size(16.dp)
                                             )
                                             Spacer(modifier = Modifier.width(6.dp))
@@ -1268,21 +1330,21 @@ fun ImportDataBottomSheet(
                                                 text = "Complete .mlpack Archive",
                                                 fontSize = 13.sp,
                                                 fontWeight = FontWeight.Bold,
-                                                color = DeepIndigo
+                                                color = AppTextPrimary
                                             )
                                         }
                                         Spacer(modifier = Modifier.height(4.dp))
                                         Text(
                                             text = "🎬 ${parsedPackageResult?.videosCount ?: 0} Video Lessons • 🖼️ ${parsedPackageResult?.imagesCount ?: 0} Note Images included",
                                             fontSize = 12.sp,
-                                            color = TextSecondary
+                                            color = AppTextSecondary
                                         )
                                         Spacer(modifier = Modifier.height(6.dp))
                                         Row(verticalAlignment = Alignment.Top) {
                                             Icon(
                                                 imageVector = Icons.Default.Lock,
                                                 contentDescription = null,
-                                                tint = SageGreen,
+                                                tint = if (isDark) Color(0xFF34D399) else SageGreen,
                                                 modifier = Modifier
                                                     .size(14.dp)
                                                     .padding(top = 1.dp)
@@ -1291,7 +1353,7 @@ fun ImportDataBottomSheet(
                                             Text(
                                                 text = "Privacy Guarantee: Media is restricted to MindLoop app storage (.nomedia enabled). Never visible in phone Gallery or Google Photos.",
                                                 fontSize = 11.5.sp,
-                                                color = SageGreen,
+                                                color = if (isDark) Color(0xFF34D399) else SageGreen,
                                                 lineHeight = 15.sp,
                                                 fontWeight = FontWeight.Medium
                                             )
@@ -1307,7 +1369,7 @@ fun ImportDataBottomSheet(
                                 text = "Select Content to Import into Your App:",
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = DeepIndigo
+                                color = AppTextPrimary
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
@@ -1365,14 +1427,14 @@ fun ImportDataBottomSheet(
                             Surface(
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(10.dp),
-                                color = Color(0xFFF8FAFC),
-                                border = BorderStroke(1.dp, Color(0xFFE2E8F0))
+                                color = if (isDark) Color(0xFF1E293B) else Color(0xFFF8FAFC),
+                                border = BorderStroke(1.dp, if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0))
                             ) {
                                 Row(modifier = Modifier.padding(10.dp)) {
                                     Icon(
                                         imageVector = Icons.Default.LibraryBooks,
                                         contentDescription = null,
-                                        tint = DeepIndigo,
+                                        tint = if (isDark) Color(0xFFA5B4FC) else DeepIndigo,
                                         modifier = Modifier.size(16.dp)
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
@@ -1380,7 +1442,7 @@ fun ImportDataBottomSheet(
                                     Text(
                                         text = "Target Subjects: " + sampleSubjects.joinToString(", ") + (if (sampleSubjects.size < backup.subjects.size) " and more..." else ""),
                                         fontSize = 11.5.sp,
-                                        color = TextSecondary
+                                        color = AppTextSecondary
                                     )
                                 }
                             }
@@ -1446,6 +1508,7 @@ private fun ImportCategoryCheckbox(
     count: Int
 ) {
     if (count == 0) return
+    val isDark = LocalIsDarkTheme.current
 
     Row(
         modifier = Modifier
@@ -1458,8 +1521,9 @@ private fun ImportCategoryCheckbox(
             checked = checked,
             onCheckedChange = onCheckedChange,
             colors = CheckboxDefaults.colors(
-                checkedColor = DeepIndigo,
-                checkmarkColor = Color.White
+                checkedColor = if (isDark) Color(0xFF4F46E5) else DeepIndigo,
+                checkmarkColor = Color.White,
+                uncheckedColor = if (isDark) Color(0xFF64748B) else TextSecondary
             )
         )
         Spacer(modifier = Modifier.width(6.dp))
@@ -1468,12 +1532,12 @@ private fun ImportCategoryCheckbox(
                 text = label,
                 fontSize = 13.5.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = DeepIndigo
+                color = AppTextPrimary
             )
             Text(
                 text = subtitle,
                 fontSize = 11.sp,
-                color = TextSecondary
+                color = AppTextSecondary
             )
         }
     }
@@ -1484,6 +1548,7 @@ private fun ImportMetricBadge(
     count: Int,
     label: String
 ) {
+    val isDark = LocalIsDarkTheme.current
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.padding(horizontal = 4.dp)
@@ -1492,12 +1557,12 @@ private fun ImportMetricBadge(
             text = count.toString(),
             fontSize = 18.sp,
             fontWeight = FontWeight.ExtraBold,
-            color = DeepIndigo
+            color = if (isDark) Color(0xFFA5B4FC) else DeepIndigo
         )
         Text(
             text = label,
             fontSize = 11.sp,
-            color = TextSecondary
+            color = AppTextSecondary
         )
     }
 }
