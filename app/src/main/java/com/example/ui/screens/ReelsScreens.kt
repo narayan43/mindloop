@@ -588,6 +588,14 @@ fun ReelExamListScreen(
                     val examReelsCount = allReels.count { it.exam.equals(exam.name, ignoreCase = true) }
                     val userCanModify = canModify(exam.createdBy)
 
+                    val isDark = LocalIsDarkTheme.current
+                    val iconBg = if (isDark) Color(0xFF243044) else DeepIndigo.copy(alpha = 0.08f)
+                    val iconTint = if (isDark) Color(0xFF818CF8) else DeepIndigo
+                    val reelBadgeBg = if (isDark) Color(0xFF3E1B1B) else TerracottaLight
+                    val reelBadgeText = if (isDark) Color(0xFFF87171) else Terracotta
+                    val createdBadgeBg = if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0)
+                    val createdBadgeText = if (isDark) Color(0xFFE2E8F0) else DeepIndigo
+
                     InteractiveCard(
                         onClick = { onSelectExam(exam.name) },
                         modifier = Modifier
@@ -606,13 +614,13 @@ fun ReelExamListScreen(
                                 modifier = Modifier
                                     .size(50.dp)
                                     .clip(RoundedCornerShape(14.dp))
-                                    .background(DeepIndigo.copy(alpha = 0.08f)),
+                                    .background(iconBg),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Outlined.Shield,
                                     contentDescription = null,
-                                    tint = DeepIndigo,
+                                    tint = iconTint,
                                     modifier = Modifier.size(26.dp)
                                 )
                             }
@@ -624,14 +632,14 @@ fun ReelExamListScreen(
                                     text = exam.name,
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = DeepIndigo
+                                    color = AppTextPrimary
                                 )
                                 if (exam.subtitle.isNotBlank()) {
                                     Spacer(modifier = Modifier.height(3.dp))
                                     Text(
                                         text = exam.subtitle,
                                         fontSize = 12.5.sp,
-                                        color = TextSecondary,
+                                        color = AppTextSecondary,
                                         maxLines = 2,
                                         overflow = TextOverflow.Ellipsis,
                                         lineHeight = 16.sp
@@ -642,28 +650,28 @@ fun ReelExamListScreen(
                                     Box(
                                         modifier = Modifier
                                             .clip(RoundedCornerShape(8.dp))
-                                            .background(TerracottaLight)
+                                            .background(reelBadgeBg)
                                             .padding(horizontal = 8.dp, vertical = 2.dp)
                                     ) {
                                         Text(
                                             text = "$examReelsCount Reels",
                                             fontSize = 11.sp,
                                             fontWeight = FontWeight.SemiBold,
-                                            color = Terracotta
+                                            color = reelBadgeText
                                         )
                                     }
                                     if (userCanModify) {
                                         Box(
                                             modifier = Modifier
                                                 .clip(RoundedCornerShape(8.dp))
-                                                .background(Color(0xFFE2E8F0))
+                                                .background(createdBadgeBg)
                                                 .padding(horizontal = 6.dp, vertical = 2.dp)
                                         ) {
                                             Text(
                                                 text = "Created by you",
                                                 fontSize = 10.sp,
                                                 fontWeight = FontWeight.Medium,
-                                                color = DeepIndigo
+                                                color = createdBadgeText
                                             )
                                         }
                                     }
@@ -677,13 +685,13 @@ fun ReelExamListScreen(
                                         onClick = { editingExam = exam },
                                         modifier = Modifier.size(32.dp).testTag("edit_exam_${exam.id}")
                                     ) {
-                                        Icon(Icons.Default.Edit, contentDescription = "Edit Exam", tint = DeepIndigo, modifier = Modifier.size(16.dp))
+                                        Icon(Icons.Default.Edit, contentDescription = "Edit Exam", tint = AppTextPrimary, modifier = Modifier.size(16.dp))
                                     }
                                     IconButton(
                                         onClick = { deletingExam = exam },
                                         modifier = Modifier.size(32.dp).testTag("delete_exam_${exam.id}")
                                     ) {
-                                        Icon(Icons.Default.Delete, contentDescription = "Delete Exam", tint = Terracotta, modifier = Modifier.size(16.dp))
+                                        Icon(Icons.Default.Delete, contentDescription = "Delete Exam", tint = reelBadgeText, modifier = Modifier.size(16.dp))
                                     }
                                 }
                             }
@@ -691,7 +699,7 @@ fun ReelExamListScreen(
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                                 contentDescription = null,
-                                tint = DeepIndigo
+                                tint = if (isDark) Color(0xFF64748B) else Color(0xFFB5BFCE)
                             )
                         }
                     }
@@ -712,6 +720,14 @@ fun ReelExamListScreen(
                     val subjectReelsCount = allReels.count { it.subject.equals(subject.name, ignoreCase = true) }
                     val userCanModify = canModify(subject.createdBy)
 
+                    val isDark = LocalIsDarkTheme.current
+                    val iconBg = if (isDark) Color(0xFF3E1B1B) else Terracotta.copy(alpha = 0.1f)
+                    val iconTint = if (isDark) Color(0xFFF87171) else Terracotta
+                    val reelBadgeBg = if (isDark) Color(0xFF3E1B1B) else TerracottaLight
+                    val reelBadgeText = if (isDark) Color(0xFFF87171) else Terracotta
+                    val createdBadgeBg = if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0)
+                    val createdBadgeText = if (isDark) Color(0xFFE2E8F0) else DeepIndigo
+
                     InteractiveCard(
                         onClick = { onSelectSubject(subject.name) },
                         modifier = Modifier
@@ -730,13 +746,13 @@ fun ReelExamListScreen(
                                 modifier = Modifier
                                     .size(46.dp)
                                     .clip(CircleShape)
-                                    .background(Terracotta.copy(alpha = 0.1f)),
+                                    .background(iconBg),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Outlined.Psychology,
                                     contentDescription = null,
-                                    tint = Terracotta,
+                                    tint = iconTint,
                                     modifier = Modifier.size(24.dp)
                                 )
                             }
@@ -748,14 +764,14 @@ fun ReelExamListScreen(
                                     text = subject.name,
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = DeepIndigo
+                                    color = AppTextPrimary
                                 )
                                 if (subject.subtitle.isNotBlank()) {
                                     Spacer(modifier = Modifier.height(3.dp))
                                     Text(
                                         text = subject.subtitle,
                                         fontSize = 12.5.sp,
-                                        color = TextSecondary,
+                                        color = AppTextSecondary,
                                         maxLines = 2,
                                         overflow = TextOverflow.Ellipsis,
                                         lineHeight = 16.sp
@@ -766,28 +782,28 @@ fun ReelExamListScreen(
                                     Box(
                                         modifier = Modifier
                                             .clip(RoundedCornerShape(8.dp))
-                                            .background(TerracottaLight)
+                                            .background(reelBadgeBg)
                                             .padding(horizontal = 8.dp, vertical = 2.dp)
                                     ) {
                                         Text(
                                             text = "$subjectReelsCount Reels",
                                             fontSize = 11.sp,
                                             fontWeight = FontWeight.SemiBold,
-                                            color = Terracotta
+                                            color = reelBadgeText
                                         )
                                     }
                                     if (userCanModify) {
                                         Box(
                                             modifier = Modifier
                                                 .clip(RoundedCornerShape(8.dp))
-                                                .background(Color(0xFFE2E8F0))
+                                                .background(createdBadgeBg)
                                                 .padding(horizontal = 6.dp, vertical = 2.dp)
                                         ) {
                                             Text(
                                                 text = "Created by you",
                                                 fontSize = 10.sp,
                                                 fontWeight = FontWeight.Medium,
-                                                color = DeepIndigo
+                                                color = createdBadgeText
                                             )
                                         }
                                     }
@@ -801,13 +817,13 @@ fun ReelExamListScreen(
                                         onClick = { editingSubject = subject },
                                         modifier = Modifier.size(32.dp).testTag("edit_subject_${subject.id}")
                                     ) {
-                                        Icon(Icons.Default.Edit, contentDescription = "Edit Subject", tint = DeepIndigo, modifier = Modifier.size(16.dp))
+                                        Icon(Icons.Default.Edit, contentDescription = "Edit Subject", tint = AppTextPrimary, modifier = Modifier.size(16.dp))
                                     }
                                     IconButton(
                                         onClick = { deletingSubject = subject },
                                         modifier = Modifier.size(32.dp).testTag("delete_subject_${subject.id}")
                                     ) {
-                                        Icon(Icons.Default.Delete, contentDescription = "Delete Subject", tint = Terracotta, modifier = Modifier.size(16.dp))
+                                        Icon(Icons.Default.Delete, contentDescription = "Delete Subject", tint = reelBadgeText, modifier = Modifier.size(16.dp))
                                     }
                                 }
                             }
@@ -815,7 +831,7 @@ fun ReelExamListScreen(
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                                 contentDescription = null,
-                                tint = DeepIndigo
+                                tint = if (isDark) Color(0xFF64748B) else Color(0xFFB5BFCE)
                             )
                         }
                     }
@@ -1736,7 +1752,7 @@ fun ReelFeedScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .statusBarsPadding()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(horizontal = 14.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -2275,9 +2291,10 @@ private fun SingleReelPlayerItem(
         Column(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(end = 16.dp, bottom = 48.dp),
+                .navigationBarsPadding()
+                .padding(end = 14.dp, bottom = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             // "Add Question / Reel Quiz" button linked to Reel ID (shows count if questions exist)
             Column(
@@ -2406,9 +2423,9 @@ private fun SingleReelPlayerItem(
         Column(
             modifier = Modifier
                 .align(Alignment.BottomStart)
-                .fillMaxWidth(0.78f)
+                .fillMaxWidth(0.80f)
                 .navigationBarsPadding()
-                .padding(start = 20.dp, bottom = 24.dp)
+                .padding(start = 16.dp, end = 8.dp, bottom = 8.dp)
         ) {
             // Subject & Chapter Tag
             Row(

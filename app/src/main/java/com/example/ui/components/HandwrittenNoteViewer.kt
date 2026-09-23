@@ -109,7 +109,7 @@ fun HandwrittenNoteViewer(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
             .background(if (isImageNote) Color(0xFFF1F5F9) else Color(0xFFE8DFD8)) // Kraft cardboard outer backing only for written notes
-            .padding(if (isImageNote) 0.dp else 10.dp)
+            .padding(if (isImageNote) 0.dp else 4.dp)
             .then(gestureModifier)
     ) {
         Card(
@@ -350,7 +350,7 @@ private fun WrittenStudyNoteView(note: NoteEntity?) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(12.dp)
+            .padding(horizontal = 10.dp, vertical = 8.dp)
     ) {
         // Header
         Row(
@@ -459,7 +459,7 @@ private fun WrittenStudyNoteView(note: NoteEntity?) {
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(54.dp))
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }

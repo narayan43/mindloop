@@ -130,6 +130,7 @@ import com.example.ui.theme.DeepIndigo
 import com.example.ui.theme.DeepIndigoLight
 import com.example.ui.theme.LocalIsDarkTheme
 import com.example.ui.theme.SageGreen
+import com.example.ui.theme.SageGreenDark
 import com.example.ui.theme.SageGreenLight
 import com.example.ui.theme.Terracotta
 import com.example.ui.theme.TerracottaLight
@@ -900,6 +901,12 @@ fun StudySubjectsGridScreen(
             }
 
             item {
+                val isDark = LocalIsDarkTheme.current
+                val addCardBg = if (isDark) Color(0xFF1E293B) else Color(0xFFF3F5F9)
+                val addBorderColor = if (isDark) Color(0xFF334155) else DeepIndigo.copy(alpha = 0.2f)
+                val iconBg = if (isDark) Color(0xFF133322) else SageGreenLight
+                val iconTint = if (isDark) Color(0xFF34D399) else SageGreen
+
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -907,8 +914,8 @@ fun StudySubjectsGridScreen(
                         .clickable { onAddSubject() }
                         .testTag("add_custom_subject_grid_card"),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF3F5F9)),
-                    border = BorderStroke(1.5.dp, DeepIndigo.copy(alpha = 0.2f))
+                    colors = CardDefaults.cardColors(containerColor = addCardBg),
+                    border = BorderStroke(1.5.dp, addBorderColor)
                 ) {
                     Column(
                         modifier = Modifier
@@ -921,13 +928,13 @@ fun StudySubjectsGridScreen(
                             modifier = Modifier
                                 .size(38.dp)
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(SageGreenLight),
+                                .background(iconBg),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Add,
                                 contentDescription = null,
-                                tint = SageGreen,
+                                tint = iconTint,
                                 modifier = Modifier.size(22.dp)
                             )
                         }
@@ -936,14 +943,14 @@ fun StudySubjectsGridScreen(
                             text = "+ Add Subject",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
-                            color = DeepIndigo,
+                            color = AppTextPrimary,
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
                             text = "Any topic / domain",
                             fontSize = 11.sp,
-                            color = TextSecondary,
+                            color = AppTextSecondary,
                             textAlign = TextAlign.Center
                         )
                     }
@@ -958,6 +965,11 @@ fun StudySubjectCard(
     subject: SubjectUiModel,
     onClick: () -> Unit
 ) {
+    val isDark = LocalIsDarkTheme.current
+    val iconBg = if (isDark) Color(0xFF243044) else Color(0xFFEEF2F8)
+    val iconTint = if (isDark) Color(0xFF818CF8) else DeepIndigo
+    val trackBg = if (isDark) Color(0xFF334155) else Color(0xFFE5E9F0)
+
     InteractiveCard(
         onClick = onClick,
         modifier = Modifier
@@ -979,13 +991,13 @@ fun StudySubjectCard(
                 modifier = Modifier
                     .size(38.dp)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(Color(0xFFEEF2F8)),
+                    .background(iconBg),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = subject.icon,
                     contentDescription = null,
-                    tint = DeepIndigo,
+                    tint = iconTint,
                     modifier = Modifier.size(22.dp)
                 )
             }
@@ -994,7 +1006,7 @@ fun StudySubjectCard(
                 text = subject.name,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                color = DeepIndigo,
+                color = AppTextPrimary,
                 maxLines = 2
             )
 
@@ -1005,14 +1017,14 @@ fun StudySubjectCard(
                         .fillMaxWidth()
                         .height(6.dp)
                         .clip(RoundedCornerShape(3.dp))
-                        .background(Color(0xFFE5E9F0))
+                        .background(trackBg)
                 ) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth(subject.progress)
                             .height(6.dp)
                             .clip(RoundedCornerShape(3.dp))
-                            .background(SageGreen)
+                            .background(if (isDark) Color(0xFF34D399) else SageGreen)
                     )
                 }
 
@@ -1021,7 +1033,7 @@ fun StudySubjectCard(
                 Text(
                     text = subject.percentageText,
                     fontSize = 12.sp,
-                    color = TextSecondary,
+                    color = AppTextSecondary,
                     textAlign = TextAlign.End,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -1365,15 +1377,16 @@ fun ChapterRowItem(
     chapter: ChapterUiModel,
     onClick: () -> Unit
 ) {
+    val isDark = LocalIsDarkTheme.current
     val badgeBg = when {
-        chapter.masteryPercent >= 80 -> SageGreenLight
-        chapter.masteryPercent >= 60 -> AmberLight
-        else -> TerracottaLight
+        chapter.masteryPercent >= 80 -> if (isDark) Color(0xFF133322) else SageGreenLight
+        chapter.masteryPercent >= 60 -> if (isDark) Color(0xFF3B2D14) else AmberLight
+        else -> if (isDark) Color(0xFF3E1B1B) else TerracottaLight
     }
     val badgeColor = when {
-        chapter.masteryPercent >= 80 -> SageGreen
-        chapter.masteryPercent >= 60 -> Amber
-        else -> Terracotta
+        chapter.masteryPercent >= 80 -> if (isDark) Color(0xFF34D399) else SageGreen
+        chapter.masteryPercent >= 60 -> if (isDark) Color(0xFFFBBF24) else Amber
+        else -> if (isDark) Color(0xFFF87171) else Terracotta
     }
 
     InteractiveCard(
@@ -1395,13 +1408,13 @@ fun ChapterRowItem(
                     text = "${chapter.number}. ${chapter.name}",
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
-                    color = DeepIndigo
+                    color = AppTextPrimary
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "${chapter.notesCount} Notes • ${chapter.questionsCount} Practice Questions",
                     fontSize = 12.5.sp,
-                    color = TextSecondary
+                    color = AppTextSecondary
                 )
             }
 
@@ -1424,7 +1437,7 @@ fun ChapterRowItem(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
-                tint = Color(0xFFB5BFCE)
+                tint = if (isDark) Color(0xFF64748B) else Color(0xFFB5BFCE)
             )
         }
     }
@@ -1576,13 +1589,13 @@ fun StudyNotesFeedScreen(
             .background(AppBackground)
             .statusBarsPadding()
             .navigationBarsPadding()
-            .padding(horizontal = 8.dp)
+            .padding(horizontal = 4.dp)
     ) {
-        Spacer(modifier = Modifier.height(6.dp))
-
-        // Header: Back button + Chapter Name + Note Counter Badge with Nav Buttons
+        // Top Header: Back button + Chapter Name + Note Counter Badge with Nav Buttons (tightened vertically)
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 4.dp, vertical = 2.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -1601,7 +1614,7 @@ fun StudyNotesFeedScreen(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
-                    tint = DeepIndigo
+                    tint = AppTextPrimary
                 )
             }
 
@@ -1609,7 +1622,7 @@ fun StudyNotesFeedScreen(
                 text = headerChapterTitle,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
-                color = DeepIndigo,
+                color = AppTextPrimary,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 lineHeight = 18.sp,
@@ -1619,9 +1632,14 @@ fun StudyNotesFeedScreen(
             )
 
             // Prominent Note Counter & Slide Affordance in the top-right corner
+            val isDark = LocalIsDarkTheme.current
+            val counterBg = if (isDark) Color(0xFF133322) else SageGreen.copy(alpha = 0.15f)
+            val counterTextColor = if (isDark) Color(0xFF34D399) else SageGreenDark
+            val counterNavTint = if (isDark) Color(0xFF34D399) else DeepIndigo
+
             Card(
                 shape = RoundedCornerShape(14.dp),
-                colors = CardDefaults.cardColors(containerColor = SageGreen.copy(alpha = 0.15f)),
+                colors = CardDefaults.cardColors(containerColor = counterBg),
                 modifier = Modifier.testTag("chapter_note_counter_badge")
             ) {
                 Row(
@@ -1640,7 +1658,7 @@ fun StudyNotesFeedScreen(
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Previous Note",
-                                tint = if (activeNoteIndex > 0) DeepIndigo else Color.LightGray,
+                                tint = if (activeNoteIndex > 0) counterNavTint else Color.LightGray.copy(alpha = 0.5f),
                                 modifier = Modifier.size(12.dp)
                             )
                         }
@@ -1650,7 +1668,7 @@ fun StudyNotesFeedScreen(
                         text = "${activeNoteIndex + 1}/$activeChapterNotesCount Notes",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
-                        color = DeepIndigo,
+                        color = counterTextColor,
                         modifier = Modifier.padding(horizontal = 4.dp)
                     )
 
@@ -1665,7 +1683,7 @@ fun StudyNotesFeedScreen(
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                                 contentDescription = "Next Note",
-                                tint = if (activeNoteIndex < activeChapterNotesCount - 1) DeepIndigo else Color.LightGray,
+                                tint = if (activeNoteIndex < activeChapterNotesCount - 1) counterNavTint else Color.LightGray.copy(alpha = 0.5f),
                                 modifier = Modifier.size(12.dp)
                             )
                         }
@@ -1758,11 +1776,17 @@ fun StudyNotesFeedScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
 
-        // Action Buttons: "+ Note", "+ Question" & Stopwatch
+        // Action Buttons: "+ Note", "+ Question" & Stopwatch (shifted cleanly to bottom edge)
+        val isDark = LocalIsDarkTheme.current
+        val actionPrimaryColor = if (isDark) Color(0xFF6366F1) else DeepIndigo
+        val noteButtonColor = if (isDark) Color(0xFF059669) else SageGreen
+
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             MindLoopPrimaryButton(
@@ -1772,7 +1796,7 @@ fun StudyNotesFeedScreen(
                     .height(44.dp)
                     .testTag("feed_add_note_button"),
                 shape = RoundedCornerShape(12.dp),
-                containerColor = SageGreen,
+                containerColor = noteButtonColor,
                 contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp)
             ) {
                 Icon(Icons.Default.CameraAlt, contentDescription = null, tint = Color.White, modifier = Modifier.size(15.dp))
@@ -1796,7 +1820,7 @@ fun StudyNotesFeedScreen(
                     .height(44.dp)
                     .testTag("feed_add_question_button"),
                 shape = RoundedCornerShape(12.dp),
-                containerColor = DeepIndigo,
+                containerColor = actionPrimaryColor,
                 contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp)
             ) {
                 Icon(Icons.Default.Add, contentDescription = null, tint = Color.White, modifier = Modifier.size(15.dp))
@@ -1817,7 +1841,7 @@ fun StudyNotesFeedScreen(
                     .height(44.dp)
                     .testTag("feed_timer_button"),
                 shape = RoundedCornerShape(12.dp),
-                containerColor = DeepIndigo,
+                containerColor = actionPrimaryColor,
                 contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp)
             ) {
                 Icon(Icons.Default.Timer, contentDescription = null, tint = Color.White, modifier = Modifier.size(15.dp))
@@ -1832,7 +1856,7 @@ fun StudyNotesFeedScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
     }
 
     if (showAddNoteDialog) {

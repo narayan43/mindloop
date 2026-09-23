@@ -45,8 +45,8 @@ import com.example.ui.theme.SurfaceWhite
 
 // High-opacity, clearly visible drop shadow colors that make interactive
 // elements appear physically raised/floating above the page background.
-val InteractiveShadowSpot = Color(0x550F172A)     // ~33% opacity deep navy/slate directional drop shadow
-val InteractiveShadowAmbient = Color(0x280F172A)  // ~16% opacity ambient shadow
+val InteractiveShadowSpot = Color(0x380F172A)     // ~22% opacity deep navy/slate directional drop shadow
+val InteractiveShadowAmbient = Color(0x180F172A)  // ~10% opacity ambient shadow
 val InteractiveCardBorder = Color(0xFFE2E8F0)
 val StaticCardBorder = Color(0xFFF1F5F9)
 

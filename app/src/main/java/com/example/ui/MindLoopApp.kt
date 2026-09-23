@@ -114,9 +114,12 @@ fun MindLoopApp(
         viewModel.navigateBack()
     }
 
-    // Navigation bar remains identical and persistent across every main study screen in the app.
-    // Hidden on Admin Panel since it has its own dedicated top-level tabs.
-    val showBottomBar = !isAuthScreen && currentUser != null && currentDestination !is ScreenDestination.AdminDashboard
+    // Navigation bar is persistent across main menu screens,
+    // but hidden on full-screen Reel feed, Study Notes feed, and Admin Panel as requested.
+    val showBottomBar = !isAuthScreen && currentUser != null &&
+            currentDestination !is ScreenDestination.AdminDashboard &&
+            currentDestination !is ScreenDestination.ReelFeed &&
+            currentDestination !is ScreenDestination.StudyNotesFeed
     Scaffold(
         modifier = modifier.fillMaxSize(),
         bottomBar = {
